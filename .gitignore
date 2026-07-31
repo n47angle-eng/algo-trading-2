@@ -11,7 +11,9 @@ __pycache__/
 /.env
 
 # The React application is introduced in its UI work order.
-apps/web/node_modules/
+# Unanchored so a root-level node_modules (vitest writes a cache there) is
+# covered too — the anchored form let one stray cache file into the tree.
+node_modules/
 apps/web/dist/
 
 # Local design-preview server state; approved artifacts live under docs/ui/.
