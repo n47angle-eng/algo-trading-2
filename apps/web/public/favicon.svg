@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none">
+  <!--
+    Brand mark: a single candle inside the frame — research on price.
+    White-on-black, no gradient, no second colour: the same rule the whole
+    interface follows.
+  -->
+  <rect width="64" height="64" rx="15" fill="#000"/>
+  <path d="M32 12 V52" stroke="#fff" stroke-width="4.5" stroke-linecap="round"/>
+  <rect x="23.5" y="21" width="17" height="22" rx="3.5" fill="#000" stroke="#fff" stroke-width="4.5"/>
+</svg>

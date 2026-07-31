@@ -1,0 +1,148 @@
+/**
+ * In-page section switcher — one segmented control, reused by every page so
+ * "where am I inside this page" always looks the same.
+ *
+ * The pill track is deliberately quiet; only the selected segment gets a solid
+ * surface, which is enough contrast on a monochrome canvas.
+ */
+
+.page-tabs,
+.workbench-tabs,
+.paper-tabs,
+.daytrade-page__tabs {
+  display: inline-flex;
+  align-items: stretch;
+  flex-wrap: wrap;
+  gap: var(--space-0-5);
+  max-width: 100%;
+  padding: var(--space-0-5);
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-m);
+  background: var(--color-surface-2);
+}
+
+.page-tabs__btn,
+.workbench-tabs__btn,
+.paper-tab,
+.daytrade-page__tabs button {
+  appearance: none;
+  margin: 0;
+  border: 0;
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-4);
+  border-radius: calc(var(--radius-m) - 3px);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out-quint),
+    color var(--duration-fast) var(--ease-out-quint);
+}
+
+/*
+ * Inside the top bar the track loses its own frame — the bar is already the
+ * container, and a pill inside a pill reads as clutter.
+ */
+.shell-bar__tabs > .page-tabs,
+.shell-bar__tabs > .workbench-tabs,
+.shell-bar__tabs > .paper-tabs,
+.shell-bar__tabs > .daytrade-page__tabs {
+  border-color: transparent;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  gap: var(--space-1);
+  width: auto;
+}
+
+.shell-bar__tabs .page-tabs__btn,
+.shell-bar__tabs .workbench-tabs__btn,
+.shell-bar__tabs .paper-tab,
+.shell-bar__tabs .daytrade-page__tabs button {
+  min-height: var(--control-height);
+  border-radius: var(--radius-s);
+}
+
+.page-tabs__btn:disabled,
+.workbench-tabs__btn:disabled,
+.paper-tab:disabled,
+.daytrade-page__tabs button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+.page-tabs__btn--on,
+.workbench-tabs__btn--on,
+.paper-tab--active,
+.daytrade-page__tabs button.is-active {
+  background: var(--color-surface-hover);
+  color: var(--color-text-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: var(--shadow-3);
+}
+
+/* Full-width track variant. */
+.page-tabs--block {
+  display: flex;
+  width: 100%;
+}
+
+.page-tabs--block > .page-tabs__btn {
+  flex: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.page-tabs__btn:hover:not(:disabled, .page-tabs__btn--on),
+.workbench-tabs__btn:hover:not(:disabled, .workbench-tabs__btn--on),
+.paper-tab:hover:not(:disabled, .paper-tab--active),
+.daytrade-page__tabs button:hover:not(:disabled, .is-active) {
+  color: var(--color-text-primary);
+}
+
+.paper-tab--add {
+  color: var(--color-text-muted);
+}
+
+
+/* Kept as a no-op hook: pages still pass it, but stickiness now belongs to the
+   bar the tabs are portalled into. */
+.page-tabs--sticky {
+  position: static;
+}
+
+@media (max-width: 64rem) {
+  .page-tabs,
+  .workbench-tabs,
+  .paper-tabs,
+  .daytrade-page__tabs {
+    width: 100%;
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .page-tabs::-webkit-scrollbar,
+  .workbench-tabs::-webkit-scrollbar,
+  .paper-tabs::-webkit-scrollbar,
+  .daytrade-page__tabs::-webkit-scrollbar {
+    display: none;
+  }
+
+  .page-tabs__btn,
+  .workbench-tabs__btn,
+  .paper-tab,
+  .daytrade-page__tabs button {
+    flex: 0 0 auto;
+    padding: 0 var(--space-3);
+    font-size: var(--text-md);
+  }
+}

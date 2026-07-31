@@ -1,0 +1,6 @@
+# Capability declaration for futures-research native compute.
+# writes_authority MUST remain false — Python owns all authority stores.
+writes_authority=false
+chart_compute_v1
+backtest_loop_v1
+trend_strategy_v1

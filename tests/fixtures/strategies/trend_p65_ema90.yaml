@@ -1,0 +1,77 @@
+schema: strategy.v1
+meta:
+  name: Trend 回踩 90EMA · p65 閘
+  created: 2026-07-25
+  based_on: strategy-0001
+  based_on_sketch: sketch-20260725-02
+  based_on_sketch_origin: workshop
+  spec_ref: TRADING_SPEC_v0.41
+
+rationale: |
+  同一條 Trend 主流程，但回踩掂線用 spec 預設嘅 90 EMA，
+  regime 百分位用 65——用嚟同 18 EMA / p50 版本做並排對照。
+
+unquantified_notes:
+  - note: 呢個版本係 spec 預設側，同 18EMA/p50 版本並排對照用
+    action_needed: Owner 睇完對照先決定邊個版本做基準
+
+universe:
+  primary_instrument: NQ
+  asset_class: equity_index_futures
+  contracts: [NQ]
+  expansion_rationale: {}
+  session: eth
+
+timeframes:
+  trio: { bias: D, mid: 1H, entry: 5m }
+  entry_layers: 3
+
+indicators:
+  - { id: ema_fast, type: EMA, period: 18 }
+  - { id: ema_slow, type: EMA, period: 90 }
+  - { id: atr,      type: ATR, period: 14 }
+
+structures:
+  - { id: pb_mid,   type: pullback_lifecycle, layer: mid,   touch: ema_slow }
+  - { id: pb_entry, type: pullback_lifecycle, layer: entry, touch: ema_slow }
+  - { id: sig_in,   type: signal_bar, variant: inside, entry_ref: mother_high, stop_ref: mother_low }
+  - { id: sig_mg,   type: signal_bar, variant: magic }
+
+regime:
+  require_trend: true
+  congestion_no_trade: true
+  sep_mult:  { calibration: percentile, value: 65 }
+  flat_mult: { calibration: percentile, value: 65 }
+
+direction:
+  mode: trend_following
+  layer_consistency: hard
+
+entry:
+  sequence:
+    - { layer: mid,   require: "cross_state(ema_fast, ema_slow) == golden" }
+    - { layer: mid,   require: "pb_mid.completed" }
+    - { layer: entry, require: "cross_state(ema_fast, ema_slow) == golden" }
+    - { layer: entry, require: "pb_entry.completed" }
+    - { layer: entry, require: "signal_bar in [sig_in, sig_mg]" }
+  trigger: { type: breakout, of: signal_bar.entry_ref, mode: intrabar }
+
+invalidations: [cross_reversal_per_layer, day_end_clear]
+
+risk:
+  stop:   { anchor: signal_bar.stop_ref, offset_ticks: 1 }
+  target: { type: r_multiple, value: 1 }
+  sizing: { type: fixed_fractional, risk_pct: 1.0 }
+  daily_loss_limit_r: 3
+
+provenance:
+  - { path: indicators.ema_fast.period, source: owner_explicit }
+  - { path: indicators.ema_slow.period, source: owner_explicit }
+  - { path: indicators.atr.period, source: market_convention, note: Wilder ATR 14 }
+  - { path: timeframes.entry_layers, source: owner_explicit }
+  - { path: regime.sep_mult.value, source: owner_explicit, note: 實作預設，對照用 }
+  - { path: regime.flat_mult.value, source: owner_explicit, note: 實作預設，對照用 }
+  - { path: risk.stop.offset_ticks, source: owner_explicit }
+  - { path: risk.target.value, source: owner_explicit }
+  - { path: risk.sizing.risk_pct, source: market_convention, note: 業界慣例 0.5–2% }
+  - { path: risk.daily_loss_limit_r, source: owner_explicit }

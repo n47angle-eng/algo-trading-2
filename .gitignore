@@ -1,0 +1,21 @@
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+__pycache__/
+*.py[cod]
+
+# Runtime data is deliberately persistent locally, but is not source control.
+# Root-anchored: an unanchored "data/" would also ignore src/futures_research/data/.
+/data/
+/.env
+
+# The React application is introduced in its UI work order.
+apps/web/node_modules/
+apps/web/dist/
+
+# Local design-preview server state; approved artifacts live under docs/ui/.
+.superpowers/
+
+# Rust build output — 56MB of regenerable artifacts.
+native/**/target/

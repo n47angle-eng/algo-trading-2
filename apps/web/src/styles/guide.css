@@ -1,0 +1,332 @@
+/**
+ * 系統說明書 — reading layout.
+ *
+ * Contents rail on the left, one chapter at a time on the right. The reader
+ * column is capped at a comfortable measure (~66 characters) because this is
+ * the one screen in the product that is deliberately made of prose.
+ */
+
+.guide {
+  display: grid;
+  grid-template-columns: 17rem minmax(0, 1fr);
+  gap: var(--space-8);
+  align-items: start;
+}
+
+.guide__toc {
+  position: sticky;
+  top: calc(var(--topbar-height) + var(--space-4));
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-height: calc(100dvh - var(--topbar-height) - var(--space-8));
+  overflow-y: auto;
+}
+
+.guide__toc-toggle {
+  display: none;
+}
+
+.guide__search {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: 0 var(--space-3);
+  border: var(--hairline-w) solid var(--color-hairline-strong);
+  border-radius: var(--radius-pill);
+  background: var(--color-surface-2);
+  color: var(--color-text-muted);
+}
+
+.guide__search svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  flex-shrink: 0;
+}
+
+.guide__search input {
+  border: 0;
+  background: transparent;
+  padding: 0;
+  min-height: var(--control-height-lg);
+  font-size: var(--text-base);
+}
+
+.guide__search input:focus-visible {
+  outline: none;
+  box-shadow: none;
+}
+
+.guide__chapters {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Contents rows are frameless — the reading rail should not look like a second
+   navigation bar. */
+.guide__chapter {
+  appearance: none;
+  width: 100%;
+  display: flex;
+  gap: var(--space-3);
+  align-items: baseline;
+  padding: var(--space-2) var(--space-2) var(--space-2) 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guide__chapter-no {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.guide__chapter-body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.guide__chapter-title {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+}
+
+.guide__chapter-sum {
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-muted);
+}
+
+.guide__chapter--on {
+  color: var(--color-text-primary);
+}
+
+.guide__chapter--on .guide__chapter-title {
+  font-weight: var(--weight-semibold);
+}
+
+.guide__chapter:hover .guide__chapter-title {
+  color: var(--color-text-primary);
+}
+
+.guide__chapter--on .guide__chapter-no {
+  color: var(--color-text-primary);
+}
+
+.guide__hits {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.guide__hit {
+  appearance: none;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  width: 100%;
+  padding: var(--space-2) var(--space-3);
+  border: 0;
+  border-radius: var(--radius-s);
+  background: var(--color-surface-2);
+  color: inherit;
+  font-family: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.guide__hit:hover {
+  background: var(--color-surface-hover);
+}
+
+.guide__hit-where {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.guide__hit-head {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+}
+
+.guide__hit-snippet {
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-secondary);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+/* ─────────────────────────────── Reader ─────────────────────────────────── */
+
+.guide__reader {
+  max-width: 44rem;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.guide__chapter-head {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-bottom: var(--space-5);
+  border-bottom: var(--hairline-w) solid var(--color-hairline);
+}
+
+.guide__chapter-kicker {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.guide__h1 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--text-3xl);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  line-height: var(--leading-tight);
+}
+
+.guide__lead {
+  margin: 0;
+  font-size: var(--text-lg);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+.guide__section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  scroll-margin-top: calc(var(--topbar-height) + var(--space-5));
+}
+
+.guide__h2 {
+  margin: 0;
+  font-family: var(--font-family-display);
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-snug);
+}
+
+.guide__p {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: 1.75;
+  color: var(--color-text-secondary);
+}
+
+.guide__steps {
+  margin: 0;
+  padding-left: var(--space-5);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-base);
+  line-height: 1.7;
+  color: var(--color-text-secondary);
+}
+
+.guide__steps li::marker {
+  color: var(--color-text-muted);
+  font-variant-numeric: tabular-nums;
+}
+
+.guide__terms {
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.guide__terms > div {
+  display: grid;
+  grid-template-columns: 8rem minmax(0, 1fr);
+  gap: var(--space-4);
+  padding: var(--space-3) 0;
+  border-bottom: var(--hairline-w) solid var(--color-hairline);
+}
+
+.guide__terms dt {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.guide__terms dd {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--color-text-secondary);
+}
+
+/* Cautions get a rule, not a coloured box — the page stays monochrome. */
+.guide__notes {
+  margin: 0;
+  padding: 0 0 0 var(--space-4);
+  list-style: none;
+  border-left: 2px solid var(--color-hairline-strong);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  font-size: var(--text-md);
+  line-height: var(--leading-normal);
+  color: var(--color-text-muted);
+}
+
+.guide__pager {
+  display: flex;
+  justify-content: space-between;
+  gap: var(--space-3);
+  padding-top: var(--space-5);
+  border-top: var(--hairline-w) solid var(--color-hairline);
+}
+
+@media (max-width: 64rem) {
+  .guide {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-5);
+  }
+
+  .guide__toc-toggle {
+    display: inline-flex;
+  }
+
+  /* On a phone the contents are a drawer above the chapter, opened from the
+     目錄 button in the page header. */
+  .guide__toc {
+    position: static;
+    max-height: none;
+    display: none;
+  }
+
+  .guide__toc--open {
+    display: flex;
+  }
+
+  .guide__h1 {
+    font-size: var(--text-2xl);
+  }
+
+  .guide__terms > div {
+    grid-template-columns: minmax(0, 1fr);
+    gap: var(--space-1);
+  }
+}

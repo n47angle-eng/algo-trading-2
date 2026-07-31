@@ -1,0 +1,604 @@
+/**
+ * Overlay layer — toasts, the offline bar, popovers and the date picker.
+ *
+ * Token-only (D16). The three themes get these for free because every colour
+ * here resolves through tokens.css.
+ */
+
+/* ───────────────────────────── Toasts ───────────────────────────── */
+
+.toast-viewport {
+  position: fixed;
+  z-index: var(--z-toast);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  pointer-events: none;
+}
+
+/* Phone: top of the screen. The bottom belongs to the tab bar, and a toast
+   sitting on top of it would cover the navigation it is telling you about. */
+@media (max-width: 64rem) {
+  .toast-viewport {
+    top: calc(var(--topbar-height) + var(--safe-top) + var(--space-2));
+    right: var(--space-3);
+    left: var(--space-3);
+  }
+}
+
+@media (min-width: 64.0625rem) {
+  .toast-viewport {
+    right: var(--space-5);
+    bottom: var(--space-5);
+    width: 24rem;
+    max-width: calc(100vw - var(--space-10));
+  }
+}
+
+.toast {
+  display: flex;
+  gap: var(--space-3);
+  align-items: flex-start;
+  padding: var(--space-3) var(--space-3) var(--space-3) var(--space-4);
+  pointer-events: auto;
+  background: var(--glass-bg);
+  border: var(--hairline-w) solid var(--glass-border);
+  border-left: 3px solid var(--color-hairline-strong);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-2);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .toast {
+    animation: toast-in var(--duration-base) var(--ease-out-quint);
+  }
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.toast--error {
+  border-left-color: var(--color-negative);
+}
+
+.toast--success {
+  border-left-color: var(--color-positive);
+}
+
+.toast__body {
+  flex: 1;
+  min-width: 0;
+}
+
+.toast__title {
+  margin: 0;
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+  letter-spacing: var(--tracking-snug);
+}
+
+.toast__hint {
+  margin: var(--space-1) 0 0;
+  font-size: var(--text-sm);
+  line-height: var(--leading-snug);
+  color: var(--color-text-secondary);
+}
+
+.toast__detail-toggle {
+  margin-top: var(--space-2);
+  padding: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  text-decoration: underline;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.toast__detail {
+  max-height: 9rem;
+  margin: var(--space-2) 0 0;
+  padding: var(--space-2);
+  overflow: auto;
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-secondary);
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  background: var(--color-fill);
+  border-radius: var(--radius-xs);
+}
+
+.toast__actions {
+  display: flex;
+  flex-shrink: 0;
+  gap: var(--space-1);
+  align-items: center;
+}
+
+.toast__action {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+  background: var(--color-fill-strong);
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.toast__close {
+  display: grid;
+  place-items: center;
+  width: var(--space-7);
+  height: var(--space-7);
+  font-size: var(--text-md);
+  color: var(--color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.toast__close:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill);
+}
+
+/* ─────────────────────────── Offline bar ─────────────────────────── */
+
+.offline-bar {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--text-sm);
+  background: var(--color-warning-soft);
+  border-bottom: var(--hairline-w) solid var(--color-hairline);
+}
+
+.offline-bar__dot {
+  flex-shrink: 0;
+  width: var(--space-2);
+  height: var(--space-2);
+  background: var(--color-warning);
+  border-radius: var(--radius-pill);
+}
+
+.offline-bar__text {
+  display: flex;
+  flex: 1;
+  flex-wrap: wrap;
+  gap: var(--space-1) var(--space-3);
+  align-items: baseline;
+  min-width: 0;
+  color: var(--color-text-primary);
+}
+
+.offline-bar__sub {
+  color: var(--color-text-secondary);
+}
+
+.offline-bar__retry {
+  flex-shrink: 0;
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  background: var(--color-fill-strong);
+  border: var(--hairline-w) solid var(--color-hairline-strong);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+/* ───────────────────────────── Popover ───────────────────────────── */
+
+.popover-trigger {
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  font: inherit;
+  color: var(--color-text-primary);
+  background: var(--color-fill);
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.popover-scrim {
+  display: none;
+}
+
+.popover-panel {
+  position: fixed;
+  z-index: var(--z-pop);
+  max-width: calc(100vw - var(--space-4));
+  padding: var(--space-3);
+  background: var(--color-bg-elevated);
+  border: var(--hairline-w) solid var(--color-hairline-strong);
+  border-radius: var(--radius-m);
+  box-shadow: var(--shadow-2);
+}
+
+.popover-panel:focus {
+  outline: none;
+}
+
+/* Phone: the anchored card becomes a sheet at the bottom, where the thumb is
+   and where there is room for 44px targets. */
+@media (max-width: 40rem) {
+  .popover-scrim {
+    position: fixed;
+    inset: 0;
+    z-index: var(--z-overlay);
+    display: block;
+    background: var(--color-scrim);
+  }
+
+  .popover-panel {
+    inset: auto 0 0;
+    z-index: var(--z-modal);
+    max-width: none;
+    max-height: 82vh;
+    padding: var(--space-4) var(--space-4)
+      calc(var(--space-4) + var(--safe-bottom));
+    overflow: auto;
+    border-radius: var(--radius-l) var(--radius-l) 0 0;
+  }
+}
+
+/* ──────────────────────── Date field + picker ──────────────────────── */
+
+.datefield-trigger {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+  width: 100%;
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-3);
+  font-family: var(--font-family-mono);
+  font-size: var(--text-base);
+  color: var(--color-text-primary);
+  text-align: left;
+  background: var(--color-surface);
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.datefield-trigger:hover {
+  border-color: var(--color-hairline-strong);
+}
+
+.datefield-trigger:focus-visible {
+  outline: none;
+  box-shadow: var(--shadow-focus);
+}
+
+.datefield-trigger[disabled] {
+  color: var(--color-text-muted);
+  cursor: not-allowed;
+}
+
+.datefield-trigger__icon {
+  color: var(--color-text-muted);
+}
+
+.datefield-panel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  min-width: 17rem;
+}
+
+.datepick__head {
+  display: flex;
+  gap: var(--space-2);
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: var(--space-2);
+}
+
+.datepick__month {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-primary);
+}
+
+.datepick__nav {
+  display: grid;
+  place-items: center;
+  width: var(--space-7);
+  height: var(--space-7);
+  font-size: var(--text-lg);
+  color: var(--color-text-secondary);
+  background: var(--color-fill);
+  border: 0;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.datepick__nav:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill-strong);
+}
+
+.datepick__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: var(--space-0-5);
+}
+
+.datepick__wd {
+  padding: var(--space-1) 0;
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+  text-align: center;
+}
+
+.datepick__blank {
+  height: var(--space-8);
+}
+
+.datepick__day {
+  height: var(--space-8);
+  font-size: var(--text-md);
+  color: var(--color-text-primary);
+  background: none;
+  border: var(--hairline-w) solid transparent;
+  border-radius: var(--radius-xs);
+  cursor: pointer;
+}
+
+.datepick__day:hover {
+  background: var(--color-fill);
+}
+
+.datepick__day--today {
+  border-color: var(--color-hairline-strong);
+}
+
+.datepick__day--on {
+  font-weight: var(--weight-semibold);
+  color: var(--color-on-accent);
+  background: var(--color-accent);
+}
+
+.datefield-time {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+  justify-content: space-between;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.datefield-time .inp {
+  width: auto;
+  min-width: 8rem;
+}
+
+.datefield-actions {
+  display: flex;
+  gap: var(--space-2);
+  justify-content: flex-end;
+}
+
+@media (max-width: 40rem) {
+  .datefield-panel {
+    min-width: 0;
+  }
+
+  .datepick__day,
+  .datepick__blank {
+    height: var(--touch-min);
+  }
+}
+
+/* ──────────────────── 交易員快覽（sheet ＋ 卡片） ──────────────────── */
+
+/* Same anchoring as the 更多 sheet on a phone; on desktop it becomes a right
+   side panel, because a bottom sheet on a 1440px screen wastes the width and
+   puts the content furthest from the button that opened it. */
+.traders-sheet {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  max-height: 78vh;
+  padding: var(--space-3) calc(var(--space-4) + var(--safe-right))
+    calc(var(--space-5) + var(--safe-bottom))
+    calc(var(--space-4) + var(--safe-left));
+  overflow: auto;
+  background: var(--color-bg-elevated);
+  border-top: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  box-shadow: var(--shadow-2);
+}
+
+@media (min-width: 64.0625rem) {
+  .traders-sheet {
+    inset: 0 0 0 auto;
+    width: 26rem;
+    max-height: none;
+    border-top: 0;
+    border-left: var(--hairline-w) solid var(--color-hairline);
+    border-radius: 0;
+  }
+
+  .traders-sheet .sheet__grip {
+    display: none;
+  }
+}
+
+.traders-sheet__head {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.traders-sheet__title {
+  flex: 1;
+  margin: 0;
+  font-size: var(--text-xl);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-tight);
+}
+
+.traders-sheet__stamp {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.traders-sheet__note {
+  margin: 0;
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+.traders-sheet__cards {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.traders-sheet__all {
+  margin-top: var(--space-2);
+  padding: var(--space-3);
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+  text-align: center;
+  text-decoration: none;
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-s);
+}
+
+.traders-sheet__all:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill);
+}
+
+.trader-quick {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  min-height: var(--touch-min);
+  padding: var(--space-3);
+  color: inherit;
+  text-decoration: none;
+  background: var(--color-surface);
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-m);
+}
+
+.trader-quick:hover {
+  border-color: var(--color-hairline-strong);
+  background: var(--color-surface-hover);
+}
+
+.trader-quick__head {
+  display: flex;
+  gap: var(--space-2);
+  align-items: baseline;
+  justify-content: space-between;
+}
+
+.trader-quick__name {
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.trader-quick__symbol {
+  padding: var(--space-0-5) var(--space-2);
+  font-family: var(--font-family-mono);
+  font-size: var(--text-xs);
+  color: var(--color-text-secondary);
+  background: var(--color-fill);
+  border-radius: var(--radius-pill);
+}
+
+.trader-quick__metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--space-2);
+}
+
+.trader-quick__metric {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.trader-quick__metric b {
+  font-family: var(--font-family-mono);
+  font-size: var(--text-lg);
+  font-weight: var(--weight-semibold);
+  color: var(--color-text-primary);
+}
+
+.trader-quick__metric small {
+  font-size: var(--text-xs);
+  color: var(--color-text-muted);
+}
+
+.trader-quick__metric[data-tone="up"] b {
+  color: var(--color-positive);
+}
+
+.trader-quick__metric[data-tone="down"] b {
+  color: var(--color-negative);
+}
+
+.trader-quick__foot {
+  font-size: var(--text-sm);
+  color: var(--color-text-secondary);
+}
+
+/* Desktop-only entry point; the phone tab bar already carries this. */
+.shell-bar__traders {
+  display: none;
+}
+
+@media (min-width: 64.0625rem) {
+  .shell-bar__traders {
+    display: inline-flex;
+    gap: var(--space-2);
+    align-items: center;
+    height: var(--control-height);
+    padding: 0 var(--space-3);
+    font-size: var(--text-md);
+    color: var(--color-text-secondary);
+    background: none;
+    border: var(--hairline-w) solid var(--color-hairline);
+    border-radius: var(--radius-s);
+    cursor: pointer;
+  }
+
+  .shell-bar__traders svg {
+    width: 1rem;
+    height: 1rem;
+  }
+
+  .shell-bar__traders:hover,
+  .shell-bar__traders[aria-expanded="true"] {
+    color: var(--color-text-primary);
+    background: var(--color-fill);
+  }
+}

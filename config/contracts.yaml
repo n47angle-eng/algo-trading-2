@@ -1,0 +1,101 @@
+version: 1
+canonical_storage:
+  timezone: UTC
+  interval: 1m
+  partitioning: contract_id/year/month
+
+# Dates are the initial 2026 draft for the currently configured individual contracts.
+# Roll blacklists are derived as inclusive calendar-day windows around last_trade_date.
+# ``half_window_days: 1`` means expiry - 1 day through expiry + 1 day: three days total.
+# ``ib_local_symbol`` is the exact IB contract identity used by the Nautilus adapter.
+contracts:
+  NQ:
+    contract_id: NQ-202609-CME
+    symbol: NQ
+    display_name: E-mini Nasdaq-100
+    asset_class: equity_index_futures
+    exchange: CME
+    ib_exchange: CME
+    ib_local_symbol: NQU6
+    currency: USD
+    expiry: 2026-09-18
+    timezone: America/Chicago
+    tick_size: 0.25
+    point_value: 20.0
+    execution_costs:
+      commission_per_side: 2.50
+      slippage_ticks:
+        breakout_entry: 1
+        stop_exit: 2
+        target_exit: 0
+        day_end_exit: 1
+      target_requires_through: false
+    roll_blackout_half_window_days: 1
+    sessions:
+      eth:
+        start: "17:00"
+        end: "16:00"
+      rth:
+        start: "08:30"
+        end: "15:00"
+    roll_blackout_overrides: []
+  YM:
+    contract_id: YM-202609-CBOT
+    symbol: YM
+    display_name: E-mini Dow
+    asset_class: equity_index_futures
+    exchange: CBOT
+    ib_exchange: CBOT
+    ib_local_symbol: YMU6
+    currency: USD
+    expiry: 2026-09-18
+    timezone: America/Chicago
+    tick_size: 1.0
+    point_value: 5.0
+    execution_costs:
+      commission_per_side: 2.50
+      slippage_ticks:
+        breakout_entry: 1
+        stop_exit: 2
+        target_exit: 0
+        day_end_exit: 1
+      target_requires_through: false
+    roll_blackout_half_window_days: 1
+    sessions:
+      eth:
+        start: "17:00"
+        end: "16:00"
+      rth:
+        start: "08:30"
+        end: "15:00"
+    roll_blackout_overrides: []
+  GC:
+    contract_id: GC-202608-COMEX
+    symbol: GC
+    display_name: Gold
+    asset_class: commodity_futures
+    exchange: COMEX
+    ib_exchange: COMEX
+    ib_local_symbol: GCQ6
+    currency: USD
+    expiry: 2026-08-27
+    timezone: America/Chicago
+    tick_size: 0.1
+    point_value: 100.0
+    execution_costs:
+      commission_per_side: 2.80
+      slippage_ticks:
+        breakout_entry: 1
+        stop_exit: 2
+        target_exit: 0
+        day_end_exit: 1
+      target_requires_through: false
+    roll_blackout_half_window_days: 1
+    sessions:
+      eth:
+        start: "17:00"
+        end: "16:00"
+      rth:
+        start: "07:20"
+        end: "12:30"
+    roll_blackout_overrides: []

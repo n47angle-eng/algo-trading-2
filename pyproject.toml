@@ -1,0 +1,52 @@
+[build-system]
+requires = ["hatchling>=1.27"]
+build-backend = "hatchling.build"
+
+[project]
+name = "futures-research"
+version = "0.1.0"
+description = "Personal futures algorithmic trading research platform"
+readme = "README.md"
+requires-python = ">=3.12,<3.15"
+dependencies = [
+    "fastapi>=0.115,<1",
+    "nautilus_trader[ib]==1.230.0",
+    "pyarrow>=24,<25",
+    "pydantic>=2.10,<3",
+    "python-dotenv>=1.0,<2",
+    "PyYAML>=6,<7",
+    "uvicorn[standard]>=0.32,<1",
+]
+
+[dependency-groups]
+dev = [
+    "httpx>=0.28,<1",
+    "mypy>=1.15,<2",
+    "pytest>=8.3,<9",
+    "pytest-asyncio>=0.25,<1",
+    "ruff>=0.9,<1",
+    "types-PyYAML>=6.0.12,<7",
+]
+
+[project.scripts]
+futures-research = "futures_research.cli:main"
+
+[tool.hatch.build.targets.wheel]
+packages = ["src/futures_research"]
+
+[tool.pytest.ini_options]
+addopts = "-ra"
+testpaths = ["tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["futures_research"]
+warn_unused_ignores = true

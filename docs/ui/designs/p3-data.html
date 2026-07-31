@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P3 數據 — 定稿設計</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { display: block; max-width: 100%; }
+  pre { margin: 0; }
+</style>
+<style>
+  :root {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff;
+    --up: #0a6cff; --ty: #1e8e43; --out: #a86200; --in: #8944ab; --ro: #8b93a1;
+    --neg: #dc372a; --pos: #1e8e43;
+    --ff: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
+      "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0e13; --elev: #101319;
+      --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+      --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+      --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+      --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+      --in: #bf5af2; --ro: #59616f; --neg: #ff453a; --pos: #30d158;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0e13; --elev: #101319;
+    --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+    --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+    --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+    --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+    --in: #bf5af2; --ro: #59616f; --neg: #ff453a; --pos: #30d158;
+  }
+  :root[data-theme="light"] {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff; --up: #0a6cff; --ty: #1e8e43; --out: #a86200;
+    --in: #8944ab; --ro: #8b93a1; --neg: #dc372a; --pos: #1e8e43;
+  }
+
+  body { margin:0; background:var(--bg); color:var(--tx); font-family:var(--ff);
+    font-size:0.9375rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .page { max-width:64rem; margin:0 auto; padding:2.25rem 1.25rem 5rem; }
+
+  h1 { font-size:1.5rem; letter-spacing:-0.02em; margin:0 0 0.3rem; }
+  .lede { color:var(--tx2); margin:0 0 0.4rem; font-size:0.9375rem; }
+  .stamp { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); margin:0 0 1.75rem; }
+
+  h2 { font-size:1.0625rem; margin:2.5rem 0 0.5rem; padding-top:1.1rem;
+    border-top:1px solid var(--line); display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; }
+  h2 small { font-weight:400; font-size:0.75rem; color:var(--tx3); font-family:var(--mono); }
+  p { margin:0 0 0.75rem; }
+  code { font-family:var(--mono); font-size:0.8125em; background:var(--fill); padding:0.1em 0.3em; border-radius:0.25rem; }
+
+  .legend { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:0.4rem;
+    padding:0.75rem; border:1px solid var(--line); border-radius:0.6rem; background:var(--card2); margin:0 0 1.5rem; }
+  .lg { display:flex; gap:0.4rem; align-items:flex-start; font-size:0.75rem; color:var(--tx2); }
+  .lg b { flex:none; }
+
+  .k { font-family:var(--mono); font-size:0.625rem; font-weight:700; padding:0.08rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; }
+  .k--ro { color:var(--ro); border-color:var(--line); background:var(--fill); }
+  .k--neg { color:var(--neg); border-color:color-mix(in srgb,var(--neg) 50%,transparent); background:color-mix(in srgb,var(--neg) 12%,transparent); }
+  .k--acc { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 50%,transparent); background:color-mix(in srgb,var(--acc) 12%,transparent); }
+  .k--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 50%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+  .k--pos { color:var(--pos); border-color:color-mix(in srgb,var(--pos) 50%,transparent); background:color-mix(in srgb,var(--pos) 12%,transparent); }
+
+  .src { font-family:var(--mono); font-size:0.5625rem; font-weight:700; padding:0.02rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; margin-right:0.35rem; }
+  .src--you { color:var(--ty); border-color:color-mix(in srgb,var(--ty) 50%,transparent); background:color-mix(in srgb,var(--ty) 14%,transparent); }
+  .src--now { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 50%,transparent); background:color-mix(in srgb,var(--acc) 12%,transparent); }
+  .src--c   { color:var(--out); border-color:color-mix(in srgb,var(--out) 55%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+
+  .frame { display:grid; grid-template-columns:8rem minmax(0,1fr); border:1px solid var(--line);
+    border-radius:0.7rem; background:var(--elev); overflow:hidden; margin:0.75rem 0 0; }
+  .side { background:var(--card2); border-right:1px solid var(--line); padding:0.5rem 0;
+    display:flex; flex-direction:column; gap:0.05rem; }
+  .side i { font-style:normal; padding:0.26rem 0.55rem; color:var(--tx3); font-size:0.75rem; }
+  .side i.on { color:var(--tx); font-weight:700; background:color-mix(in srgb,var(--acc) 14%,transparent); }
+  .main { padding:0.8rem; display:flex; flex-direction:column; gap:0.55rem; min-width:0; }
+
+  .hd { display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; font-size:0.8125rem; font-weight:700; }
+  .hd em { font-style:normal; font-family:var(--mono); font-size:0.6875rem; color:var(--tx3); font-weight:400; }
+
+  .btn { font-size:0.6875rem; font-weight:700; padding:0.22rem 0.55rem; border-radius:0.35rem;
+    border:1px solid; white-space:nowrap; }
+  .btn--go { color:var(--tx); border-color:color-mix(in srgb,var(--acc) 45%,transparent);
+    background:color-mix(in srgb,var(--acc) 20%,transparent); }
+  .btn--gh { color:var(--tx2); border-color:var(--line); background:var(--fill); }
+  .btn--del { color:var(--neg); border-color:color-mix(in srgb,var(--neg) 40%,transparent);
+    background:color-mix(in srgb,var(--neg) 10%,transparent); }
+  .btn--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 55%,transparent);
+    background:color-mix(in srgb,var(--out) 16%,transparent); }
+
+  .row { display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; }
+
+  .cmt { border-left:2px solid var(--acc); background:color-mix(in srgb,var(--acc) 7%,transparent);
+    padding:0.45rem 0.6rem; border-radius:0 0.35rem 0.35rem 0; font-size:0.75rem; color:var(--tx2); }
+  .cmt b { color:var(--tx); }
+
+  .exit { border:1px dashed color-mix(in srgb,var(--out) 55%,transparent); border-radius:0.5rem;
+    background:color-mix(in srgb,var(--out) 7%,transparent); padding:0.6rem 0.7rem; font-size:0.75rem; }
+  .exit b { color:var(--out); font-family:var(--mono); font-size:0.6875rem; }
+  .exit pre { margin:0.3rem 0 0; font-family:var(--mono); font-size:0.6875rem;
+    color:var(--tx2); white-space:pre-wrap; }
+
+  .ask { margin-top:2.75rem; padding:1rem 1.15rem; border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);
+    border-radius:0.7rem; background:color-mix(in srgb,var(--acc) 7%,transparent); }
+  .ask h3 { margin:0 0 0.45rem; font-size:1rem; }
+  .ask ol { margin:0; padding-left:1.2rem; }
+  .ask li { margin-bottom:0.35rem; font-size:0.875rem; }
+
+  .tw { overflow-x:auto; border:1px solid var(--line); border-radius:0.5rem; background:var(--card2); }
+  .tw table { border-collapse:collapse; width:100%; font-size:0.8125rem; }
+  .tw th, .tw td { text-align:left; vertical-align:top; padding:0.45rem 0.6rem; border-bottom:1px solid var(--line); }
+  .tw tr:last-child td { border-bottom:0; }
+  .tw th { background:var(--fill); font-size:0.6875rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); white-space:nowrap; }
+  .tw td.mono { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); white-space:nowrap; }
+  .tw td b { color:var(--tx); }
+
+  /* 合約覆蓋卡 */
+  .cov { display:grid; grid-template-columns:repeat(auto-fit,minmax(15rem,1fr)); gap:0.45rem; }
+  .cv { border:1px solid var(--line); border-radius:0.5rem; background:var(--card); padding:0.55rem 0.65rem;
+    display:flex; flex-direction:column; gap:0.3rem; font-size:0.75rem; }
+  .cv > .nm { font-size:0.9375rem; font-weight:700; display:flex; gap:0.4rem; align-items:baseline; }
+  .cv > .nm u { text-decoration:none; font-family:var(--mono); font-size:0.5625rem; color:var(--tx3); }
+  .bars { display:flex; height:0.5rem; border-radius:999px; overflow:hidden; background:var(--fill); }
+  .bars i { display:block; height:100%; }
+  .ln { display:flex; justify-content:space-between; gap:0.4rem; color:var(--tx2); }
+  .ln b { color:var(--tx); font-family:var(--mono); }
+  .verdict { border-top:1px solid var(--line); padding-top:0.3rem; margin-top:0.1rem; color:var(--tx2); }
+
+  /* 裁決卡 */
+  .adj { border:1px solid var(--line); border-left:3px solid var(--neg); border-radius:0.5rem;
+    background:var(--card); padding:0.55rem 0.65rem; display:flex; flex-direction:column; gap:0.35rem; font-size:0.75rem; }
+  .adj .ttl { font-size:0.8125rem; font-weight:700; }
+  .adj .what { color:var(--tx2); }
+  .choice { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; }
+  .ch { border:1px solid var(--line); border-radius:0.4rem; padding:0.4rem 0.5rem;
+    display:flex; flex-direction:column; gap:0.25rem; background:var(--card2); }
+  .ch .cbtn { align-self:flex-start; }
+  .ch s { text-decoration:none; color:var(--tx3); font-size:0.6875rem; }
+
+  .done { border:1px solid var(--line); border-left:3px solid var(--pos); border-radius:0.5rem;
+    background:var(--fill); padding:0.4rem 0.6rem; font-size:0.75rem;
+    display:flex; gap:0.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+  .banner { border:1px solid color-mix(in srgb,var(--acc) 40%,transparent); border-radius:0.45rem;
+    background:color-mix(in srgb,var(--acc) 10%,transparent); padding:0.35rem 0.55rem;
+    font-size:0.75rem; display:flex; gap:0.5rem; align-items:center; justify-content:space-between; flex-wrap:wrap; }
+
+  @media (max-width:36rem) {
+    .frame { grid-template-columns:1fr; }
+    .side { flex-flow:row wrap; border-right:0; border-bottom:1px solid var(--line); padding:0.35rem; }
+    .choice { grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>數據頁 — 設計稿</h1>
+  <p class="lede">呢一頁答一條問題：<b>我想回測嘅時段，有冇夠數據跑？如果唔夠，我要做咩？</b></p>
+  <p class="stamp">定稿 2026-07-25 · 四段 · 14 條實作約束 ＋ 技術詞翻譯表 · 來源標籤保留做記錄</p>
+
+  <div class="exit" style="border-color:color-mix(in srgb,var(--neg) 45%,transparent);background:color-mix(in srgb,var(--neg) 6%,transparent)">
+    <b style="color:var(--neg)">你對呢一頁講過兩句話，佢哋就係整份稿嘅出發點</b>
+    <pre>「我唔係好明白我可以點樣使用佢」
+「係咪仲有數據」
+
+而家嗰版數據頁畫面上係呢啲字：
+  contract_id · trading_date · report_id · checked_at · bars
+  canonical 1m · owner blacklist · enqueue job · issues / errors
+
+而且裁決一日數據，你要自己喺一個格入面打返個日期。
+質量報告係一串檔名，撳唔入去。
+
+所以呢一頁唔係「加功能」，係「用返你嘅語言重寫」。</pre>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><b><span class="src src--you">你講過</span></b><span>由你嗰兩句直接得出</span></div>
+    <div class="lg"><b><span class="src src--now">而家已經有</span></b><span>而家嘅數據頁已經有（後端亦有）</span></div>
+    <div class="lg"><b><span class="src src--c">我提議</span></b><span><b>Agent C 加。你可以打叉</b></span></div>
+  </div>
+
+  <h2>整頁 <small>四段：夠唔夠用 · 等你裁決 · 體檢記錄 · 補數據</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i>策略工作台</i><i class="on">數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+
+      <div class="hd">數據 <em><span class="src src--you">你講過</span>頁頂一句話：呢頁做乜</em></div>
+      <div class="cmt" style="margin:0">呢一頁答：<b>我想回測嘅時段，有冇夠數據跑？</b>唔夠嘅話，你喺呢度決定「照用」定「跳過」，或者攞一句指令返 terminal 補數據。</div>
+
+      <div class="banner"><span><span class="src src--c">我提議</span><b>由回測頁跳入：NQ · 2026-06-03</b> —— 已經幫你篩選到嗰一日</span><span class="btn btn--gh">睇全部 ✕</span></div>
+
+      <!-- ============ 段 1 ============ -->
+      <div class="hd" style="margin-top:0.4rem">一、三個合約，夠唔夠用 <em><span class="src src--you">你講過</span>「係咪仲有數據」</em></div>
+
+      <div class="cov">
+        <div class="cv">
+          <div class="nm">NQ <u>NQ-202609-CME</u></div>
+          <div class="ln"><span>有數據嘅日子</span><b>2026-01-02 → 07-24</b></div>
+          <div class="bars">
+            <i style="width:96%;background:var(--pos)"></i>
+            <i style="width:2%;background:var(--neg)"></i>
+            <i style="width:2%;background:var(--ro)"></i>
+          </div>
+          <div class="ln"><span><span class="k k--pos">完整</span> 可以直接回測</span><b>136 日</b></div>
+          <div class="ln"><span><span class="k k--neg">有問題</span> 等你裁決</span><b>2 日</b></div>
+          <div class="ln"><span><span class="k k--ro">你決定唔回測</span></span><b>2 日</b></div>
+          <div class="ln"><span>原生日線（策略暖機靠佢）</span><b>140 / 140 日</b></div>
+          <div class="verdict"><b>連續完整嘅最長一段</b>：2026-01-02 → 07-24，共 136 個交易日</div>
+        </div>
+
+        <div class="cv">
+          <div class="nm">YM <u>YM-202609-CBOT</u></div>
+          <div class="ln"><span>有數據嘅日子</span><b>2026-02-02 → 07-24</b></div>
+          <div class="bars">
+            <i style="width:99%;background:var(--pos)"></i>
+            <i style="width:1%;background:var(--neg)"></i>
+          </div>
+          <div class="ln"><span><span class="k k--pos">完整</span> 可以直接回測</span><b>119 日</b></div>
+          <div class="ln"><span><span class="k k--neg">有問題</span> 等你裁決</span><b>1 日</b></div>
+          <div class="ln"><span><span class="k k--ro">你決定唔回測</span></span><b>0 日</b></div>
+          <div class="ln"><span>原生日線（策略暖機靠佢）</span><b>120 / 120 日</b></div>
+          <div class="verdict"><b>連續完整嘅最長一段</b>：2026-02-02 → 05-18，共 74 個交易日</div>
+        </div>
+
+        <div class="cv">
+          <div class="nm">GC <u>GC-202608-COMEX</u></div>
+          <div class="ln"><span>有數據嘅日子</span><b>2025-08-01 → 07-24</b></div>
+          <div class="bars"><i style="width:100%;background:var(--pos)"></i></div>
+          <div class="ln"><span><span class="k k--pos">完整</span> 可以直接回測</span><b>247 日</b></div>
+          <div class="ln"><span><span class="k k--neg">有問題</span> 等你裁決</span><b>0 日</b></div>
+          <div class="ln"><span><span class="k k--ro">你決定唔回測</span></span><b>0 日</b></div>
+          <div class="ln"><span>原生日線（策略暖機靠佢）</span><b>247 / 247 日</b></div>
+          <div class="verdict"><b>連續完整嘅最長一段</b>：2025-08-01 → 07-24，共 247 個交易日</div>
+        </div>
+      </div>
+
+      <div class="cmt"><b>而家嗰版寫「156,912 bars」——呢個數字答唔到「夠唔夠用」。</b>你要知嘅係<b>幾多個交易日</b>、<b>幾多日係完整</b>、<b>幾多日有問題</b>，同埋<b>原生日線覆蓋幾多</b>（因為策略要用日線暖機，冇日線就算有齊 1 分鐘數據都跑唔到）。<br>
+      <b>「連續完整嘅最長一段」</b>特別有用：YM 雖然有 119 個完整日，但佢哋被中間一個有問題日切開，所以最長連續只有 74 日——如果你要跑需要 90 日暖機嘅策略，YM 而家唔夠。</div>
+
+      <div class="cmt" style="border-color:var(--out);background:color-mix(in srgb,var(--out) 7%,transparent)"><b>呢頁唔會講「夠唔夠跑某一個策略」</b>——因為暖機需要幾多日係由策略文件決定。<b>嗰個判斷喺回測頁做</b>（回測頁約束 #6：開始前會計出「你揀咗 58 日 → 呢個策略實際可評估 0 日」）。呢頁只負責講清楚「有幾多完整交易日」。<b>兩頁唔重複。</b></div>
+
+      <!-- ============ 段 2 ============ -->
+      <div class="hd" style="margin-top:0.4rem">二、等你裁決嘅日子 <em><span class="src src--you">你講過</span>呢一段係全頁唯一有行動嘅嘢</em></div>
+
+      <div class="adj">
+        <div class="ttl">NQ · 2026-06-03 <span class="k k--ro">交易日</span></div>
+        <div class="what"><b>咩事</b>：開市至 14:31 缺咗 391 根 1 分鐘 bar（約 6.5 個鐘冇數據）</div>
+        <div class="what"><b>而家嘅後果</b>：<b style="color:var(--neg)">呢一日嘅回測會被拒絕執行</b>——引擎唔會喺有未裁決缺口嘅日子上跑</div>
+        <div class="choice">
+          <div class="ch">
+            <span class="btn btn--gh cbtn">✓ 信呢日數據</span>
+            <s>回測會照用呢一日。缺失嗰 6.5 個鐘當作冇交易機會。<br>
+            <b>風險</b>：如果缺失時段正正係你策略會入市嘅時段，個結果會偏樂觀（少咗機會但唔會有假成交）。</s>
+          </div>
+          <div class="ch">
+            <span class="btn btn--del cbtn">✕ 唔好回測呢日</span>
+            <s>呢一日完全跳過，唔會出現喺任何回測。<br>
+            <b>風險</b>：分母少一日。如果你跳過太多日，統計樣本會細過你以為嘅數。</s>
+          </div>
+        </div>
+        <div class="row"><span class="btn btn--out">⧉ 複製補數據指令</span><span class="k k--ro"><span class="src src--c">我提議</span>唔想二選一？攞條指令返 terminal 補齊佢</span></div>
+      </div>
+
+      <div class="exit" style="margin-top:0.3rem">
+        <b>撳「⧉ 複製補數據指令」複製到嘅嘢（純文字，冇 UI 裝飾）</b>
+        <pre>futures-research download --symbol NQ --start 2026-06-03T00:00Z --end 2026-06-04T00:00Z</pre>
+      </div>
+
+      <div class="adj" style="margin-top:0.3rem">
+        <div class="ttl">YM · 2026-05-19 <span class="k k--ro">交易日</span></div>
+        <div class="what"><b>咩事</b>：同一分鐘有兩條記錄，共 12 分鐘重複</div>
+        <div class="what"><b>而家嘅後果</b>：<b style="color:var(--neg)">呢一日嘅回測會被拒絕執行</b></div>
+        <div class="choice">
+          <div class="ch"><span class="btn btn--gh cbtn">✓ 信呢日數據</span><s>回測照用。重複記錄會保留最先收到嗰條。</s></div>
+          <div class="ch"><span class="btn btn--del cbtn">✕ 唔好回測呢日</span><s>呢一日完全跳過。</s></div>
+        </div>
+        <div class="row"><span class="btn btn--out">⧉ 複製補數據指令</span></div>
+      </div>
+
+      <div class="cmt"><b>兩個掣嘅分別要講到明</b>——你之前撞到嗰兩個掣（「信呢日數據」「列入不回測名單」）冇講後果，所以撳邊個都係估。而家每個掣下面直接寫清楚「回測會點處理」同「風險係咩」。<br>
+      <b>而且加咗第三條路</b>：唔想二選一就攞條指令返 terminal 補數據——呢個係最好嘅答案，因為補完就冇問題，唔使裁決。</div>
+
+      <div class="hd" style="margin-top:0.4rem">已經裁決咗嘅 <em>可以改</em></div>
+      <div class="done"><span><b>NQ · 2026-04-14</b> <span class="k k--ro">7月20日裁決</span> → <b style="color:var(--neg)">唔好回測呢日</b>　<span class="k k--ro">原因：整日冇數據</span></span><span class="btn btn--gh">改返</span></div>
+      <div class="done"><span><b>NQ · 2026-03-02</b> <span class="k k--ro">7月18日裁決</span> → <b style="color:var(--pos)">信呢日數據</b>　<span class="k k--ro">原因：收市前 3 分鐘缺失</span></span><span class="btn btn--gh">改返</span></div>
+
+      <div class="cmt"><span class="src src--c">我提議</span><b>裁決要改得返</b>——你三個月後未必記得當時點解咁決定，而且改咗之後之前跑過嘅回測結果會唔同。<b>改嘅時候要警告：「有 N 個回測用過呢一日，佢哋嘅結果唔會自動更新」。</b></div>
+
+      <!-- ============ 段 3 ============ -->
+      <div class="hd" style="margin-top:0.4rem">三、數據體檢記錄 <em><span class="src src--you">你講過</span>而家係一串檔名，撳唔入</em></div>
+
+      <div class="tw">
+        <table>
+          <tr><th>合約</th><th>幾時檢查</th><th>結果</th><th></th></tr>
+          <tr><td><b>NQ</b></td><td class="mono">7月24日 22:10（香港時間）</td>
+            <td><b style="color:var(--neg)">2 個交易日有問題</b> · 其餘 138 日冇事</td>
+            <td><span class="btn btn--gh">睇邊兩日 →</span></td></tr>
+          <tr><td><b>YM</b></td><td class="mono">7月24日 22:12（香港時間）</td>
+            <td><b style="color:var(--neg)">1 個交易日有問題</b> · 其餘 119 日冇事</td>
+            <td><span class="btn btn--gh">睇邊一日 →</span></td></tr>
+          <tr><td><b>GC</b></td><td class="mono">7月24日 22:15（香港時間）</td>
+            <td><b style="color:var(--pos)">全部 247 日冇事</b></td>
+            <td><span class="k k--ro">冇嘢要做</span></td></tr>
+        </table>
+      </div>
+
+      <div class="cmt"><b>「睇邊兩日 →」會捲去上面第二段嗰兩張裁決卡並高亮佢哋</b>——唔係開另一版嘢。體檢記錄同裁決係同一件事嘅兩個角度：體檢話你知有問題，裁決係你處理佢。</div>
+
+      <!-- ============ 段 4 ============ -->
+      <div class="hd" style="margin-top:0.4rem">四、補數據 <em><span class="src src--now">而家已經有</span>但要改文案</em></div>
+
+      <div class="exit">
+        <b>呢個掣唔會真係下載 —— 而家嘅實作就係咁，唔准扮</b>
+        <pre>揀合約：[NQ ▾]     由：[2026-06-03]  到：[2026-06-04]
+                   ← 揀交易日，唔使你自己打 UTC 時間
+
+[⧉ 複製 terminal 指令]
+
+複製到嘅嘢：
+futures-research download --symbol NQ --start 2026-06-03T00:00Z --end 2026-06-04T00:00Z
+
+⚠️ app 唔會直接向 Interactive Brokers 攞數據（會撞 IB 嘅速度限制）。
+   你要喺 terminal 跑上面條指令，跑完返嚟撳「重新檢查」。</pre>
+      </div>
+
+      <div class="cmt"><b>而家嗰版要你自己打三個欄</b>（<code>symbol</code>、<code>start (UTC)</code>、<code>end (UTC)</code>，而且要打足 <code>2026-05-01T00:00:00Z</code> 呢個格式），然後撳「排隊下載」，之後仍然要自己去 terminal 打指令。<br>
+      <b>改成：揀合約 ＋ 揀日子 → 一撳複製指令。</b>同策略工作台匯出 Dialog 嗰個「複製 terminal 開場白」係同一個模式——<b>app 唔做佢做唔到嘅嘢，但佢會幫你把要打嘅嘢準備好。</b></div>
+
+    </div>
+  </div>
+
+  <h2>技術詞翻譯表 <small>質量檢查實際會報呢啲碼 · 全部唔准出現喺畫面</small></h2>
+
+  <div class="cmt">呢啲係後端真實嘅問題碼（我由 <code>quality.py</code> ／ <code>daily_consistency.py</code> 逐個抄落嚟，唔係我作）。<b>畫面一律用右邊嗰欄。</b></div>
+
+  <div class="tw">
+    <table>
+      <tr><th>後端嘅碼</th><th>畫面要寫</th></tr>
+      <tr><td class="mono">missing_expected_bars</td><td>「呢段時間應該有 N 根 1 分鐘記錄，但只收到 M 根」</td></tr>
+      <tr><td class="mono">unscoped_timestamp_gap</td><td>「交易時段中間有一段冇數據」</td></tr>
+      <tr><td class="mono">duplicate_timestamps</td><td>「同一分鐘有多過一條記錄」</td></tr>
+      <tr><td class="mono">unexpected_bars</td><td>「收到咗唔應該有嘅時段嘅記錄」</td></tr>
+      <tr><td class="mono">invalid_ohlc_envelope</td><td>「開／高／低／收價互相矛盾」</td></tr>
+      <tr><td class="mono">invalid_price / negative_volume</td><td>「價格或者成交量係無效數值」</td></tr>
+      <tr><td class="mono">price_not_tick_aligned</td><td>「價格唔係最小跳動嘅倍數」</td></tr>
+      <tr><td class="mono">atr_range_spike</td><td>「某一根記錄嘅波幅異常大」</td></tr>
+      <tr><td class="mono">missing_native_daily</td><td>「呢一日冇原生日線」<b>（策略暖機靠日線，要特別提）</b></td></tr>
+      <tr><td class="mono">daily_ohl_mismatch</td><td>「原生日線同 1 分鐘砌返出嚟嘅唔一致」</td></tr>
+      <tr><td class="mono">daily_close_settlement_diff</td><td>「收市價同結算價唔同」<b>（正常現象，唔係錯）</b></td></tr>
+      <tr><td class="mono">thin_daily</td><td>「呢一日成交太疏」</td></tr>
+      <tr><td class="mono">contract_id · trading_date · report_id · checked_at · bars · canonical 1m · owner blacklist · enqueue job</td>
+          <td>「合約」「交易日」（ID 收埋做細字）·「幾時檢查」·「幾多根記錄」·「不回測名單」·「複製指令」</td></tr>
+    </table>
+  </div>
+
+  <h2>實作約束 <small>mockup 表達唔到嘅拍板決定 · 全部要遵守</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>約束</th><th>理由／來源</th></tr>
+      <tr><td class="mono">1</td><td>頁頂<b>一句話</b>講呢頁答咩問題，用 Owner 嘅語言</td><td>Owner：「我唔係好明白我可以點樣使用佢」</td></tr>
+      <tr><td class="mono">2</td><td>覆蓋要答<b>「夠唔夠用」</b>：交易日數 · 完整日 · 有問題日 · 你決定唔回測嘅日 · <b>原生日線覆蓋</b> · <b>連續完整嘅最長一段</b>。<b>唔准只顯示 bar 數同起訖日期</b></td><td>「156,912 bars」答唔到「夠唔夠用」。日線覆蓋要單獨列，因為策略暖機靠佢</td></tr>
+      <tr><td class="mono">3</td><td>🔴 <b>呢頁唔准講「夠唔夠跑某個策略」</b>——暖機需求由策略文件決定，嗰個判斷屬回測頁（回測頁約束 #6）</td><td>兩頁唔准重複同一個判斷，否則將來一定會唔一致</td></tr>
+      <tr><td class="mono">4</td><td>🔴 <b>兩個裁決掣要逐個講清後果同風險</b>，唔准只得個掣名</td><td>Owner 撞到嗰兩個掣冇講後果，撳邊個都係估</td></tr>
+      <tr><td class="mono">5</td><td>裁決<b>唔准要 Owner 自己打日期</b>——有問題嘅日子系統已經知，直接列出嚟逐日俾佢撳</td><td>而家要喺一個格入面打 <code>2026-07-21</code>，打錯咗都唔會有人話你知</td></tr>
+      <tr><td class="mono">6</td><td>每張裁決卡要有<b>第三條路：⧉ 複製補數據指令</b>（合約同日期已填好）</td><td>補齊數據好過二選一。同策略工作台「複製 terminal 開場白」同一模式</td></tr>
+      <tr><td class="mono">7</td><td>裁決<b>可以改返</b>；改嘅時候要警告<b>「有 N 個回測用過呢一日，佢哋嘅結果唔會自動更新」</b></td><td>否則改咗之後舊結果靜靜哋失效，事後查唔返</td></tr>
+      <tr><td class="mono">8</td><td>體檢記錄<b>唔准顯示檔名</b>；「睇邊兩日 →」要<b>捲去對應嘅裁決卡並高亮</b>，唔係開另一版嘢</td><td>Owner：而家係一堆檔名，撳唔入</td></tr>
+      <tr><td class="mono">9</td><td>補數據<b>唔准扮真下載</b>。要明文講「app 唔會直接向 Interactive Brokers 攞數據」＋ 一撳複製指令</td><td>會撞 IB 速度限制。UI 唔准聲稱自己做唔到嘅嘢</td></tr>
+      <tr><td class="mono">10</td><td>補數據<b>揀交易日，唔准要 Owner 打 UTC 字串</b>；UTC 由 app 自己換</td><td>而家要打 <code>2026-05-01T00:00:00Z</code>。呢個係 app 嘅工作唔係 Owner 嘅</td></tr>
+      <tr><td class="mono">11</td><td>🔴 <b>交易日絕對唔准轉時區</b>（本頁最高危：成頁都係交易日）。「幾時檢查」係時刻，要標時區</td><td>策略工作台約束 #25。3b-1 曾因此出 −2 日 offset。<b>要有測試</b></td></tr>
+      <tr><td class="mono">12</td><td>支援<b>由其他頁帶住篩選跳入</b>（回測頁失敗、總覽頁「去裁決」），頁頂顯示由邊度嚟 ＋ 一個「睇全部」</td><td>回測頁稿同總覽頁稿都指向呢一頁。跳入之後要見到嗰一日，唔係成頁自己搵</td></tr>
+      <tr><td class="mono">13</td><td>技術詞翻譯表<b>全部適用</b>；後端問題碼一律唔准出現喺畫面</td><td>見上表。呢頁係全 app 最多技術詞嘅一頁</td></tr>
+      <tr><td class="mono">14</td><td>本頁<b>唔喺窄路徑範圍</b>，未收到工作令唔准開工</td><td>同總覽頁一樣，排喺流程走通之後</td></tr>
+    </table>
+  </div>
+
+  <h2>後端缺口 <small>誠實標明</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>要顯示嘅嘢</th><th>後端有冇</th><th>點做</th></tr>
+      <tr><td>合約範圍、bar 數、質量摘要、不回測名單</td><td><b>已有</b> <code>GET /api/v1/data/coverage</code></td><td>用真嘅</td></tr>
+      <tr><td>體檢記錄列表同詳情</td><td><b>已有</b> <code>GET /data/quality-reports</code></td><td>用真嘅，但要翻譯問題碼</td></tr>
+      <tr><td>裁決寫入（信／唔回測）</td><td><b>已有</b> <code>POST /data/blacklist</code>（有 <code>trust</code> ／ <code>exclude</code>）</td><td>用真嘅</td></tr>
+      <tr><td><b>交易日數 · 完整日 · 連續最長一段</b></td><td>⚠️ <b>未有</b>——而家只有 bar 數同起訖時間</td><td>要新後端計算。<b>階段 1 用 fixture</b></td></tr>
+      <tr><td><b>原生日線覆蓋日數</b></td><td>⚠️ <b>未有</b>（日線本身有落地，但冇對外 API 講覆蓋幾多日）</td><td>要新後端。<b>階段 1 用 fixture</b></td></tr>
+      <tr><td><b>「有 N 個回測用過呢一日」</b>（改裁決時嘅警告）</td><td>⚠️ <b>未有</b></td><td>要新後端。<b>階段 1 用 fixture</b></td></tr>
+      <tr><td>下載排隊</td><td><b>已有</b> <code>POST /data/download</code>，但佢<b>只記錄意圖</b>唔會真下載</td><td><b>建議唔用</b>——改成一撳複製 terminal 指令（見約束 #9）</td></tr>
+    </table>
+  </div>
+
+  <div class="ask">
+    <h3>Owner 已拍板四點 —— 數據頁定稿</h3>
+    <ol>
+      <li><strong>四段次序照舊</strong>：夠唔夠用 → 等你裁決 → 體檢記錄 → 補數據。「等你裁決」擺第二，因為佢係全頁唯一要 Owner 做嘢嘅一段。</li>
+      <li><strong>三樣「我提議」全部採用</strong>：由其他頁帶住篩選跳入（約束 #12）· 複製補數據指令（約束 #6）· 裁決可以改返 ＋ 警告（約束 #7）。</li>
+      <li><strong>覆蓋卡六行全部保留</strong>：有數據嘅日子 · 完整日 · 有問題日 · 你決定唔回測 · 原生日線 · 連續最長一段。</li>
+      <li><strong>「連續完整嘅最長一段」確認有用</strong>——119 個完整日如果被中間一日切開，同一段連續 119 日嘅意義完全唔同。<b>唔准喺實作時當佢係可有可無嘅裝飾刪走。</b></li>
+    </ol>
+    <p style="margin-top:0.5rem;font-size:0.875rem;color:var(--tx2)"><strong>數據頁定稿 2026-07-25。</strong>六頁設計已全部定稿；實作者仍只可按最新工作令指定範圍開工。</p>
+  </div>
+</div>
+
+</body>
+</html>

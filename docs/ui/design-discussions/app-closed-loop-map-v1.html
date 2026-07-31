@@ -1,0 +1,499 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>全 App MVP 閉環總圖</title>
+<style>
+  *,*::before,*::after{box-sizing:border-box}
+  :root{
+    --bg:#f3f5f8;--surface:#ffffff;--surface2:#f8fafc;--ink:#17202a;
+    --muted:#5e6977;--faint:#8d97a4;--line:#dfe4eb;
+    --blue:#1769e0;--blue-bg:#eef5ff;--green:#16834b;--green-bg:#edf9f2;
+    --amber:#a45e00;--amber-bg:#fff7e8;--red:#c53c31;--red-bg:#fff1ef;
+    --violet:#7451c8;--violet-bg:#f5f1ff;--shadow:0 16px 40px rgb(32 44 60 / 8%);
+    --ff:-apple-system,BlinkMacSystemFont,"SF Pro Text","Segoe UI",system-ui,
+      "PingFang TC","Microsoft JhengHei","Noto Sans TC",sans-serif;
+    --mono:ui-monospace,"SF Mono","Cascadia Mono",Consolas,monospace;
+  }
+  html{-webkit-text-size-adjust:100%}
+  body{
+    margin:0;color:var(--ink);font:15px/1.55 var(--ff);-webkit-font-smoothing:antialiased;
+    background:
+      radial-gradient(circle at 8% 0%,rgb(23 105 224 / 11%),transparent 31rem),
+      radial-gradient(circle at 95% 12%,rgb(116 81 200 / 8%),transparent 28rem),
+      var(--bg);
+  }
+  .page{max-width:1240px;margin:0 auto;padding:38px 28px 78px}
+  h1{font-size:31px;letter-spacing:-.035em;margin:0 0 7px}
+  h2{font-size:20px;letter-spacing:-.015em;margin:42px 0 12px}
+  h3{font-size:15px;margin:0}
+  p{margin:0}.lede{color:var(--muted);max-width:940px}
+  .stamp{font:11px/1.5 var(--mono);color:var(--faint);margin-top:9px}
+
+  .verdicts{display:grid;grid-template-columns:1fr 1fr 1fr;gap:12px;margin:25px 0 14px}
+  .verdict{border:1px solid var(--line);background:rgb(255 255 255 / 78%);
+    border-radius:14px;padding:15px 16px;box-shadow:0 8px 24px rgb(32 44 60 / 4%)}
+  .verdict .label{font-size:11px;color:var(--faint);font-weight:750;letter-spacing:.035em}
+  .verdict b{display:block;font-size:22px;margin:3px 0 2px}
+  .verdict p{font-size:11px;color:var(--muted)}
+  .verdict.good{border-color:rgb(22 131 75 / 27%);background:var(--green-bg)}
+  .verdict.good b{color:var(--green)}
+  .verdict.warn{border-color:rgb(164 94 0 / 28%);background:var(--amber-bg)}
+  .verdict.warn b{color:var(--amber)}
+  .truth-note{display:flex;gap:10px;align-items:flex-start;border:1px solid rgb(23 105 224 / 24%);
+    background:var(--blue-bg);border-radius:12px;padding:12px 14px;color:var(--muted)}
+  .truth-note b{color:var(--blue)}.truth-note span{font-size:12px}
+
+  .legend{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0}
+  .pill{display:inline-flex;align-items:center;gap:5px;border:1px solid var(--line);
+    background:var(--surface2);border-radius:999px;padding:3px 8px;font:700 10px var(--mono);
+    white-space:nowrap}
+  .pill::before{content:"";width:7px;height:7px;border-radius:50%;background:var(--faint)}
+  .pill.done{color:var(--green);border-color:rgb(22 131 75 / 25%);background:var(--green-bg)}
+  .pill.done::before{background:var(--green)}
+  .pill.partial{color:var(--amber);border-color:rgb(164 94 0 / 25%);background:var(--amber-bg)}
+  .pill.partial::before{background:var(--amber)}
+  .pill.zero{color:var(--red);border-color:rgb(197 60 49 / 25%);background:var(--red-bg)}
+  .pill.zero::before{background:var(--red)}
+  .pill.external{color:var(--violet);border-color:rgb(116 81 200 / 25%);background:var(--violet-bg)}
+  .pill.external::before{background:var(--violet)}
+
+  .system{border:1px solid var(--line);background:rgb(255 255 255 / 64%);border-radius:18px;
+    padding:18px;box-shadow:var(--shadow)}
+  .hub{display:grid;grid-template-columns:auto 1fr auto;gap:13px;align-items:center;
+    border:1px solid rgb(23 105 224 / 25%);background:var(--blue-bg);border-radius:13px;padding:12px 14px}
+  .hub-icon{width:38px;height:38px;display:grid;place-items:center;background:var(--blue);color:#fff;
+    border-radius:10px;font-weight:850}.hub b{display:block}.hub p{font-size:11px;color:var(--muted)}
+  .hub .route{font:700 10px var(--mono);color:var(--blue);white-space:nowrap}
+  .down{height:31px;display:grid;place-items:center;color:var(--faint);font-size:20px}
+  .journey{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:23px}
+  .stage{position:relative;border:1px solid var(--line);background:var(--surface);border-radius:13px;
+    padding:13px 12px 12px;min-height:214px}
+  .stage:not(:last-child)::after{content:"→";position:absolute;right:-20px;top:46%;
+    color:var(--blue);font-weight:900;font-size:19px}
+  .stage-head{display:flex;align-items:flex-start;gap:9px;margin-bottom:9px}
+  .step{flex:0 0 auto;width:28px;height:28px;display:grid;place-items:center;border-radius:8px;
+    color:#fff;background:var(--ink);font:800 11px var(--mono)}
+  .stage h3{font-size:14px;line-height:1.25}.stage .purpose{font-size:10px;color:var(--muted);margin-top:2px}
+  .stage ul{margin:8px 0 9px;padding-left:16px;font-size:10px;color:var(--muted)}
+  .stage li{margin:3px 0}.stage li::marker{color:var(--blue)}
+  .artifacts{display:flex;gap:5px;flex-wrap:wrap;margin-top:auto}
+  .artifact{font:700 8.5px var(--mono);padding:3px 5px;border:1px solid rgb(23 105 224 / 23%);
+    background:var(--blue-bg);color:var(--blue);border-radius:5px}
+  .artifact.out{border-color:rgb(164 94 0 / 25%);background:var(--amber-bg);color:var(--amber)}
+  .artifact.lock{border-color:rgb(116 81 200 / 24%);background:var(--violet-bg);color:var(--violet)}
+  .stage-status{position:absolute;right:9px;top:9px;width:8px;height:8px;border-radius:50%}
+  .stage-status.partial{background:var(--amber)}.stage-status.zero{background:var(--red)}
+  .stage-status.near{background:var(--green)}
+
+  .terminal-wrap{margin-top:17px;border-top:1px dashed #c8cfd9;padding-top:15px}
+  .outside-label{font:800 9px var(--mono);color:var(--faint);letter-spacing:.08em;margin-bottom:8px}
+  .terminal{display:grid;grid-template-columns:190px 1fr;gap:12px;align-items:stretch}
+  .terminal-box{border:1px solid rgb(116 81 200 / 28%);background:var(--violet-bg);
+    border-radius:12px;padding:13px}
+  .terminal-box b{display:block;color:var(--violet)}.terminal-box p{font-size:10px;color:var(--muted);margin-top:4px}
+  .terminal-box .no-api{display:inline-block;margin-top:9px;font:800 9px var(--mono);color:var(--red);
+    border:1px solid rgb(197 60 49 / 24%);background:var(--red-bg);padding:2px 6px;border-radius:5px}
+  .loops{display:grid;gap:7px}
+  .loop{display:grid;grid-template-columns:140px auto 1fr auto 150px;gap:7px;align-items:center;
+    border:1px solid var(--line);background:var(--surface2);border-radius:10px;padding:8px 9px;font-size:10px}
+  .loop b{font-size:10px}.loop .arrow{font-weight:900;color:var(--faint)}
+  .loop .file{font:800 9px var(--mono);border-radius:5px;padding:3px 6px;text-align:center}
+  .loop.blue .file{color:var(--blue);background:var(--blue-bg);border:1px solid rgb(23 105 224 / 23%)}
+  .loop.amber .file{color:var(--amber);background:var(--amber-bg);border:1px solid rgb(164 94 0 / 24%)}
+  .loop.violet .file{color:var(--violet);background:var(--violet-bg);border:1px solid rgb(116 81 200 / 24%)}
+  .loop small{color:var(--muted)}
+
+  .decision{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-top:14px}
+  .branch{border:1px solid var(--line);background:var(--surface2);border-radius:11px;padding:11px}
+  .branch b{font-size:12px}.branch p{font-size:10px;color:var(--muted);margin-top:3px}
+  .branch.go{border-color:rgb(22 131 75 / 23%);background:var(--green-bg)}
+  .branch.return{border-color:rgb(164 94 0 / 24%);background:var(--amber-bg)}
+
+  .table-wrap{border:1px solid var(--line);border-radius:14px;overflow:hidden;background:var(--surface);
+    box-shadow:0 10px 28px rgb(32 44 60 / 5%)}
+  table{width:100%;border-collapse:collapse;font-size:11px}
+  th,td{text-align:left;padding:10px 11px;border-bottom:1px solid var(--line);vertical-align:top}
+  th{background:var(--surface2);color:var(--faint);font-size:9px;letter-spacing:.04em}
+  tr:last-child td{border-bottom:0}td:first-child{font-weight:800;white-space:nowrap}
+  .sub{display:block;color:var(--muted);font-size:9.5px;margin-top:2px}
+  .state-text{font-weight:800}.state-text.done{color:var(--green)}
+  .state-text.partial{color:var(--amber)}.state-text.zero{color:var(--red)}
+
+  .gaps{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+  .gap{border:1px solid var(--line);background:var(--surface);border-radius:11px;padding:11px}
+  .gap .id{font:800 9px var(--mono);color:var(--faint)}.gap b{display:block;font-size:12px;margin:3px 0}
+  .gap p{font-size:10px;color:var(--muted)}.gap.design{border-color:rgb(164 94 0 / 22%)}
+  .gap.ok{border-color:rgb(22 131 75 / 22%);background:var(--green-bg)}
+  .gap.ok .id,.gap.ok b{color:var(--green)}
+
+  .boundary{display:grid;grid-template-columns:1.15fr .85fr;gap:12px}
+  .boundary-card{border:1px solid var(--line);background:var(--surface);border-radius:13px;padding:14px}
+  .boundary-card h3{margin-bottom:7px}.boundary-card ul{margin:0;padding-left:18px;color:var(--muted);font-size:11px}
+  .boundary-card li{margin:5px 0}
+  .boundary-card.excluded{border-color:rgb(116 81 200 / 24%);background:var(--violet-bg)}
+  .boundary-card.excluded h3{color:var(--violet)}
+
+  .closure{margin-top:39px;border:1px solid rgb(23 105 224 / 28%);background:var(--blue-bg);
+    border-radius:15px;padding:16px}
+  .closure h2{margin:0 0 8px}.closure-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+  .closure-card{background:rgb(255 255 255 / 72%);border:1px solid rgb(23 105 224 / 17%);
+    border-radius:10px;padding:12px}
+  .closure-card b{display:block;font-size:12px}.closure-card p{font-size:10px;color:var(--muted);margin-top:3px}
+  .final-line{margin-top:12px;padding-top:10px;border-top:1px solid rgb(23 105 224 / 18%);
+    color:var(--blue);font-weight:800;font-size:12px}
+  .foot{margin-top:16px;color:var(--faint);font:10px/1.6 var(--mono)}
+
+  @media(max-width:900px){
+    .page{padding:25px 14px 55px}.verdicts{grid-template-columns:1fr}
+    .journey{grid-template-columns:1fr}.stage{min-height:0}.stage:not(:last-child)::after{
+      content:"↓";right:50%;top:auto;bottom:-25px}
+    .terminal{grid-template-columns:1fr}.loop{grid-template-columns:1fr;gap:4px}.loop .arrow{display:none}
+    .decision,.gaps,.boundary,.closure-grid{grid-template-columns:1fr}
+    .table-wrap{overflow-x:auto}table{min-width:820px}
+  }
+</style>
+</head>
+<body>
+<main class="page">
+  <h1>全 App MVP 閉環總圖</h1>
+  <p class="lede">呢張圖答兩條唔可以混埋嘅問題：六個頁面同 Terminal 交接喺設計上有冇形成完整循環？目前代碼係咪已經真係由頭行到尾？</p>
+  <p class="stamp">閉環審查圖 v1 · 2026-07-26 · 依據六份權威設計稿、docs/02、docs/08、docs/09 及最新項目狀態</p>
+
+  <div class="verdicts">
+    <article class="verdict good">
+      <div class="label">頁面設計閉環</div>
+      <b>完整</b>
+      <p>六頁已覆蓋由策略形成、回測、拍板、模擬到循環改良。</p>
+    </article>
+    <article class="verdict good">
+      <div class="label">需要新增獨立頁面</div>
+      <b>不需要</b>
+      <p>A3／市場狀態／獨立設定頁係 MVP 明確排除，唔係遺漏。</p>
+    </article>
+    <article class="verdict warn">
+      <div class="label">目前代碼閉環</div>
+      <b>未完成</b>
+      <p>中段可跑；結果出口、晉升、模擬盤同回流 artifact 仍待實作。</p>
+    </article>
+  </div>
+
+  <div class="truth-note">
+    <b>判定口徑</b>
+    <span>「設計完整」代表每站已有輸入、輸出、下一步同返轉頭路徑；唔代表所有畫面、API、儲存同失敗狀態已經寫好。所以下面會同時標示設計綠燈同實作狀態。</span>
+  </div>
+
+  <div class="legend">
+    <span class="pill done">已設計／接近齊</span>
+    <span class="pill partial">部分實作／待接</span>
+    <span class="pill zero">整個子系統未做</span>
+    <span class="pill external">App 外人手 Terminal 交接</span>
+  </div>
+
+  <h2>1. 六頁點樣組成一個完整 MVP 循環</h2>
+  <section class="system">
+    <div class="hub">
+      <div class="hub-icon">總</div>
+      <div>
+        <b>總覽頁係導航與待辦中樞，唔係一個線性工序</b>
+        <p>只讀匯總全局狀態，將 Owner 帶去下一個要處理嘅頁面；唔喺總覽偷偷改策略、數據裁決或交易狀態。</p>
+      </div>
+      <div class="route">→ 去 5 個工作頁</div>
+    </div>
+    <div class="down">↓</div>
+
+    <div class="journey">
+      <article class="stage">
+        <span class="stage-status partial"></span>
+        <div class="stage-head"><span class="step">1</span><div><h3>策略工作台</h3><p class="purpose">把想法變成可追溯策略版本</p></div></div>
+        <ul>
+          <li>草圖、圖文包、Terminal 澄清</li>
+          <li>匯入、驗證、Owner 確認</li>
+          <li>版本庫、直接衍生 lineage</li>
+        </ul>
+        <div class="artifacts">
+          <span class="artifact out">sketch.v1 出</span>
+          <span class="artifact">strategy.v1 入</span>
+          <span class="artifact lock">strategy_id</span>
+        </div>
+      </article>
+
+      <article class="stage">
+        <span class="stage-status partial"></span>
+        <div class="stage-head"><span class="step">2</span><div><h3>數據頁</h3><p class="purpose">確認回測用資料可信、夠用</p></div></div>
+        <ul>
+          <li>覆蓋、缺口、品質與來源</li>
+          <li>Owner 裁決保留紀錄</li>
+          <li>唔夠用就留喺呢頁處理</li>
+        </ul>
+        <div class="artifacts">
+          <span class="artifact lock">dataset fingerprint</span>
+          <span class="artifact">data readiness</span>
+        </div>
+      </article>
+
+      <article class="stage">
+        <span class="stage-status partial"></span>
+        <div class="stage-head"><span class="step">3</span><div><h3>回測頁</h3><p class="purpose">鎖定策略、數據、合約並執行</p></div></div>
+        <ul>
+          <li>批量策略 × 合約矩陣</li>
+          <li>每次各自用完整 USD 100,000</li>
+          <li>不可變 manifest、進度與重跑</li>
+        </ul>
+        <div class="artifacts">
+          <span class="artifact lock">run_id</span>
+          <span class="artifact lock">strategy binding</span>
+          <span class="artifact lock">assumptions</span>
+        </div>
+      </article>
+
+      <article class="stage">
+        <span class="stage-status partial"></span>
+        <div class="stage-head"><span class="step">4</span><div><h3>結果頁</h3><p class="purpose">睇證據、帶走結果、作不可變決定</p></div></div>
+        <ul>
+          <li>比較、深挖、記分卡與因果</li>
+          <li>獨立匯出完整結果包</li>
+          <li>用得／打回／放棄＋理由</li>
+        </ul>
+        <div class="artifacts">
+          <span class="artifact out">result.v1 出</span>
+          <span class="artifact lock">PromotionDecision</span>
+        </div>
+      </article>
+
+      <article class="stage">
+        <span class="stage-status zero"></span>
+        <div class="stage-head"><span class="step">5</span><div><h3>模擬盤頁</h3><p class="purpose">用真實行情驗證策略執行偏離</p></div></div>
+        <ul>
+          <li>每個交易員一個獨立帳戶</li>
+          <li>鎖死策略＋合約＋baseline run</li>
+          <li>偏離證據、控制、再交 Terminal</li>
+        </ul>
+        <div class="artifacts">
+          <span class="artifact lock">trader_id</span>
+          <span class="artifact lock">DivergenceLog</span>
+          <span class="artifact out">paper-review.v1 出</span>
+        </div>
+      </article>
+    </div>
+
+    <div class="decision">
+      <div class="branch go">
+        <b>結果「用得」</b>
+        <p>保存不可變決定 → 去模擬盤揀策略、合約同 baseline → 建立新交易員。</p>
+      </div>
+      <div class="branch return">
+        <b>結果「打回」或想再傾</b>
+        <p>匯出 result.v1 → Terminal 分析 → 產生直接衍生新版本 → 返回策略工作台。</p>
+      </div>
+      <div class="branch">
+        <b>結果「放棄」</b>
+        <p>理由同記分卡快照仍然保存；呢個方向結束，但審計紀錄唔會消失。</p>
+      </div>
+    </div>
+
+    <div class="terminal-wrap">
+      <div class="outside-label">APP 邊界以外 · 人手檔案交接</div>
+      <div class="terminal">
+        <aside class="terminal-box">
+          <b>Terminal Agent</b>
+          <p>負責同 Owner 澄清、分析同改良策略；App 本身唔直接呼叫 AI。</p>
+          <span class="no-api">零 AI API</span>
+        </aside>
+        <div class="loops">
+          <div class="loop blue">
+            <b>初次形成策略</b><span class="arrow">→</span>
+            <span><span class="file">sketch.v1</span> 工作台帶走想法與圖像</span>
+            <span class="arrow">→</span><small>Terminal 回傳 <b>strategy.v1</b> → 工作台</small>
+          </div>
+          <div class="loop amber">
+            <b>回測結果唔滿意</b><span class="arrow">→</span>
+            <span><span class="file">result.v1</span> 帶齊結果與 sidecar</span>
+            <span class="arrow">→</span><small>衍生 <b>strategy.v1</b> → 工作台 → 再回測</small>
+          </div>
+          <div class="loop violet">
+            <b>模擬表現有偏離</b><span class="arrow">→</span>
+            <span><span class="file">paper-review.v1</span> 帶埋鎖定 baseline</span>
+            <span class="arrow">→</span><small>衍生 <b>strategy.v1</b> → 全流程 → 新交易員</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <h2>2. 每頁接收乜、留下乜、交去邊</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>頁面</th><th>主要輸入</th><th>本頁保存／鎖定</th><th>主要輸出與下一站</th><th>設計判定</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>總覽頁<span class="sub">只讀中樞</span></td>
+          <td>各頁狀態、待辦、警告</td>
+          <td>唔製造業務 artifact</td>
+          <td>路由去策略工作台／數據／回測／結果／模擬盤</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+        <tr>
+          <td>策略工作台</td>
+          <td>Owner 草圖、strategy.v1、既有策略版本</td>
+          <td>草圖、驗證結果、不可變 StrategyVersion、lineage</td>
+          <td>confirmed strategy_id → 回測；sketch.v1 → Terminal</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+        <tr>
+          <td>數據頁</td>
+          <td>本機／IB 資料、覆蓋與品質檢查</td>
+          <td>數據指紋、品質結果、Owner 裁決</td>
+          <td>可用數據與 readiness → 回測</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+        <tr>
+          <td>回測頁</td>
+          <td>策略版本、合約、數據、時間、資金與成交假設</td>
+          <td>不可變 run manifest、策略內容雜湊、overrides</td>
+          <td>run_id → 結果頁</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+        <tr>
+          <td>結果頁</td>
+          <td>RunResult、成交、事件、圖表、漏斗、記分卡</td>
+          <td>PromotionDecision＋理由＋記分卡快照</td>
+          <td>result.v1 → Terminal；「用得」→ 模擬盤</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+        <tr>
+          <td>模擬盤頁</td>
+          <td>獲晉升策略、合約、Owner 選定 baseline run</td>
+          <td>獨立帳戶、交易、事件、偏離、安全控制</td>
+          <td>paper-review.v1 → Terminal → 新策略版本</td>
+          <td><span class="state-text done">完整</span></td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>3. 目前實作去到邊：唔可以當成已閉環</h2>
+  <div class="table-wrap">
+    <table>
+      <thead>
+        <tr><th>範圍</th><th>目前狀態</th><th>已經有</th><th>仍然未接通</th></tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>總覽頁</td>
+          <td><span class="state-text partial">接近齊／最終 UI 未驗收</span></td>
+          <td>底層資料大多可由現有接口組合</td>
+          <td>定稿畫面同完整路由行為仍待正式實作驗收</td>
+        </tr>
+        <tr>
+          <td>策略工作台</td>
+          <td><span class="state-text partial">局部可用</span></td>
+          <td>匯入、驗證、確認、版本主線；Y 已交多項修正</td>
+          <td>刪除 pending fail-closed 等 Y [118]；草圖持久化／讀取等 X；完整 lineage API 要實證</td>
+        </tr>
+        <tr>
+          <td>數據頁</td>
+          <td><span class="state-text partial">一半</span></td>
+          <td>覆蓋、體檢、裁決底層能力</td>
+          <td>「夠唔夠用」聚合數據與定稿 UI 閉環</td>
+        </tr>
+        <tr>
+          <td>回測頁</td>
+          <td><span class="state-text partial">後端核心強，畫面待補</span></td>
+          <td>策略注入、引擎、隊列、不可變 run/result</td>
+          <td>三項開始前檢查、完整假設快照、實時進度與定稿 UI</td>
+        </tr>
+        <tr>
+          <td>結果頁</td>
+          <td><span class="state-text partial">一半</span></td>
+          <td>結果、交易、事件、圖表底層資料</td>
+          <td>result.v1 完整包、PromotionDecision、逐筆因果、最接近三次及定稿 UI</td>
+        </tr>
+        <tr>
+          <td>模擬盤頁</td>
+          <td><span class="state-text zero">整個子系統未開始</span></td>
+          <td>完整定稿設計與文件合約</td>
+          <td>新增交易員、獨立帳戶、實時模擬、偏離、安全控制、paper-review.v1 全套</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h2>4. 閉環接口審計：設計補好咗，但實作仍要逐個驗</h2>
+  <div class="gaps">
+    <article class="gap design">
+      <span class="id">B1 · 溯源</span><b>strategy.v1 → 原始草圖</b>
+      <p>based_on_sketch 規格已定；仍要證明 schema、匯入、儲存同 UI 讀取係同一條真實路徑。</p>
+    </article>
+    <article class="gap design">
+      <span class="id">B2 · 草圖讀取</span><b>結果返查 → 策略 → 草圖</b>
+      <p>前端已有兩種缺失狀態；草圖真寫檔同讀取接口仍待後端交付及實證。</p>
+    </article>
+    <article class="gap design">
+      <span class="id">B3 · 結果回流</span><b>result.v1 → Terminal</b>
+      <p>位置、包內容、sidecar、失敗狀態已定稿；功能仍未寫。</p>
+    </article>
+    <article class="gap design">
+      <span class="id">B4 · 晉升</span><b>結果 → 模擬盤資格</b>
+      <p>三個不可變決定、必填理由同記分卡快照已定稿；儲存同接口仍未寫。</p>
+    </article>
+    <article class="gap design">
+      <span class="id">B5 · 對照基準</span><b>baseline run_id 鎖定</b>
+      <p>Owner 親手揀、唔准自動取最新、建立後鎖死；跟模擬盤一齊實作。</p>
+    </article>
+    <article class="gap design">
+      <span class="id">B6 · 偏離回流</span><b>paper-review.v1 → Terminal</b>
+      <p>完整不可變 snapshot 已定稿；整個模擬盤子系統未做。</p>
+    </article>
+    <article class="gap ok">
+      <span class="id">B7 · Owner 已決定</span><b>A3 唔屬於 MVP</b>
+      <p>冇盤前計劃、冇市場狀態輸入、冇獨立設定頁；呢個係範圍界線，唔係斷點。</p>
+    </article>
+  </div>
+
+  <h2>5. 邊啲情況留喺原頁，邊啲情況先向前</h2>
+  <div class="boundary">
+    <article class="boundary-card">
+      <h3>留喺原頁處理</h3>
+      <ul>
+        <li>策略未驗證／未確認：留喺策略工作台，唔准回測。</li>
+        <li>數據唔夠或品質裁決未完成：留喺數據頁。</li>
+        <li>回測 preflight 未全綠：留喺回測頁，唔准建立 run。</li>
+        <li>結果未有不可變「用得」決定：唔可以建立模擬交易員。</li>
+        <li>模擬 readiness 任一項未知／失敗：fail-closed，唔啟動。</li>
+      </ul>
+    </article>
+    <article class="boundary-card excluded">
+      <h3>MVP 刻意唔包括</h3>
+      <ul>
+        <li>A3 盤前計劃。</li>
+        <li>獨立市場狀態／策略設定頁。</li>
+        <li>由 app 直接呼叫 AI。</li>
+        <li>自動判斷策略「成功」或自動晉升。</li>
+        <li>自動用最近一次回測做模擬 baseline。</li>
+      </ul>
+    </article>
+  </div>
+
+  <section class="closure">
+    <h2>最終確認</h2>
+    <div class="closure-grid">
+      <article class="closure-card">
+        <b>如果問「目前設計圖有冇 cover 完整 App？」</b>
+        <p>有。總覽、策略工作台、數據、回測、結果、模擬盤六頁已足夠形成 MVP；唔需要第七個獨立設定／盤前頁。</p>
+      </article>
+      <article class="closure-card">
+        <b>如果問「而家個 App 係咪已經由頭到尾真係行得通？」</b>
+        <p>未係。要等所有黃色／紅色接口完成，再用真 artifact ID、真檔案、真 API 同逆向回流測試逐條證明。</p>
+      </article>
+    </div>
+    <div class="final-line">所以正確結論係：設計閉環已完成；工程閉環仍在施工。呢張圖冇新增任何頁面，亦冇改六份權威設計。</div>
+  </section>
+
+  <p class="foot">狀態來源：docs/PROJECT_STATE.md · docs/02-mvp-closed-loop-user-journey.md · docs/08-ui-backend-mapping.md · docs/09-journey-closed-loop-audit.md · docs/ui/designs/ 六份權威設計稿</p>
+</main>
+</body>
+</html>

@@ -1,0 +1,282 @@
+/**
+ * Design tokens — sole source of raw color/size values (D16).
+ *
+ * Brand: "Futures Research" — monochrome instrument panel.
+ * Reference feel: grok.com — pure black canvas, one hairline weight, a single
+ * white accent, semantic colour reserved strictly for money (up/down) and risk.
+ * Nothing decorative is coloured; colour always means something.
+ *
+ * Components MUST only consume var(--token); stylelint enforces this outside
+ * this file.
+ */
+
+:root,
+:root[data-theme="dark"] {
+  color-scheme: dark;
+
+  /* Canvas — true black, panels lift by light not by hue */
+  --color-bg: #000;
+  --color-bg-elevated: #121214;
+  --color-surface: #18181b;
+  --color-surface-2: #101012;
+  --color-surface-hover: #232327;
+  --color-side: #070708;
+  --color-hairline: rgb(255 255 255 / 17%);
+  --color-hairline-strong: rgb(255 255 255 / 30%);
+  --color-fill: rgb(255 255 255 / 8%);
+  --color-fill-strong: rgb(255 255 255 / 15%);
+  --color-glow: rgb(255 255 255 / 3%);
+  --color-tooltip-bg: #26262b;
+  --color-grid: rgb(255 255 255 / 10%);
+  --color-scrim: rgb(0 0 0 / 65%);
+
+  /*
+   * Three text steps, deliberately far apart. The old ramp had secondary at
+   * #9b9b9f and muted at #66666b — close enough to read as "two kinds of grey"
+   * and both too dim on true black. Secondary is now clearly legible body text;
+   * muted is a label, not a whisper.
+   */
+  --color-text-primary: #fff;
+  --color-text-secondary: #cdcdd2;
+  --color-text-muted: #9a9aa2;
+  --color-on-accent: #000;
+
+  /* Accent = pure white. Semantic = money + risk only. */
+  --color-accent: #fff;
+  --color-accent-soft: #d4d4d8;
+  --color-positive: #4ade80;
+  --color-positive-soft: rgb(74 222 128 / 14%);
+  --color-negative: #f87171;
+  --color-negative-soft: rgb(248 113 113 / 14%);
+  --color-warning: #fbbf24;
+  --color-warning-soft: rgb(251 191 36 / 14%);
+  --color-logo-1: #fff;
+  --color-logo-2: #6e6e73;
+
+  /* Chart */
+  --chart-up: var(--color-positive);
+  --chart-down: var(--color-negative);
+  --chart-ema-18: #fff;
+  --chart-ema-50: #78787e;
+  --chart-ema-90: #b8b8be;
+  --chart-marker-entry: var(--color-accent);
+  --chart-marker-exit: var(--color-text-secondary);
+  --chart-grid: var(--color-grid);
+
+  /* Glass */
+  --glass-bg: rgb(10 10 11 / 72%);
+  --glass-border: var(--color-hairline);
+  --glass-blur: 20px;
+
+  /* Elevation — dark UIs lift with light, not shadow */
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 60%);
+  --shadow-2: 0 16px 48px rgb(0 0 0 / 70%);
+  --shadow-3: 0 0 0 1px rgb(255 255 255 / 8%);
+  --shadow-focus: 0 0 0 3px rgb(255 255 255 / 22%);
+}
+
+:root[data-theme="light"] {
+  color-scheme: light;
+
+  --color-bg: #fff;
+  --color-bg-elevated: #fafafa;
+  --color-surface: #f6f6f7;
+  --color-surface-2: #fbfbfc;
+  --color-surface-hover: #efeff1;
+  --color-hairline: rgb(0 0 0 / 14%);
+  --color-hairline-strong: rgb(0 0 0 / 26%);
+  --color-side: #fafafa;
+  --color-fill: rgb(0 0 0 / 5%);
+  --color-fill-strong: rgb(0 0 0 / 9%);
+  --color-glow: rgb(0 0 0 / 2%);
+  --color-tooltip-bg: #1c1c1f;
+  --color-grid: rgb(0 0 0 / 7%);
+  --color-scrim: rgb(0 0 0 / 40%);
+
+  --color-text-primary: #0a0a0a;
+  --color-text-secondary: #45454a;
+  --color-text-muted: #6d6d74;
+  --color-on-accent: #fff;
+
+  --color-accent: #0a0a0a;
+  --color-accent-soft: #3f3f46;
+  --color-positive: #16803c;
+  --color-positive-soft: rgb(22 128 60 / 12%);
+  --color-negative: #c81e1e;
+  --color-negative-soft: rgb(200 30 30 / 12%);
+  --color-warning: #a16207;
+  --color-warning-soft: rgb(161 98 7 / 14%);
+  --color-logo-1: #0a0a0a;
+  --color-logo-2: #71717a;
+
+  --chart-up: var(--color-positive);
+  --chart-down: var(--color-negative);
+  --chart-ema-18: #0a0a0a;
+  --chart-ema-50: #8a8a90;
+  --chart-ema-90: #52525b;
+  --chart-marker-entry: var(--color-accent);
+  --chart-marker-exit: var(--color-text-secondary);
+  --chart-grid: var(--color-grid);
+
+  --glass-bg: rgb(255 255 255 / 78%);
+  --glass-border: var(--color-hairline);
+  --glass-blur: 20px;
+
+  --shadow-1: 0 1px 2px rgb(0 0 0 / 5%);
+  --shadow-2: 0 16px 40px rgb(0 0 0 / 10%);
+  --shadow-3: 0 0 0 1px rgb(0 0 0 / 6%);
+  --shadow-focus: 0 0 0 3px rgb(0 0 0 / 15%);
+}
+
+/*
+ * 自然 — earth and green.
+ *
+ * Not a tinted grey: the canvas is damp soil, the panels are shaded moss, and
+ * the accent is a living green rather than white. Structure, spacing and
+ * restraint are identical to the other themes, so it reads as the same
+ * product wearing a different season — modern, not rustic.
+ */
+:root[data-theme="nature"] {
+  color-scheme: dark;
+
+  --color-bg: #0c1009;
+  --color-bg-elevated: #161c11;
+  --color-surface: #1b2215;
+  --color-surface-2: #131810;
+  --color-surface-hover: #253019;
+  --color-side: #0a0d07;
+  --color-hairline: rgb(198 216 176 / 20%);
+  --color-hairline-strong: rgb(198 216 176 / 34%);
+  --color-fill: rgb(198 216 176 / 9%);
+  --color-fill-strong: rgb(198 216 176 / 16%);
+  --color-glow: rgb(140 190 100 / 6%);
+  --color-tooltip-bg: #26301a;
+  --color-grid: rgb(198 216 176 / 11%);
+  --color-scrim: rgb(6 10 4 / 68%);
+
+  /* Warm off-white, like paper — never clinical white on soil. */
+  --color-text-primary: #f3f7ea;
+  --color-text-secondary: #ccd8bc;
+  --color-text-muted: #97a688;
+  --color-on-accent: #0c1009;
+
+  /* Living green carries the primary action; bark tones support it. */
+  --color-accent: #9ed469;
+  --color-accent-soft: #b8e28c;
+  --color-positive: #7fd18a;
+  --color-positive-soft: rgb(127 209 138 / 18%);
+  --color-negative: #e08b6a;
+  --color-negative-soft: rgb(224 139 106 / 18%);
+  --color-warning: #dfb455;
+  --color-warning-soft: rgb(223 180 85 / 18%);
+  --color-logo-1: #9ed469;
+  --color-logo-2: #6f8f52;
+
+  --chart-up: var(--color-positive);
+  --chart-down: var(--color-negative);
+  --chart-ema-18: #f3f7ea;
+  --chart-ema-50: #8a9c76;
+  --chart-ema-90: #c2d4a8;
+  --chart-marker-entry: var(--color-accent);
+  --chart-marker-exit: var(--color-text-secondary);
+  --chart-grid: var(--color-grid);
+
+  --glass-bg: rgb(12 16 9 / 80%);
+  --glass-border: var(--color-hairline);
+  --glass-blur: 20px;
+
+  --shadow-1: 0 1px 2px rgb(4 8 2 / 60%);
+  --shadow-2: 0 16px 48px rgb(4 8 2 / 70%);
+  --shadow-3: 0 0 0 1px rgb(198 216 176 / 12%);
+  --shadow-focus: 0 0 0 3px rgb(158 212 105 / 32%);
+}
+
+/* Shared structural tokens (theme-independent) */
+:root {
+  --font-family: "Inter", -apple-system, blinkmacsystemfont, "SF Pro Text",
+    "Segoe UI", system-ui, "PingFang TC", "Noto Sans TC", sans-serif;
+  --font-family-display: "Inter Display", "Inter", -apple-system,
+    blinkmacsystemfont, "SF Pro Display", "Segoe UI", system-ui, "PingFang TC",
+    "Noto Sans TC", sans-serif;
+  --font-family-mono: ui-monospace, "SF Mono", "JetBrains Mono", "Cascadia Mono",
+    consolas, monospace;
+
+  /* Type scale — one ratio, no in-between sizes */
+  --text-xs: 0.6875rem; /* 11 — micro labels, units */
+  --text-sm: 0.75rem; /* 12 — captions, table meta */
+  --text-md: 0.8125rem; /* 13 — body default */
+  --text-base: 0.875rem; /* 14 — emphasised body, controls */
+  --text-lg: 1rem; /* 16 — section title */
+  --text-xl: 1.25rem; /* 20 — panel title */
+  --text-2xl: 1.625rem; /* 26 — page title */
+  --text-3xl: 2.125rem; /* 34 — hero metric */
+  --text-4xl: 2.75rem; /* 44 — headline metric */
+
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-semibold: 600;
+  --weight-bold: 700;
+
+  --tracking-tight: -0.022em;
+  --tracking-snug: -0.012em;
+  --tracking-wide: 0.06em;
+
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+
+  --space-0-5: 0.125rem; /* 2 */
+  --space-1: 0.25rem; /* 4 */
+  --space-2: 0.5rem; /* 8 */
+  --space-3: 0.75rem; /* 12 */
+  --space-4: 1rem; /* 16 */
+  --space-5: 1.25rem; /* 20 */
+  --space-6: 1.5rem; /* 24 */
+  --space-7: 1.75rem; /* 28 */
+  --space-8: 2rem;
+  --space-10: 2.5rem;
+  --space-12: 3rem;
+  --space-16: 4rem;
+
+  /*
+   * Every rule in the product is drawn at this width. A 1px hairline on a
+   * true-black canvas reads as a smudge rather than an edge, so the whole
+   * system steps up 1.4×.
+   */
+  --hairline-w: 1.4px;
+
+  --radius-xs: 0.375rem; /* 6 */
+  --radius-s: 0.5rem; /* 8 */
+  --radius-m: 0.75rem; /* 12 */
+  --radius-l: 1rem; /* 16 */
+  --radius-xl: 1.25rem; /* 20 */
+  --radius-pill: 999px;
+
+  /* Shell metrics */
+  --sidebar-width: 14.5rem; /* 232px */
+  --sidebar-width-collapsed: 4.25rem;
+  --topbar-height: 3.25rem; /* mobile top bar */
+  --bottomnav-height: 3.75rem; /* mobile tab bar */
+  --content-max: 84rem;
+  --touch-min: 2.75rem; /* 44px — D16 / PWA */
+  --control-height: 2.25rem;
+  --control-height-lg: 2.75rem;
+
+  --duration-fast: 120ms;
+  --duration-base: 200ms;
+  --duration-slow: 320ms;
+  --ease-out-quint: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
+
+  --z-sticky: 10;
+  --z-nav: 20;
+  --z-pop: 30;
+  --z-overlay: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-left: env(safe-area-inset-left, 0px);
+}

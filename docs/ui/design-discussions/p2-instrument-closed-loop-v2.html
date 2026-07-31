@@ -1,0 +1,636 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>P2 Instrument 閉環補充設計 v2（Owner 已批准）</title>
+  <style>
+    :root {
+      --bg: #eef0e6;
+      --paper: #fbfcf7;
+      --ink: #1e2b23;
+      --muted: #6a776e;
+      --line: #d5dcd3;
+      --green: #2d7259;
+      --green-dark: #1f5641;
+      --green-soft: #dce9e0;
+      --amber: #8c6417;
+      --amber-soft: #f8efd9;
+      --red: #a54a40;
+      --red-soft: #f8e6e2;
+      --slate: #e9ede7;
+      --shadow: 0 14px 38px rgba(42, 57, 47, .08);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 92% 0%, rgba(69, 126, 97, .13), transparent 34rem),
+        var(--bg);
+      font-family: Inter, "Noto Sans TC", "PingFang TC", "Microsoft JhengHei", sans-serif;
+    }
+    button, select { font: inherit; }
+    code { font-family: "SFMono-Regular", Consolas, monospace; font-size: .94em; }
+    .shell { display: grid; grid-template-columns: 190px 1fr; min-height: 100vh; }
+    aside {
+      padding: 28px 17px;
+      border-right: 1px solid var(--line);
+      background: rgba(251, 252, 247, .76);
+    }
+    .brand { display: flex; align-items: center; gap: 10px; margin-bottom: 34px; font-size: 14px; font-weight: 900; }
+    .logo { width: 24px; height: 24px; border-radius: 7px; background: linear-gradient(135deg, #347d62, #205641); }
+    nav { display: grid; gap: 7px; }
+    nav div { padding: 12px 13px; border-radius: 9px; color: #536159; font-size: 14px; }
+    nav .active { color: #173f2f; background: #d8e3da; font-weight: 850; }
+    main { width: 100%; max-width: 1330px; margin: 0 auto; padding: 32px 40px 72px; }
+    .top { display: flex; align-items: flex-start; justify-content: space-between; gap: 20px; }
+    h1 { margin: 0; font-size: 30px; letter-spacing: -.03em; }
+    .sub { margin-top: 7px; color: var(--muted); font-size: 14px; }
+    .draft {
+      padding: 8px 12px;
+      color: #735317;
+      border: 1px solid #d6c28f;
+      border-radius: 999px;
+      background: #fff7df;
+      font-size: 12px;
+      font-weight: 850;
+      white-space: nowrap;
+    }
+    .audit {
+      margin: 18px 0 0;
+      padding: 12px 14px;
+      color: #294b3a;
+      border: 1px solid #acc5b5;
+      border-radius: 11px;
+      background: #edf5ef;
+      font-size: 13px;
+      line-height: 1.55;
+    }
+    .tabs {
+      display: flex;
+      width: fit-content;
+      margin: 20px 0 18px;
+      overflow: hidden;
+      border: 1px solid #c9d1c8;
+      border-radius: 10px;
+    }
+    .tab {
+      padding: 11px 16px;
+      color: #5d6961;
+      border: 0;
+      border-right: 1px solid #c9d1c8;
+      background: #ecefe8;
+      cursor: pointer;
+      font-weight: 750;
+    }
+    .tab:last-child { border-right: 0; }
+    .tab.active { color: #173d2e; background: #ccded1; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card {
+      padding: 22px;
+      margin-bottom: 15px;
+      border: 1px solid var(--line);
+      border-radius: 15px;
+      background: var(--paper);
+      box-shadow: var(--shadow);
+    }
+    .eyebrow {
+      margin-bottom: 7px;
+      color: var(--green);
+      font-size: 12px;
+      font-weight: 900;
+      letter-spacing: .07em;
+      text-transform: uppercase;
+    }
+    .card h2 { margin: 0 0 6px; font-size: 20px; }
+    .card h3 { margin: 0 0 6px; font-size: 16px; }
+    .help { color: var(--muted); font-size: 13px; line-height: 1.6; }
+    .field-label { display: block; margin: 16px 0 7px; font-size: 13px; font-weight: 850; }
+    .title-input {
+      width: 100%;
+      height: 43px;
+      padding: 0 12px;
+      color: var(--ink);
+      border: 1px solid #aeb9af;
+      border-radius: 8px;
+      background: #fff;
+      font-size: 15px;
+    }
+    .market-box {
+      position: relative;
+      display: grid;
+      grid-template-columns: 1.35fr 1fr;
+      gap: 12px;
+      margin-top: 14px;
+      padding: 16px;
+      border: 1px solid #a7c2b0;
+      border-radius: 12px;
+      background: linear-gradient(135deg, #edf5ef, #f8faf6);
+    }
+    .required { position: absolute; top: 11px; right: 14px; color: var(--red); font-size: 11px; font-weight: 850; }
+    .market-box select {
+      width: 100%;
+      height: 43px;
+      padding: 0 12px;
+      color: var(--ink);
+      border: 1px solid #799b87;
+      border-radius: 8px;
+      background: #fff;
+      font-weight: 750;
+    }
+    .readonly {
+      display: flex;
+      height: 43px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 12px;
+      color: #4f5e55;
+      border: 1px solid #ccd5cc;
+      border-radius: 8px;
+      background: #e9ede7;
+    }
+    .lock { color: #718078; font-size: 11px; }
+    .ruleline {
+      display: flex;
+      grid-column: 1 / -1;
+      gap: 9px;
+      align-items: flex-start;
+      padding-top: 2px;
+      color: #355343;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .rule-icon {
+      display: grid;
+      flex: none;
+      width: 20px;
+      height: 20px;
+      place-items: center;
+      border-radius: 50%;
+      background: #cfe3d5;
+      font-weight: 900;
+    }
+    .grid4 { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 14px; }
+    .chart {
+      display: grid;
+      min-height: 104px;
+      place-items: center;
+      padding: 14px;
+      color: #7b867f;
+      border: 1px dashed #c7cdc5;
+      border-radius: 10px;
+      background: #f1f2ed;
+      font-size: 12px;
+      text-align: center;
+    }
+    .chart b { color: #4e5b53; }
+    .freeze {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin-top: 14px;
+    }
+    .freeze div {
+      min-height: 82px;
+      padding: 11px;
+      border: 1px solid #d7ddd5;
+      border-radius: 9px;
+      background: #f5f7f2;
+      font-size: 12px;
+      line-height: 1.48;
+    }
+    .freeze b { display: block; margin-bottom: 3px; color: var(--green-dark); }
+    .actions { display: flex; justify-content: space-between; align-items: center; gap: 14px; margin-top: 17px; }
+    .btn { padding: 11px 15px; border: 0; border-radius: 9px; cursor: pointer; font-weight: 850; }
+    .btn.secondary { color: #425149; border: 1px solid #d0d7cf; background: #e7ebe5; }
+    .btn.primary { color: #fff; background: var(--green); }
+    .btn.danger { color: #7d3b34; border: 1px solid #dfb3ac; background: #f8e8e4; }
+    .btn:disabled { color: #8a918d; border: 1px solid #d9ddd7; background: #eceeea; cursor: not-allowed; }
+    .status-ok { color: var(--green); font-size: 12px; font-weight: 850; }
+    .compare { display: grid; grid-template-columns: .95fr 1.35fr; gap: 13px; margin-top: 14px; }
+    .summary, .decision {
+      padding: 16px;
+      border: 1px solid #cdd6ce;
+      border-radius: 12px;
+      background: #f7f9f5;
+    }
+    .decision { border-color: #d6c28f; background: #fffaf0; }
+    .meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      padding: 8px 0;
+      border-bottom: 1px solid #e0e4de;
+      font-size: 13px;
+    }
+    .meta-row:last-child { border-bottom: 0; }
+    .meta-row span:first-child { color: var(--muted); }
+    .pill { display: inline-block; padding: 4px 9px; color: #23563f; border-radius: 999px; background: var(--green-soft); font-size: 12px; font-weight: 850; }
+    .pill.amber { color: #725519; background: var(--amber-soft); }
+    .universe {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 8px;
+      margin: 11px 0;
+    }
+    .member {
+      padding: 10px;
+      border: 1px solid #d8ded7;
+      border-radius: 9px;
+      background: #fff;
+      font-size: 12px;
+      line-height: 1.45;
+    }
+    .member b { display: block; color: var(--ink); font-size: 13px; }
+    .note, .warn, .error {
+      margin-top: 10px;
+      padding: 10px 12px;
+      border-radius: 9px;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    .note { color: #725519; background: var(--amber-soft); }
+    .warn { color: #694f1a; border: 1px solid #ddca9d; background: #fff8e8; }
+    .error { color: #7d3b34; border: 1px solid #e1b7b0; background: var(--red-soft); }
+    .error-list { margin: 8px 0 0 18px; padding: 0; }
+    .error-list li { margin: 5px 0; }
+    .gate-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 9px;
+      margin-top: 15px;
+    }
+    .gate-grid div {
+      min-height: 102px;
+      padding: 11px;
+      border: 1px solid #d6dcd3;
+      border-radius: 10px;
+      background: #edf0e9;
+      font-size: 12px;
+      line-height: 1.5;
+    }
+    .gate-grid b { display: block; margin-bottom: 4px; color: #214f3c; }
+    .flow {
+      display: grid;
+      grid-template-columns: repeat(5, 1fr);
+      gap: 8px;
+      margin-top: 16px;
+    }
+    .flow div {
+      position: relative;
+      padding: 11px;
+      border: 1px solid #d2d9d0;
+      border-radius: 9px;
+      background: #f7f9f5;
+      font-size: 11px;
+      line-height: 1.45;
+      text-align: center;
+    }
+    .flow div:not(:last-child)::after {
+      position: absolute;
+      top: 50%;
+      right: -8px;
+      z-index: 2;
+      width: 8px;
+      color: #6f8075;
+      content: "›";
+      font-size: 19px;
+      font-weight: 900;
+      transform: translateY(-54%);
+    }
+    .flow b { display: block; margin-bottom: 3px; color: var(--green-dark); font-size: 12px; }
+    .handoff {
+      padding: 13px 15px;
+      color: #5e4b20;
+      border: 1px solid #d8c595;
+      border-radius: 11px;
+      background: #fff7e3;
+      font-size: 12px;
+      line-height: 1.55;
+    }
+    body.static-shot .shell { display: block; }
+    body.static-shot aside, body.static-shot .tabs { display: none; }
+    body.static-shot main { max-width: none; padding: 28px 34px 44px; }
+    body.static-shot .panel { display: block; margin-top: 18px; }
+    body.static-shot .panel::before {
+      display: block;
+      margin-bottom: 9px;
+      color: var(--green);
+      font-size: 13px;
+      font-weight: 900;
+    }
+    body.static-shot #draft::before { content: "畫面 ① · 草圖匯出前"; }
+    body.static-shot #valid::before { content: "畫面 ② · Terminal 回傳合法 universe"; }
+    body.static-shot #invalid::before { content: "畫面 ③ · 跨 asset class／身份不符"; }
+    body.static-shot .market-box { display: block; }
+    body.static-shot .market-box > div:not(.ruleline) {
+      display: inline-block;
+      width: 48.5%;
+      margin-right: 1%;
+      vertical-align: top;
+    }
+    body.static-shot .ruleline { display: block; padding-top: 12px; }
+    body.static-shot .rule-icon {
+      display: inline-block;
+      margin-right: 7px;
+      line-height: 20px;
+      text-align: center;
+    }
+    body.static-shot .grid4 { display: block; }
+    body.static-shot .chart {
+      display: inline-block;
+      width: 49%;
+      min-height: 96px;
+      margin: 0 .5% 9px 0;
+      padding-top: 34px;
+      vertical-align: top;
+    }
+    body.static-shot .freeze { display: block; }
+    body.static-shot .freeze div {
+      display: inline-block;
+      width: 32.4%;
+      min-height: 84px;
+      vertical-align: top;
+    }
+    body.static-shot .compare { display: block; }
+    body.static-shot .summary {
+      display: inline-block;
+      width: 36%;
+      min-height: 330px;
+      vertical-align: top;
+    }
+    body.static-shot .decision {
+      display: inline-block;
+      width: 62%;
+      min-height: 330px;
+      margin-left: 1%;
+      vertical-align: top;
+    }
+    body.static-shot .universe { display: block; }
+    body.static-shot .member {
+      display: inline-block;
+      width: 48.5%;
+      min-height: 66px;
+      vertical-align: top;
+    }
+    body.static-shot .gate-grid { display: block; }
+    body.static-shot .gate-grid div {
+      display: inline-block;
+      width: 24%;
+      min-height: 112px;
+      vertical-align: top;
+    }
+    body.static-shot .flow { display: block; text-align: center; }
+    body.static-shot .flow div {
+      display: inline-block;
+      width: 19%;
+      min-height: 84px;
+      vertical-align: top;
+    }
+    @media (max-width: 900px) {
+      .shell { grid-template-columns: 1fr; }
+      aside { display: none; }
+      main { padding: 24px 16px 58px; }
+      .market-box, .compare { grid-template-columns: 1fr; }
+      .grid4, .freeze, .gate-grid, .flow { grid-template-columns: 1fr 1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside>
+      <div class="brand"><span class="logo"></span>Futures Research</div>
+      <nav>
+        <div>總覽</div>
+        <div class="active">策略工作台</div>
+        <div>數據</div>
+        <div>回測</div>
+        <div>結果</div>
+        <div>模擬盤　<small>soon</small></div>
+      </nav>
+    </aside>
+
+    <main>
+      <div class="top">
+        <div>
+          <h1>策略工作台</h1>
+          <div class="sub">P2 補充設計 v2：一包一個 primary instrument；App 確認整份策略，唔喺返程偷偷改 universe</div>
+        </div>
+        <div class="draft">Owner 已批准 · 2026-07-27 · 權威約束見 P2 #28–#35</div>
+      </div>
+
+      <div class="audit">
+        <b>閉環修正：</b>上一版「逐個 instrument 打勾」已取消。<code>strategy.v1</code> 係策略結構唯一真相；
+        Terminal 宣告嘅 universe 只可整份接受或退回修改。P4 之後先喺已授權 universe 入面選擇今次要回測 NQ、YM，或兩者。
+      </div>
+
+      <div class="tabs" aria-label="設計狀態切換">
+        <button class="tab active" data-tab="draft">① 草圖匯出</button>
+        <button class="tab" data-tab="valid">② 合法返程</button>
+        <button class="tab" data-tab="invalid">③ 非法返程</button>
+      </div>
+
+      <section class="panel active" id="draft">
+        <div class="card">
+          <div class="eyebrow">新增位置：草圖標題之後、四格上載之前</div>
+          <h2>新草圖 <span style="font-size:13px;color:#78847c;font-weight:500">sketch-20260727-01</span></h2>
+          <div class="help">Primary instrument 係 Owner 意圖；Terminal AI 唔准靠標題或圖片猜。Asset class 由共用 catalog 自動帶入，Owner 唔可以自由輸入。</div>
+
+          <label class="field-label">草圖標題（必填）</label>
+          <input class="title-input" value="NQ 趨勢日回踩 90EMA" aria-label="草圖標題" />
+
+          <div class="market-box">
+            <span class="required">必填 · 匯出 gate</span>
+            <div>
+              <label class="field-label" style="margin-top:0">Primary instrument</label>
+              <select id="instrument" aria-label="Primary instrument">
+                <option value="NQ">NQ — E-mini Nasdaq-100</option>
+                <option value="YM">YM — E-mini Dow</option>
+                <option value="GC">GC — Gold</option>
+              </select>
+            </div>
+            <div>
+              <label class="field-label" style="margin-top:0">Asset class（catalog 自動帶入）</label>
+              <div class="readonly"><strong id="assetClass">股票指數期貨</strong><span class="lock">唯讀 🔒</span></div>
+            </div>
+            <div class="ruleline">
+              <span class="rule-icon">1</span>
+              <span><b>四張圖只屬於同一個 primary instrument。</b> 呢個欄位連同 asset class 會寫入不可變圖文包；唔會由標題推斷，亦唔會由 Terminal 改寫。</span>
+            </div>
+          </div>
+
+          <div class="grid4">
+            <div class="chart"><span><b>D · bias 大框架</b><br>上載 <span class="symbol">NQ</span> 圖表</span></div>
+            <div class="chart"><span><b>1H · mid 中框架</b><br>上載 <span class="symbol">NQ</span> 圖表</span></div>
+            <div class="chart"><span><b>30m · auxiliary 輔助</b><br>上載 <span class="symbol">NQ</span> 圖表</span></div>
+            <div class="chart"><span><b>5m · entry 入市</b><br>上載 <span class="symbol">NQ</span> 圖表</span></div>
+          </div>
+
+          <div class="freeze">
+            <div><b>未上載任何圖</b>可以改 instrument；asset class 跟住 catalog 即時更新。</div>
+            <div><b>一上載任何圖</b>instrument 即鎖定，防止 NQ 圖被靜靜改標成 GC。</div>
+            <div><b>一匯出</b>整份草圖鎖定；要改就「複製成新草圖」，產生新 sketch id。</div>
+          </div>
+
+          <div class="actions">
+            <span class="status-ok">✓ 標題、instrument、四格圖片及四段判斷齊全先可匯出</span>
+            <div>
+              <button class="btn secondary">存草稿</button>
+              <button class="btn primary" id="toValid">匯出不可變圖文包 → Terminal</button>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="valid">
+        <div class="card">
+          <div class="eyebrow">返程 gate：對照原草圖，但唔改 AI 文件結構</div>
+          <h2>量化確認</h2>
+          <div class="help">Terminal 回傳完整 <code>strategy.v1</code>。App 核實 primary、asset class、universe 同草圖／catalog 一致；Owner 只會確認或退回整份策略。</div>
+
+          <div class="compare">
+            <div class="summary">
+              <h3>左：不可變原草圖</h3>
+              <div class="meta-row"><span>草圖</span><b>workshop / sketch-20260727-01</b></div>
+              <div class="meta-row"><span>Primary</span><b class="primaryText">NQ</b></div>
+              <div class="meta-row"><span>Asset class</span><span class="pill classText">股票指數期貨</span></div>
+              <div class="meta-row"><span>Owner 原意</span><b>趨勢日回踩 90EMA</b></div>
+              <div class="warn"><b>本機缺原草圖時：</b>顯示「無法左右對照」警告；但仍可用 strategy 自包含欄位＋catalog 驗證，唔會假裝搵到草圖。</div>
+            </div>
+
+            <div class="decision">
+              <h3>右：Terminal 宣告嘅完整策略範圍</h3>
+              <div class="meta-row"><span>Primary</span><b>NQ · 與草圖一致</b></div>
+              <div class="meta-row"><span>Asset class</span><span class="pill">股票指數期貨 · 全部一致</span></div>
+              <div class="meta-row"><span>Session</span><b>ETH · 結構欄位唯讀</b></div>
+              <div class="universe">
+                <div class="member"><b>NQ · Primary</b>股票指數期貨<br><small>原草圖市場</small></div>
+                <div class="member"><b>YM · Terminal 建議擴展</b>股票指數期貨<br><small>理由：同屬股指趨勢結構；價差以 ticks／R 正規化，仍待回測</small></div>
+              </div>
+              <div class="note">
+                <b>同 asset class ≠ 已證明策略有效。</b> 呢度只確認「策略聲稱適用 NQ＋YM」。之後 P4 可以選 NQ、YM 或兩者；
+                每個新增市場必須有非空 expansion rationale；每個 run 各自 USD 100,000 起步，最後由 P5 證據判斷。
+              </div>
+            </div>
+          </div>
+
+          <div class="actions">
+            <button class="btn secondary">唔同意，返 Terminal 修改整份策略</button>
+            <button class="btn primary">✓ 確認整份策略 → 建立不可變新版本</button>
+          </div>
+          <div class="help" style="margin-top:10px">確認之前：只驗證、零寫入。確認之後：只寫入 Terminal 原文及驗證快照；App 唔會另存一份「approved instruments」去改變原文。</div>
+        </div>
+
+        <div class="card">
+          <div class="eyebrow">資料閉環</div>
+          <h3>由 Root symbol 到實際回測合約</h3>
+          <div class="flow">
+            <div><b>Sketch bundle</b><code>NQ</code>＋<code>equity_index_futures</code></div>
+            <div><b>Strategy version</b>primary NQ；universe NQ＋YM</div>
+            <div><b>P4 選今次批次</b>只可選 universe ∩ 有資料</div>
+            <div><b>Run manifest</b>鎖定 <code>NQ-202609-CME</code></div>
+            <div><b>P5 結果證據</b>逐市場比較；可返 Terminal 迭代</div>
+          </div>
+        </div>
+      </section>
+
+      <section class="panel" id="invalid">
+        <div class="card">
+          <div class="eyebrow" style="color:var(--red)">Fail closed · 零寫入</div>
+          <h2>量化確認 — 文件未通過</h2>
+          <div class="help">錯誤會指向確切欄位，Owner 可以原句貼返 Terminal。App 唔會用 checkbox 幫份 YAML「修正」。</div>
+
+          <div class="compare">
+            <div class="summary">
+              <h3>原草圖身份</h3>
+              <div class="meta-row"><span>Primary</span><b>NQ</b></div>
+              <div class="meta-row"><span>Asset class</span><span class="pill">股票指數期貨</span></div>
+              <div class="meta-row"><span>合法同類</span><b>NQ、YM</b></div>
+            </div>
+            <div class="decision" style="border-color:#e1b7b0;background:#fff8f6">
+              <h3>Terminal 回傳</h3>
+              <div class="universe">
+                <div class="member"><b>NQ · Primary</b>股票指數期貨</div>
+                <div class="member" style="border-color:#dfb1aa;background:#fff2ef"><b>GC · 不合法擴展</b>商品期貨</div>
+              </div>
+              <div class="error">
+                <b>未能採用：</b>
+                <ul class="error-list">
+                  <li><code>universe.contracts[1]</code>：GC 同 primary NQ 唔屬同一 asset class。</li>
+                  <li>請由 Terminal 移除 GC，或由 GC 草圖建立另一個策略版本；唔准由 App 靜靜刪走。</li>
+                </ul>
+              </div>
+            </div>
+          </div>
+
+          <div class="gate-grid">
+            <div><b>Primary 不符</b>草圖 NQ、策略寫 YM → 打回；Terminal 唔准改草圖主市場。</div>
+            <div><b>Primary 不在 universe</b>例如 primary NQ、contracts 只有 YM → 打回。</div>
+            <div><b>未知 symbol／分類</b>catalog 無記錄 → 打回，唔准估 asset class。</div>
+            <div><b>Session／幣別／理由</b>任一市場不支援策略 session、非 USD，或新增市場冇 rationale → 打回。</div>
+          </div>
+
+          <div class="actions">
+            <button class="btn secondary">複製錯誤訊息</button>
+            <button class="btn danger" disabled>確認採用（已阻擋）</button>
+          </div>
+        </div>
+
+        <div class="handoff">
+          <b>Insight 支線同樣守「一包一個 primary instrument」：</b>
+          <code>insight.v1</code> 要保留 instrument／asset class，否則日後只剩一句「開市頭 30 分鐘假突破多」，無法知道係 NQ 定 GC。
+          Insight 仍然只係筆記，唔會自動連策略或回測。舊前端草圖未匯出者要補揀 instrument；已匯出而缺欄者只可複製成新 sketch id。
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <script>
+    if (/(?:\?|&)static=1(?:&|$)/.test(window.location.search)) {
+      document.body.classList.add("static-shot");
+    }
+
+    var market = {
+      NQ: { symbol: "NQ", classLabel: "股票指數期貨" },
+      YM: { symbol: "YM", classLabel: "股票指數期貨" },
+      GC: { symbol: "GC", classLabel: "商品期貨" }
+    };
+    var tabs = Array.prototype.slice.call(document.querySelectorAll(".tab"));
+    var panels = Array.prototype.slice.call(document.querySelectorAll(".panel"));
+
+    function show(id) {
+      tabs.forEach(function (tab) {
+        tab.classList.toggle("active", tab.getAttribute("data-tab") === id);
+      });
+      panels.forEach(function (panel) {
+        panel.classList.toggle("active", panel.id === id);
+      });
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    }
+
+    tabs.forEach(function (tab) {
+      tab.addEventListener("click", function () {
+        show(tab.getAttribute("data-tab"));
+      });
+    });
+    document.getElementById("toValid").addEventListener("click", function () {
+      show("valid");
+    });
+    document.getElementById("instrument").addEventListener("change", function (event) {
+      var current = market[event.target.value];
+      document.getElementById("assetClass").textContent = current.classLabel;
+      Array.prototype.forEach.call(document.querySelectorAll(".symbol"), function (node) {
+        node.textContent = current.symbol;
+      });
+      Array.prototype.forEach.call(document.querySelectorAll(".primaryText"), function (node) {
+        node.textContent = current.symbol;
+      });
+      Array.prototype.forEach.call(document.querySelectorAll(".classText"), function (node) {
+        node.textContent = current.classLabel;
+      });
+    });
+  </script>
+</body>
+</html>

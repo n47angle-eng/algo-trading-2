@@ -1,0 +1,1016 @@
+{
+  "tick_size": 1.0,
+  "pullback_ema_period": 90,
+  "steps": [
+    {
+      "entry": {
+        "timeframe": "5m",
+        "timestamp": "2026-07-20T13:30:00Z",
+        "ts_init": "2026-07-20T13:35:00Z",
+        "open": 104,
+        "high": 106,
+        "low": 102,
+        "close": 104,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 99,
+        "ema_50": 99.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "mid": {
+        "timeframe": "1H",
+        "timestamp": "2026-07-20T10:00:00Z",
+        "ts_init": "2026-07-20T11:00:00Z",
+        "open": 104,
+        "high": 106,
+        "low": 102,
+        "close": 104,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 99,
+        "ema_50": 99.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "daily": {
+        "regime": "trend",
+        "direction": "long",
+        "normalized_separation": 1.0,
+        "normalized_slope": 1.0,
+        "recent_average_true_range": 5.0,
+        "snapshot": {
+          "timeframe": "D",
+          "timestamp": "2026-07-15T00:00:00Z",
+          "ts_init": "2026-07-16T00:00:00Z",
+          "open": 106,
+          "high": 110,
+          "low": 100,
+          "close": 106,
+          "volume": 100,
+          "source_count": 1,
+          "ema_18": 105,
+          "ema_50": 102.5,
+          "ema_90": 100,
+          "atr_14": 10.0,
+          "is_ready": true
+        }
+      },
+      "update_events": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        }
+      ],
+      "entry_intents": [],
+      "pending_signal": null,
+      "pullback_state": "idle",
+      "pullback_direction": "none",
+      "mid_pullback_state": "idle",
+      "event_log": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        }
+      ]
+    },
+    {
+      "entry": {
+        "timeframe": "5m",
+        "timestamp": "2026-07-20T13:35:00Z",
+        "ts_init": "2026-07-20T13:40:00Z",
+        "open": 108,
+        "high": 110,
+        "low": 105,
+        "close": 108,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "mid": {
+        "timeframe": "1H",
+        "timestamp": "2026-07-20T11:00:00Z",
+        "ts_init": "2026-07-20T12:00:00Z",
+        "open": 108,
+        "high": 110,
+        "low": 105,
+        "close": 108,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "daily": {
+        "regime": "trend",
+        "direction": "long",
+        "normalized_separation": 1.0,
+        "normalized_slope": 1.0,
+        "recent_average_true_range": 5.0,
+        "snapshot": {
+          "timeframe": "D",
+          "timestamp": "2026-07-15T00:00:00Z",
+          "ts_init": "2026-07-16T00:00:00Z",
+          "open": 106,
+          "high": 110,
+          "low": 100,
+          "close": 106,
+          "volume": 100,
+          "source_count": 1,
+          "ema_18": 105,
+          "ema_50": 102.5,
+          "ema_90": 100,
+          "atr_14": 10.0,
+          "is_ready": true
+        }
+      },
+      "update_events": [
+        {
+          "sequence": 3,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "short",
+          "to_state": "long",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T12:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 4,
+          "machine": "mid_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T11:00:00Z",
+          "ts_init": "2026-07-20T12:00:00Z"
+        },
+        {
+          "sequence": 5,
+          "machine": "entry_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        }
+      ],
+      "entry_intents": [],
+      "pending_signal": null,
+      "pullback_state": "awaiting_touch",
+      "pullback_direction": "long",
+      "mid_pullback_state": "awaiting_touch",
+      "event_log": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 3,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "short",
+          "to_state": "long",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T12:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 4,
+          "machine": "mid_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T11:00:00Z",
+          "ts_init": "2026-07-20T12:00:00Z"
+        },
+        {
+          "sequence": 5,
+          "machine": "entry_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        }
+      ]
+    },
+    {
+      "entry": {
+        "timeframe": "5m",
+        "timestamp": "2026-07-20T13:40:00Z",
+        "ts_init": "2026-07-20T13:45:00Z",
+        "open": 102,
+        "high": 105,
+        "low": 99,
+        "close": 102,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "mid": {
+        "timeframe": "1H",
+        "timestamp": "2026-07-20T12:00:00Z",
+        "ts_init": "2026-07-20T13:00:00Z",
+        "open": 102,
+        "high": 105,
+        "low": 99,
+        "close": 102,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "daily": {
+        "regime": "trend",
+        "direction": "long",
+        "normalized_separation": 1.0,
+        "normalized_slope": 1.0,
+        "recent_average_true_range": 5.0,
+        "snapshot": {
+          "timeframe": "D",
+          "timestamp": "2026-07-15T00:00:00Z",
+          "ts_init": "2026-07-16T00:00:00Z",
+          "open": 106,
+          "high": 110,
+          "low": 100,
+          "close": 106,
+          "volume": 100,
+          "source_count": 1,
+          "ema_18": 105,
+          "ema_50": 102.5,
+          "ema_90": 100,
+          "atr_14": 10.0,
+          "is_ready": true
+        }
+      },
+      "update_events": [
+        {
+          "sequence": 6,
+          "machine": "mid_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T12:00:00Z",
+          "ts_init": "2026-07-20T13:00:00Z"
+        },
+        {
+          "sequence": 7,
+          "machine": "entry_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T13:40:00Z",
+          "ts_init": "2026-07-20T13:45:00Z"
+        }
+      ],
+      "entry_intents": [],
+      "pending_signal": null,
+      "pullback_state": "awaiting_signal",
+      "pullback_direction": "long",
+      "mid_pullback_state": "awaiting_signal",
+      "event_log": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 3,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "short",
+          "to_state": "long",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T12:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 4,
+          "machine": "mid_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T11:00:00Z",
+          "ts_init": "2026-07-20T12:00:00Z"
+        },
+        {
+          "sequence": 5,
+          "machine": "entry_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 6,
+          "machine": "mid_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T12:00:00Z",
+          "ts_init": "2026-07-20T13:00:00Z"
+        },
+        {
+          "sequence": 7,
+          "machine": "entry_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T13:40:00Z",
+          "ts_init": "2026-07-20T13:45:00Z"
+        }
+      ]
+    },
+    {
+      "entry": {
+        "timeframe": "5m",
+        "timestamp": "2026-07-20T13:45:00Z",
+        "ts_init": "2026-07-20T13:50:00Z",
+        "open": 101,
+        "high": 104,
+        "low": 100,
+        "close": 101,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "mid": {
+        "timeframe": "1H",
+        "timestamp": "2026-07-20T12:00:00Z",
+        "ts_init": "2026-07-20T13:00:00Z",
+        "open": 102,
+        "high": 105,
+        "low": 99,
+        "close": 102,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "daily": {
+        "regime": "trend",
+        "direction": "long",
+        "normalized_separation": 1.0,
+        "normalized_slope": 1.0,
+        "recent_average_true_range": 5.0,
+        "snapshot": {
+          "timeframe": "D",
+          "timestamp": "2026-07-15T00:00:00Z",
+          "ts_init": "2026-07-16T00:00:00Z",
+          "open": 106,
+          "high": 110,
+          "low": 100,
+          "close": 106,
+          "volume": 100,
+          "source_count": 1,
+          "ema_18": 105,
+          "ema_50": 102.5,
+          "ema_90": 100,
+          "atr_14": 10.0,
+          "is_ready": true
+        }
+      },
+      "update_events": [
+        {
+          "sequence": 8,
+          "machine": "entry_signal",
+          "event_type": "signal_created",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "pending",
+          "direction": "long",
+          "price": 105,
+          "details": {
+            "signal_kind": "inside",
+            "stop_reference": 98.0,
+            "inside_count": 1
+          },
+          "timestamp": "2026-07-20T13:45:00Z",
+          "ts_init": "2026-07-20T13:50:00Z"
+        }
+      ],
+      "entry_intents": [],
+      "pending_signal": {
+        "kind": "inside",
+        "direction": "long",
+        "entry_price": 105,
+        "stop_price": 98.0
+      },
+      "pullback_state": "awaiting_signal",
+      "pullback_direction": "long",
+      "mid_pullback_state": "awaiting_signal",
+      "event_log": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 3,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "short",
+          "to_state": "long",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T12:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 4,
+          "machine": "mid_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T11:00:00Z",
+          "ts_init": "2026-07-20T12:00:00Z"
+        },
+        {
+          "sequence": 5,
+          "machine": "entry_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 6,
+          "machine": "mid_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T12:00:00Z",
+          "ts_init": "2026-07-20T13:00:00Z"
+        },
+        {
+          "sequence": 7,
+          "machine": "entry_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T13:40:00Z",
+          "ts_init": "2026-07-20T13:45:00Z"
+        },
+        {
+          "sequence": 8,
+          "machine": "entry_signal",
+          "event_type": "signal_created",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "pending",
+          "direction": "long",
+          "price": 105,
+          "details": {
+            "signal_kind": "inside",
+            "stop_reference": 98.0,
+            "inside_count": 1
+          },
+          "timestamp": "2026-07-20T13:45:00Z",
+          "ts_init": "2026-07-20T13:50:00Z"
+        }
+      ]
+    },
+    {
+      "entry": {
+        "timeframe": "5m",
+        "timestamp": "2026-07-20T13:50:00Z",
+        "ts_init": "2026-07-20T13:55:00Z",
+        "open": 104,
+        "high": 106,
+        "low": 100,
+        "close": 104,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "mid": {
+        "timeframe": "1H",
+        "timestamp": "2026-07-20T12:00:00Z",
+        "ts_init": "2026-07-20T13:00:00Z",
+        "open": 102,
+        "high": 105,
+        "low": 99,
+        "close": 102,
+        "volume": 100,
+        "source_count": 1,
+        "ema_18": 101,
+        "ema_50": 100.5,
+        "ema_90": 100,
+        "atr_14": 10.0,
+        "is_ready": true
+      },
+      "daily": {
+        "regime": "trend",
+        "direction": "long",
+        "normalized_separation": 1.0,
+        "normalized_slope": 1.0,
+        "recent_average_true_range": 5.0,
+        "snapshot": {
+          "timeframe": "D",
+          "timestamp": "2026-07-15T00:00:00Z",
+          "ts_init": "2026-07-16T00:00:00Z",
+          "open": 106,
+          "high": 110,
+          "low": 100,
+          "close": 106,
+          "volume": 100,
+          "source_count": 1,
+          "ema_18": 105,
+          "ema_50": 102.5,
+          "ema_90": 100,
+          "atr_14": 10.0,
+          "is_ready": true
+        }
+      },
+      "update_events": [
+        {
+          "sequence": 9,
+          "machine": "entry_signal",
+          "event_type": "entry_intent_created",
+          "phase": "intrabar",
+          "from_state": "pending",
+          "to_state": "triggered",
+          "direction": "long",
+          "price": 105,
+          "details": {
+            "signal_kind": "inside",
+            "stop_reference": 98.0
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        },
+        {
+          "sequence": 10,
+          "machine": "entry_pullback",
+          "event_type": "pullback_completed",
+          "phase": "intrabar",
+          "from_state": "awaiting_signal",
+          "to_state": "completed",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "entry_intent_created"
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        },
+        {
+          "sequence": 11,
+          "machine": "mid_pullback",
+          "event_type": "pullback_completed",
+          "phase": "intrabar",
+          "from_state": "awaiting_signal",
+          "to_state": "completed",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "entry_intent_created"
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        }
+      ],
+      "entry_intents": [
+        {
+          "direction": "long",
+          "entry_reference": 105,
+          "stop_reference": 98.0,
+          "signal_kind": "inside"
+        }
+      ],
+      "pending_signal": null,
+      "pullback_state": "completed",
+      "pullback_direction": "long",
+      "mid_pullback_state": "completed",
+      "event_log": [
+        {
+          "sequence": 1,
+          "machine": "daily_regime",
+          "event_type": "daily_regime_changed",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "trend",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-16T00:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 2,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "none",
+          "to_state": "short",
+          "direction": "short",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T11:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:30:00Z",
+          "ts_init": "2026-07-20T13:35:00Z"
+        },
+        {
+          "sequence": 3,
+          "machine": "mid_direction",
+          "event_type": "mid_direction_changed",
+          "phase": "close",
+          "from_state": "short",
+          "to_state": "long",
+          "direction": "long",
+          "price": null,
+          "details": {
+            "source_close": "2026-07-20T12:00:00+00:00"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 4,
+          "machine": "mid_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T11:00:00Z",
+          "ts_init": "2026-07-20T12:00:00Z"
+        },
+        {
+          "sequence": 5,
+          "machine": "entry_pullback",
+          "event_type": "pullback_armed",
+          "phase": "close",
+          "from_state": "idle",
+          "to_state": "awaiting_touch",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "ema_cross"
+          },
+          "timestamp": "2026-07-20T13:35:00Z",
+          "ts_init": "2026-07-20T13:40:00Z"
+        },
+        {
+          "sequence": 6,
+          "machine": "mid_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T12:00:00Z",
+          "ts_init": "2026-07-20T13:00:00Z"
+        },
+        {
+          "sequence": 7,
+          "machine": "entry_pullback",
+          "event_type": "pullback_touched",
+          "phase": "close",
+          "from_state": "awaiting_touch",
+          "to_state": "awaiting_signal",
+          "direction": "long",
+          "price": 99,
+          "details": {
+            "reason": "ema_90_touched"
+          },
+          "timestamp": "2026-07-20T13:40:00Z",
+          "ts_init": "2026-07-20T13:45:00Z"
+        },
+        {
+          "sequence": 8,
+          "machine": "entry_signal",
+          "event_type": "signal_created",
+          "phase": "close",
+          "from_state": null,
+          "to_state": "pending",
+          "direction": "long",
+          "price": 105,
+          "details": {
+            "signal_kind": "inside",
+            "stop_reference": 98.0,
+            "inside_count": 1
+          },
+          "timestamp": "2026-07-20T13:45:00Z",
+          "ts_init": "2026-07-20T13:50:00Z"
+        },
+        {
+          "sequence": 9,
+          "machine": "entry_signal",
+          "event_type": "entry_intent_created",
+          "phase": "intrabar",
+          "from_state": "pending",
+          "to_state": "triggered",
+          "direction": "long",
+          "price": 105,
+          "details": {
+            "signal_kind": "inside",
+            "stop_reference": 98.0
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        },
+        {
+          "sequence": 10,
+          "machine": "entry_pullback",
+          "event_type": "pullback_completed",
+          "phase": "intrabar",
+          "from_state": "awaiting_signal",
+          "to_state": "completed",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "entry_intent_created"
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        },
+        {
+          "sequence": 11,
+          "machine": "mid_pullback",
+          "event_type": "pullback_completed",
+          "phase": "intrabar",
+          "from_state": "awaiting_signal",
+          "to_state": "completed",
+          "direction": "long",
+          "price": 110,
+          "details": {
+            "reason": "entry_intent_created"
+          },
+          "timestamp": "2026-07-20T13:50:00Z",
+          "ts_init": "2026-07-20T13:55:00Z"
+        }
+      ]
+    }
+  ]
+}

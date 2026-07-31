@@ -1,0 +1,557 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P2 策略工作台 — 設計定稿</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { display: block; max-width: 100%; }
+  pre { margin: 0; }
+</style>
+<style>
+  :root {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff;
+    --up: #0a6cff;      /* 上載圖片 */
+    --ty: #1e8e43;      /* 你打字 */
+    --out: #a86200;     /* 匯出去本地 */
+    --in: #8944ab;      /* 由本地匯入 */
+    --ro: #8b93a1;      /* 唯讀 */
+    --neg: #dc372a;
+    --ff: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
+      "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0e13; --elev: #101319;
+      --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+      --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+      --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+      --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+      --in: #bf5af2; --ro: #59616f; --neg: #ff453a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0e13; --elev: #101319;
+    --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+    --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+    --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+    --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+    --in: #bf5af2; --ro: #59616f; --neg: #ff453a;
+  }
+  :root[data-theme="light"] {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff; --up: #0a6cff; --ty: #1e8e43; --out: #a86200;
+    --in: #8944ab; --ro: #8b93a1; --neg: #dc372a;
+  }
+
+  body { margin:0; background:var(--bg); color:var(--tx); font-family:var(--ff);
+    font-size:0.9375rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .page { max-width:64rem; margin:0 auto; padding:2.25rem 1.25rem 5rem; }
+
+  h1 { font-size:1.5rem; letter-spacing:-0.02em; margin:0 0 0.3rem; }
+  .lede { color:var(--tx2); margin:0 0 0.4rem; font-size:0.9375rem; }
+  .stamp { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); margin:0 0 1.75rem; }
+
+  h2 { font-size:1.0625rem; margin:2.5rem 0 0.5rem; padding-top:1.1rem;
+    border-top:1px solid var(--line); display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; }
+  h2 small { font-weight:400; font-size:0.75rem; color:var(--tx3); font-family:var(--mono); }
+  p { margin:0 0 0.75rem; }
+  code { font-family:var(--mono); font-size:0.8125em; background:var(--fill); padding:0.1em 0.3em; border-radius:0.25rem; }
+
+  /* ---------- legend ---------- */
+  .legend { display:grid; grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr)); gap:0.4rem;
+    padding:0.75rem; border:1px solid var(--line); border-radius:0.6rem; background:var(--card2); margin:0 0 1.5rem; }
+  .lg { display:flex; gap:0.4rem; align-items:flex-start; font-size:0.75rem; color:var(--tx2); }
+  .lg b { flex:none; }
+
+  .k { font-family:var(--mono); font-size:0.625rem; font-weight:700; padding:0.08rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; }
+  .k--up { color:var(--up); border-color:color-mix(in srgb,var(--up) 45%,transparent); background:color-mix(in srgb,var(--up) 12%,transparent); }
+  .k--ty { color:var(--ty); border-color:color-mix(in srgb,var(--ty) 45%,transparent); background:color-mix(in srgb,var(--ty) 12%,transparent); }
+  .k--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 50%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+  .k--in { color:var(--in); border-color:color-mix(in srgb,var(--in) 50%,transparent); background:color-mix(in srgb,var(--in) 14%,transparent); }
+  .k--ro { color:var(--ro); border-color:var(--line); background:var(--fill); }
+
+  /* ---------- flow strip ---------- */
+  .flow { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:0.4rem; margin:0 0 1.5rem; }
+  .fl { border:1px solid var(--line); border-radius:0.5rem; background:var(--card); padding:0.55rem 0.65rem; font-size:0.75rem; }
+  .fl b { display:block; font-size:0.6875rem; font-family:var(--mono); color:var(--acc); margin-bottom:0.15rem; }
+  .fl--off { background:var(--fill); border-style:dashed; }
+  .fl--off b { color:var(--out); }
+  .fl s { text-decoration:none; color:var(--tx2); }
+
+  /* ---------- app frame ---------- */
+  .frame { display:grid; grid-template-columns:8rem minmax(0,1fr); border:1px solid var(--line);
+    border-radius:0.7rem; background:var(--elev); overflow:hidden; margin:0.75rem 0 0; }
+  .side { background:var(--card2); border-right:1px solid var(--line); padding:0.5rem 0;
+    display:flex; flex-direction:column; gap:0.05rem; }
+  .side i { font-style:normal; padding:0.26rem 0.55rem; color:var(--tx3); font-size:0.75rem; }
+  .side i.on { color:var(--tx); font-weight:700; background:color-mix(in srgb,var(--acc) 14%,transparent); }
+  .main { padding:0.8rem; display:flex; flex-direction:column; gap:0.55rem; min-width:0; }
+
+  .tabs { display:flex; gap:0.25rem; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:0.5rem; }
+  .tabs span { font-size:0.6875rem; padding:0.18rem 0.5rem; border-radius:0.35rem;
+    border:1px solid var(--line); color:var(--tx3); white-space:nowrap; }
+  .tabs span.on { background:color-mix(in srgb,var(--acc) 16%,transparent);
+    border-color:color-mix(in srgb,var(--acc) 35%,transparent); color:var(--tx); font-weight:700; }
+
+  .hd { display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; font-size:0.8125rem; font-weight:700; }
+  .hd em { font-style:normal; font-family:var(--mono); font-size:0.6875rem; color:var(--tx3); font-weight:400; }
+
+  .fld { border:1px solid var(--line); border-radius:0.4rem; background:var(--card);
+    padding:0.4rem 0.5rem; font-size:0.75rem; display:flex; gap:0.4rem; align-items:flex-start; flex-wrap:wrap; }
+  .fld > s { text-decoration:none; color:var(--tx2); flex:1; min-width:8rem; }
+  .fld--ty { border-color:color-mix(in srgb,var(--ty) 40%,transparent); }
+  .fld--up { border-style:dashed; border-color:color-mix(in srgb,var(--up) 50%,transparent); }
+  .fld--in { border-color:color-mix(in srgb,var(--in) 40%,transparent); }
+  .fld--ro { background:var(--fill); color:var(--tx3); }
+  .fld--req { border-left:2px solid var(--neg); }
+
+  .g4 { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; }
+  .cell { border:1px solid var(--line); border-radius:0.45rem; background:var(--card);
+    padding:0.45rem; display:flex; flex-direction:column; gap:0.3rem; }
+  .cell > .tf { font-family:var(--mono); font-size:0.6875rem; font-weight:700; color:var(--acc);
+    display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap; }
+  .cell > .tf u { text-decoration:none; font-size:0.625rem; color:var(--tx3); border:1px solid var(--line);
+    border-radius:999px; padding:0 0.3rem; font-weight:400; }
+  .drop { border:1px dashed color-mix(in srgb,var(--up) 55%,transparent); border-radius:0.35rem;
+    background:color-mix(in srgb,var(--up) 6%,transparent); padding:0.6rem 0.4rem; text-align:center;
+    font-size:0.6875rem; color:var(--tx2); display:flex; flex-direction:column; gap:0.2rem; align-items:center; }
+  .chips { display:flex; gap:0.2rem; flex-wrap:wrap; }
+  .chips u { text-decoration:none; font-family:var(--mono); font-size:0.5625rem; padding:0.05rem 0.3rem;
+    border:1px solid var(--line); border-radius:999px; color:var(--tx3); }
+  .chips u.on { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 40%,transparent);
+    background:color-mix(in srgb,var(--acc) 10%,transparent); }
+
+  .btn { font-size:0.6875rem; font-weight:700; padding:0.22rem 0.55rem; border-radius:0.35rem;
+    border:1px solid; white-space:nowrap; }
+  .btn--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 55%,transparent);
+    background:color-mix(in srgb,var(--out) 16%,transparent); }
+  .btn--in { color:var(--in); border-color:color-mix(in srgb,var(--in) 55%,transparent);
+    background:color-mix(in srgb,var(--in) 16%,transparent); }
+  .btn--go { color:var(--tx); border-color:color-mix(in srgb,var(--acc) 45%,transparent);
+    background:color-mix(in srgb,var(--acc) 20%,transparent); }
+  .btn--gh { color:var(--tx2); border-color:var(--line); background:var(--fill); }
+  .btn--del { color:var(--neg); border-color:color-mix(in srgb,var(--neg) 40%,transparent);
+    background:color-mix(in srgb,var(--neg) 10%,transparent); }
+  .btn--off { color:var(--tx3); border-color:var(--line); background:var(--fill); opacity:0.6; }
+
+  .row { display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; }
+  .split { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line);
+    border-radius:0.45rem; overflow:hidden; }
+  .split > div { padding:0.5rem; display:flex; flex-direction:column; gap:0.3rem; font-size:0.75rem; }
+  .split > div:first-child { border-right:1px solid var(--line); background:var(--fill); }
+  .split h4 { margin:0; font-size:0.625rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--tx3); }
+
+  .tbl { border:1px solid var(--line); border-radius:0.45rem; overflow:hidden; font-size:0.75rem; }
+  .tbl > div { display:grid; grid-template-columns:6.5rem 1fr auto; gap:0.5rem;
+    padding:0.35rem 0.5rem; border-bottom:1px solid var(--line); align-items:center; }
+  .tbl > div:last-child { border-bottom:0; }
+  .tbl > div.h { background:var(--fill); font-size:0.625rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); font-weight:700; }
+  .tbl .mono { font-family:var(--mono); font-size:0.6875rem; }
+
+  .cmt { border-left:2px solid var(--acc); background:color-mix(in srgb,var(--acc) 7%,transparent);
+    padding:0.45rem 0.6rem; border-radius:0 0.35rem 0.35rem 0; font-size:0.75rem; color:var(--tx2); }
+  .cmt b { color:var(--tx); }
+
+  .exit { border:1px dashed color-mix(in srgb,var(--out) 55%,transparent); border-radius:0.5rem;
+    background:color-mix(in srgb,var(--out) 7%,transparent); padding:0.6rem 0.7rem; font-size:0.75rem; }
+  .exit b { color:var(--out); font-family:var(--mono); font-size:0.6875rem; }
+  .exit pre { margin:0.3rem 0 0; font-family:var(--mono); font-size:0.6875rem;
+    color:var(--tx2); white-space:pre-wrap; }
+
+  .ask { margin-top:2.75rem; padding:1rem 1.15rem; border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);
+    border-radius:0.7rem; background:color-mix(in srgb,var(--acc) 7%,transparent); }
+  .ask h3 { margin:0 0 0.45rem; font-size:1rem; }
+  .ask ol { margin:0; padding-left:1.2rem; }
+  .ask li { margin-bottom:0.35rem; font-size:0.875rem; }
+
+  @media (max-width:36rem) {
+    .frame { grid-template-columns:1fr; }
+    .side { flex-flow:row wrap; border-right:0; border-bottom:1px solid var(--line); padding:0.35rem; }
+    .g4, .split { grid-template-columns:1fr; }
+    .split > div:first-child { border-right:0; border-bottom:1px solid var(--line); }
+    .tbl > div { grid-template-columns:1fr; gap:0.15rem; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+
+  /* ---------- 2026-07-25 修訂：只補樣式，內容零改動（Owner 已批） ----------
+     原稿用咗 .tw / .step / var(--pos) 但從來冇定義，
+     令「實作約束」表冇框冇間距、步驟編號冇圓圈、正數冇綠色。            */
+  :root { --pos: #1e8e43; }
+  @media (prefers-color-scheme: dark) { :root { --pos: #30d158; } }
+  :root[data-theme="dark"] { --pos: #30d158; }
+  :root[data-theme="light"] { --pos: #1e8e43; }
+
+  .tw { overflow-x:auto; border:1px solid var(--line); border-radius:0.5rem; background:var(--card2); }
+  .tw table { border-collapse:collapse; width:100%; font-size:0.8125rem; }
+  .tw th, .tw td { text-align:left; vertical-align:top; padding:0.45rem 0.6rem;
+    border-bottom:1px solid var(--line); }
+  .tw tr:last-child td { border-bottom:0; }
+  .tw th { background:var(--fill); font-size:0.6875rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); white-space:nowrap; }
+  .tw td.mono { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); white-space:nowrap; }
+  .tw td b { color:var(--tx); }
+
+  .step { font-family:var(--mono); font-size:0.625rem; font-weight:700; color:var(--acc); flex:none;
+    border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);
+    background:color-mix(in srgb,var(--acc) 12%,transparent);
+    border-radius:999px; padding:0.05rem 0.4rem; }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>P2 策略工作台 — 設計定稿</h1>
+  <p class="lede">Owner 逐項拍板嘅四分頁設計。呢份係實作依據，取代之前散落嘅三個修訂稿；2026-07-27 加入 primary instrument 閉環補充。</p>
+  <p class="stamp">定稿 2026-07-25 · Instrument 補充 2026-07-27 · chart_source: screenshot · 側欄「工房」取消，內容併入本頁</p>
+
+  <div class="cmt"><b>⚠️ 給實作者</b>：本檔案<b>取代</b> Desktop 上嘅 <code>futures-ui-02/03/04</code> 三個稿。嗰三個係傾嘅過程，有互相矛盾嘅版本，<b>唔准用</b>。所有拍板決定集中喺最後一節「實作約束」——mockup 表達唔到嘅嘢全部喺嗰度。</div>
+
+  <div class="legend">
+    <div class="lg"><b><span class="k k--up">上載</span></b><span>Owner 揀本地圖片檔（或拖放）。虛線框＝上載區</span></div>
+    <div class="lg"><b><span class="k k--ty">打字</span></b><span>Owner 自己輸入。綠邊框＝輸入欄</span></div>
+    <div class="lg"><b><span class="k k--out">匯出</span></b><span>app 寫檔案落 <code>data\sketches\</code></span></div>
+    <div class="lg"><b><span class="k k--in">匯入</span></b><span>讀 AI 傾完之後嗰個檔</span></div>
+    <div class="lg"><b><span class="k k--ro">唯讀</span></b><span>系統顯示，Owner 改唔到</span></div>
+  </div>
+
+  <div class="flow">
+    <div class="fl"><b>分頁 ①</b><s>上載四張圖 ＋ 逐圖打文字 → 匯出圖文包</s></div>
+    <div class="fl fl--off"><b>離開 app</b><s>Owner 喺 terminal 同 AI 來回傾，傾到雙方同意</s></div>
+    <div class="fl"><b>分頁 ②</b><s>匯入 YAML → 對照 → 試跑預覽 → 確認採用</s></div>
+    <div class="fl"><b>分頁 ③</b><s>版本庫：過目、編輯（→新版本）、刪除</s></div>
+  </div>
+
+  <h2>分頁 ① 草圖 <small>sketch.v1 · journey S2a</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i class="on">策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="tabs"><span class="on">① 草圖</span><span>② 量化確認</span><span>③ 版本庫</span><span>市場洞察</span></div>
+
+      <div class="hd">新草圖 <em>sketch-20260725-01（自動編號）</em> <span class="btn btn--gh">＋ 新草圖</span></div>
+
+      <div class="tbl">
+        <div class="h"><span>你嘅草圖</span><span>狀態</span><span></span></div>
+        <div><span class="mono">sketch-20260725-01</span><span>草稿 · 30m、5m 兩格未填</span><span class="k k--ro">● 而家開緊</span></div>
+        <div><span class="mono">sketch-20260724-02</span><span>已匯出 · NQ 趨勢日回踩 90EMA</span><span class="btn btn--gh">揀返去</span></div>
+        <div><span class="mono">sketch-20260724-01</span><span>草稿 · 四格未填</span><span class="btn btn--gh">揀返去</span></div>
+      </div>
+      <div class="cmt"><b>草稿列表（Owner 拍板 2026-07-25 加入）</b>：冇呢個，「存草稿」只得返一半價值——離開再返嚟開得返最後嗰個，但<b>一撳「新草圖」就永遠返唔到轉頭</b>。資料本來就存住，只係之前冇畫面讀佢。</div>
+      <div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s><b>草圖標題（必填）</b>——例如「NQ 趨勢日回踩 90EMA」</s></div>
+
+      <div class="g4">
+        <div class="cell">
+          <div class="tf">D <u>bias 大框架</u></div>
+          <div class="drop"><span class="k k--up">上載</span><span>拖放或揀 D 圖截圖</span></div>
+          <div class="chips"><u class="on">ema18</u><u class="on">ema90</u><u>ema50</u><u>vwap</u><u>atr14</u></div>
+          <div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>D 圖判斷（必填）</s></div>
+        </div>
+        <div class="cell">
+          <div class="tf">1H <u>mid 中框架</u></div>
+          <div class="drop"><span class="k k--up">上載</span><span>拖放或揀 1H 圖截圖</span></div>
+          <div class="chips"><u class="on">ema18</u><u class="on">ema90</u><u>atr14</u></div>
+          <div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>1H 圖判斷（必填）</s></div>
+        </div>
+        <div class="cell">
+          <div class="tf">30m <u>auxiliary 輔助</u></div>
+          <div class="drop"><span class="k k--up">上載</span><span>拖放或揀 30m 圖截圖</span></div>
+          <div class="chips"><u class="on">ema18</u><u>ema50</u></div>
+          <div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>30m 圖判斷（必填）</s></div>
+        </div>
+        <div class="cell">
+          <div class="tf">5m <u>entry 入市</u></div>
+          <div class="drop"><span class="k k--up">上載</span><span>拖放或揀 5m 圖截圖</span></div>
+          <div class="chips"><u class="on">ema18</u><u class="on">ema90</u><u>vwap</u></div>
+          <div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>5m 圖判斷（必填）</s></div>
+        </div>
+      </div>
+
+      <div class="cmt">每格嘅 <b>時間框架</b>（可改，唔鎖死 D/1H/30m/5m）、<b>角色</b>、<b>指標 chips</b> 都由 Owner 揀。指標 chips 唔係裝飾——AI 靠佢知 Owner 當時睇緊咩線，而且<b>剔完冇要寫 <code>[]</code></b>，同「未填」係兩個唔同訊號。</div>
+
+      <div class="fld fld--ty"><span class="k k--ty">打字</span><s><b>整體理據 rationale</b>——四張圖串埋一齊嘅想法（AI 最需要呢段）</s></div>
+
+      <div class="row">
+        <span class="btn btn--out">⬇ 匯出圖文包</span>
+        <span class="btn btn--gh">存草稿</span>
+        <span class="k k--ro">標題或四格文字未填齊 → 匯出掣 disabled（要逐項講明差咩）</span>
+      </div>
+
+      <div class="exit">
+        <b>匯出後彈窗（Dialog 唔用 toast——因為 Owner 要複製嘢）</b>
+        <pre>已寫入：20-algo-trading-2\data\sketches\workshop\sketch-20260725-01\
+  ├ chart-d.png / chart-1h.png / chart-30m.png / chart-5m.png
+  ├ meta.yaml            ← 四格文字＋指標＋角色，機器讀
+  └ INSTRUCTIONS.md      ← 俾 AI 嘅指令書（自動生成、自包含、六段式）
+
+[⬇ 下載圖文包]  [⧉ 複製 terminal 開場白]  [開資料夾]  [去分頁 ② 等匯入]
+
+「下載圖文包」＝ 六個檔真係落你部電腦（Downloads），
+你自己搬去 20-algo-trading-2\data\sketches\workshop\ 就可以去 terminal。
+純前端做得到，唔使後端 —— 所以階段 B 就試得到成條流程。</pre>
+      </div>
+
+      <div class="cmt">彈窗嗰句<b>可一撳複製嘅開場白</b>係關鍵：Owner 貼落 terminal，AI 即刻知讀邊個資料夾、唔准靜靜哋估、傾完出咩格式。Owner 唔需要記任何嘢。<b>路徑用 repo 相對路徑</b>（<code>data/sketches/…</code>）——因為 terminal AI 嘅 cwd 就係 project folder。</div>
+    </div>
+  </div>
+
+  <h2>分頁 ② 量化確認 <small>strategy.v1 匯入 · journey S2c</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i class="on">策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="tabs"><span>① 草圖</span><span class="on">② 量化確認</span><span>③ 版本庫</span><span>市場洞察</span></div>
+
+      <div class="hd">匯入 AI 量化結果 <em>對應草圖 sketch-20260725-01（自動帶入，可改）</em></div>
+      <div class="row"><span class="btn btn--in">⬆ 揀 YAML 檔</span><span class="k k--ro">或</span><span class="btn btn--in">⬆ 直接貼文字</span></div>
+      <div class="fld fld--in"><span class="k k--in">匯入</span><s>由 <code>data\sketches\workshop\sketch-20260725-01\strategy.yaml</code> 讀入</s></div>
+
+      <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s><b>四層驗證</b>：格式 ✓ · 引用 ✓ · 語義 ✓ · 溯源 ✓　　失敗時逐層列，附 <span class="btn btn--gh">⧉ 複製全部錯誤</span>（純文字原文）。格式層失敗要講明「後面幾層未行過」</s></div>
+
+      <div class="split">
+        <div>
+          <h4>左：我想講嘅</h4>
+          <div class="cmt" style="margin:0 0 0.15rem;font-size:0.6875rem"><b>來源：分頁 ① · app 存住</b><br>Owner 上載嘅四張圖 ＋ 打嘅四段文字。<b>唔係由 AI 檔案讀出，唔需要重新打。</b></div>
+          <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s>四格縮圖 ＋ 四段判斷原文</s></div>
+          <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s>整體理據 rationale</s></div>
+        </div>
+        <div>
+          <h4>右：AI 聽到嘅</h4>
+          <div class="cmt" style="margin:0 0 0.15rem;font-size:0.6875rem"><b>來源：匯入嗰個 YAML · AI 寫嘅</b><br><b>一個字都唔係 Owner 打。</b></div>
+          <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s>參數樹（<b>通用 YAML 渲染，唔硬寫欄位</b>——schema 加新欄唔會隱形）</s></div>
+          <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s><b>unquantified_notes</b>——<b>永不摺埋，0 項都要顯示「0 項」</b></s></div>
+          <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s>rationale ＋ provenance ＋ YAML 原文（可摺）</s></div>
+        </div>
+      </div>
+      <div class="cmt"><b>呢個對照嘅唯一用途</b>：一眼睇出「我想講嘅」同「AI 聽到嘅」有冇走位。所以左邊一定要係 Owner 原文——如果左邊都要重新打，個對照就冇意義。</div>
+
+      <div class="hd" style="margin-top:0.3rem">試跑預覽 <em>可選 · dry-run · 唔存 artifact</em></div>
+      <div class="row">
+        <span class="btn btn--go">▶ 試跑預覽</span>
+        <span class="fld fld--ro" style="padding:0.15rem 0.4rem"><span class="k k--ro">唯讀</span><s>範圍：過去 20 個交易日 <u style="text-decoration:none;color:var(--acc)">改</u></s></span>
+        <span class="k k--ro">約 10 秒 · 唔會出現喺結果頁</span>
+      </div>
+      <div class="cmt">未撳之前呢一區空嘅，只有個掣。<b>唔自動跑</b>——Owner 想直接確認就唔使等。</div>
+
+      <div class="cmt" style="border-color:var(--ty);background:color-mix(in srgb,var(--ty) 7%,transparent)">↓ 撳咗之後 ↓</div>
+
+      <div class="tbl">
+        <div class="h"><span>層</span><span>結果</span><span>單位</span></div>
+        <div><span>Daily 閘</span><span><b>3</b> 日過 ／ 20 日</span><span class="k k--ro">交易日</span></div>
+        <div><span>過 Daily 閘</span><span><b>8</b> 次</span><span class="k k--ro">5m 評估次數</span></div>
+        <div><span>1H 中層</span><span>reject <b>8</b> 次　<span class="k k--ro">mid_direction 7 · mid_pullback 1</span></span><span class="k k--ro">5m 評估次數</span></div>
+        <div><span>入市訊號</span><span><b>0</b> 次</span><span class="k k--ro">5m 評估次數</span></div>
+        <div><span>成交</span><span><b>0</b> 筆</span><span class="k k--ro">筆</span></div>
+      </div>
+
+      <div class="exit" style="border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent)">
+        <b>系統嘅解讀（唔係要 Owner 自己猜）</b>
+        <pre>0 成交 ≠ AI 理解錯。呢次係喺 1H 中層截住：
+  · mid_direction 7 次 —— 1H 方向同 Daily 方向唔一致
+  · mid_pullback  1 次 —— 回踩未夠資格
+
+策略邏輯運作正常，係呢 20 日市況唔配合。
+
+如果連 Daily 閘都係 0 日 → 可能 AI 把 regime 寫得太嚴，
+或者揀嘅範圍冇趨勢日。兩者都值得返 terminal 講一句。</pre>
+      </div>
+      <div class="cmt"><b>呢段解讀係漏斗最有價值嘅部分。</b>冇佢，Owner 見到「0 成交」只會以為壞咗；有佢，即刻分得出「邏輯正常但市況唔配合」定「AI 寫得太嚴」——兩個結論嘅下一步動作完全唔同。</div>
+
+      <div class="g4">
+        <div class="cell"><div class="tf">D <u>bias</u></div><div class="fld fld--ro" style="min-height:2.4rem"><span class="k k--ro">唯讀</span><s>K 線 ＋ ema ＋ <b>3 個 TREND 日著色</b></s></div></div>
+        <div class="cell"><div class="tf">1H <u>mid</u></div><div class="fld fld--ro" style="min-height:2.4rem"><span class="k k--ro">唯讀</span><s>K 線 ＋ <b>8 個 reject 位標記</b>（hover 見原因）</s></div></div>
+        <div class="cell"><div class="tf">30m <u>auxiliary</u></div><div class="fld fld--ro" style="min-height:2.4rem"><span class="k k--ro">唯讀</span><s>K 線 ＋ 指標線</s></div></div>
+        <div class="cell"><div class="tf">5m <u>entry</u></div><div class="fld fld--ro" style="min-height:2.4rem"><span class="k k--ro">唯讀</span><s>K 線 ＋ <b>入市箭頭／止損／目標</b>（今次 0 成交，只見閘位置）</s></div></div>
+      </div>
+      <div class="cmt"><b>就算 0 成交，四張圖都唔會空白</b>——D 圖睇到邊 3 日過閘（著色），1H 圖睇到 8 個 reject 喺邊個價位。Owner 睇得出「AI 認為呢幾日係趨勢日」同自己判斷一致唔一致，<b>呢個就係確認 AI 有冇理解錯嘅核心</b>，唔需要有成交都做得到。</div>
+
+      <div class="row" style="margin-top:0.3rem">
+        <span class="btn btn--go">✓ 確認採用 → 入版本庫</span>
+        <span class="btn btn--gh">唔同意，返 terminal 再傾</span>
+        <span class="btn btn--gh">重新試跑（改範圍）</span>
+      </div>
+      <div class="cmt"><b>撳「確認採用」之前系統零寫入。</b>試跑幾次都唔留痕——dry-run 唔存 artifact、唔佔 run 編號、唔出現喺結果頁。</div>
+    </div>
+  </div>
+
+  <h2>分頁 ③ 版本庫 <small>D9 已修訂：UI 改數值 → 生成新版本</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i class="on">策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="tabs"><span>① 草圖</span><span>② 量化確認</span><span class="on">③ 版本庫</span><span>市場洞察</span></div>
+
+      <div class="tbl">
+        <div class="h"><span>版本</span><span>名 ／ 溯源</span><span>動作</span></div>
+        <div><span class="mono">strategy-0002</span><span>回踩 90EMA · p65　<span class="k k--ro">← sketch-20260725-01</span></span><span class="row"><span class="btn btn--gh">過目</span><span class="btn btn--off">刪除</span></span></div>
+        <div><span class="mono">strategy-0001</span><span>回踩 18EMA · p50　<span class="k k--ro">← sketch-20260725-01</span></span><span class="row"><span class="btn btn--gh">過目</span><span class="btn btn--del">刪除</span></span></div>
+      </div>
+      <div class="cmt"><b>列表上冇「改參數」掣</b>——要改先撳「過目」入去。理由：改參數會產生新版本，唔應該喺列表隨手撳到。<b>刪除</b>：有 standard run 用緊就 disabled（上面灰色嗰個），tooltip 寫「N 個 standard run 用緊」＋可點去睇。</div>
+
+      <div class="hd">過目 strategy-0001 <em>右上角有「收起」</em></div>
+      <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s><b>unquantified_notes · 1 項</b>——永不摺埋</s></div>
+      <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s><b>參數表（16 項）＋ provenance</b>　draft 默認展開 ／ confirmed 默認摺埋（header 寫項數）</s></div>
+      <div class="fld fld--ro"><span class="k k--ro">唯讀</span><s>YAML 原文 source_text（逐字保存）</s></div>
+      <div class="row"><span class="btn btn--gh">✎ 編輯參數</span><span class="k k--ro">← 未撳之前參數全部唯讀</span></div>
+
+      <div class="cmt" style="border-color:var(--ty);background:color-mix(in srgb,var(--ty) 7%,transparent)">↓ 撳咗「✎ 編輯參數」之後 ↓</div>
+
+      <div class="tbl">
+        <div class="h"><span>參數</span><span>值（可改）</span><span>原值</span></div>
+        <div><span>Regime 分離百分位</span><span class="fld fld--ty" style="padding:0.15rem 0.35rem"><span class="k k--ty">打字</span><s>50.0</s></span><span class="k k--ro">65.0</span></div>
+        <div><span>回踩 EMA 週期</span><span class="fld fld--ty" style="padding:0.15rem 0.35rem"><span class="k k--ty">打字</span><s>18</s></span><span class="k k--ro">90</span></div>
+        <div><span class="k k--ro">structures／入市序列</span><span class="fld fld--ro" style="padding:0.15rem 0.35rem"><span class="k k--ro">唯讀</span><s>UI 改唔到——要改返 terminal</s></span><span></span></div>
+      </div>
+      <div class="row">
+        <span class="btn btn--go">儲存為新版本 strategy-0003</span>
+        <span class="btn btn--gh">取消</span>
+        <span class="k k--ro">改咗 2 項 · 來源標「Owner UI 微調」</span>
+      </div>
+      <div class="cmt"><b>唔會改原版本。</b>strategy-0001 永遠係 strategy-0001，跑過嘅 run 事後查得返當時真相。<b>只有數值改得</b>；<b>結構性嘅 UI 唯讀</b>——改到咁深等於重寫策略。</div>
+    </div>
+  </div>
+
+  <h2>分頁 ④ 市場洞察 <small>insight.v1 · 純記錄</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i class="on">策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="tabs"><span>① 草圖</span><span>② 量化確認</span><span>③ 版本庫</span><span class="on">市場洞察</span></div>
+
+      <div class="cmt">流程同分頁 ① <b>一模一樣</b>：上載四張圖 → 逐圖打字 → 匯出圖文包 → terminal AI 傾 → 匯入返嚟。唯一唔同：匯出時 <code>kind: insight</code>，AI 返 <code>insight.v1</code>（量化條件 ＋ 建議參數 ＋ 量度方法）。</div>
+
+      <div class="hd">新洞察 <em>insight-007（自動編號）</em></div>
+      <div class="fld fld--ty"><span class="k k--ty">打字</span><s><b>洞察標題</b>——例如「開市頭 30 分鐘假突破多」</s></div>
+      <div class="g4">
+        <div class="cell"><div class="tf">D</div><div class="drop"><span class="k k--up">上載</span><span>截圖</span></div><div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>判斷（必填）</s></div></div>
+        <div class="cell"><div class="tf">1H</div><div class="drop"><span class="k k--up">上載</span><span>截圖</span></div><div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>判斷（必填）</s></div></div>
+        <div class="cell"><div class="tf">30m</div><div class="drop"><span class="k k--up">上載</span><span>截圖</span></div><div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>判斷（必填）</s></div></div>
+        <div class="cell"><div class="tf">5m</div><div class="drop"><span class="k k--up">上載</span><span>截圖</span></div><div class="fld fld--ty fld--req"><span class="k k--ty">打字</span><s>判斷（必填）</s></div></div>
+      </div>
+      <div class="fld fld--ty"><span class="k k--ty">打字</span><s><b>整體理據</b>——呢個洞察係咩、點觀察到</s></div>
+      <div class="row"><span class="btn btn--out">⬇ 匯出圖文包（kind: insight）</span><span class="btn btn--in">⬆ 匯入 insight.v1</span></div>
+
+      <div class="hd">洞察庫 <em>純記錄</em></div>
+      <div class="tbl">
+        <div class="h"><span>洞察</span><span>標題 ／ 量度 tag</span><span>狀態</span></div>
+        <div><span class="mono">insight-007 v2</span><span>開市頭 30 分鐘假突破多　<span class="k k--ro">tag: entry_within_open_30m</span></span><span class="row"><span class="k k--ro">unverified</span><span class="btn btn--gh">過目</span><span class="btn btn--del">刪除</span></span></div>
+      </div>
+
+      <div class="exit">
+        <b>呢一頁刻意冇嘅嘢（Owner 決定，唔係遺漏）</b>
+        <pre>✗ 冇「用呢個洞察跑回測」
+✗ 冇「匯出洞察做 AI context」
+✗ 冇連去策略版本庫嘅路徑
+✗ 狀態唔會自動變（手動改，目前冇統計驗證）
+
+洞察而家係一本筆記本：入得、睇得、刪得，僅此而已。
+將來想用（餵返俾 AI／統計驗證／升級成積木）再傾。</pre>
+      </div>
+      <div class="cmt"><b>但一條鐵律現在就要守</b>：策略文件<b>永遠自包含</b>。將來就算洞察影響策略，都係喺 AI 寫策略嗰刻<b>焗入成實參數</b>，執行層<b>永遠唔會運行時查洞察庫</b>。否則改一個洞察，十個策略行為靜靜哋變，事後查唔到邊個 run 用咩。</div>
+    </div>
+  </div>
+
+  <h2>2026-07-27 Instrument 閉環補充 <small>Owner 已批准 · 三態完整畫面</small></h2>
+
+  <div class="cmt">
+    <b>本節係 P2 正式權威一部分。</b>每個草圖包只對應一個 primary instrument；Terminal 可以提出同 asset class universe 擴展，
+    但 App 只可接受或退回整份 <code>strategy.v1</code>，唔准用 checkbox 改寫策略。完整 draft／合法返程／非法返程畫面見下圖；
+    如圖中示意同本檔最後嘅實作約束有差異，以約束 #28–#35 為準。
+  </div>
+  <img
+    src="../design-discussions/p2-instrument-closed-loop-v2.png"
+    alt="P2 primary instrument 閉環三態：草圖匯出、合法 strategy universe、跨 asset class fail-closed"
+    style="display:block;width:100%;height:auto;margin:1rem 0 1.5rem;border:1px solid var(--bd);border-radius:12px;background:var(--bg2)"
+  />
+
+  <h2>實作約束 <small>mockup 表達唔到嘅拍板決定 —— 全部要遵守</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>約束</th><th>理由／來源</th></tr>
+      <tr><td class="mono">1</td><td>側欄「工房」<b>取消</b>，內容併入策略工作台</td><td>Owner 心智模型：畫圖同確認係同一件事嘅開始同結束</td></tr>
+      <tr><td class="mono">2</td><td>四張圖<b>同時並排</b>，唔准做成單圖＋TF 切換</td><td>策略係多時間框架，切換就斷咗對照。<b>結果頁而家做成單圖＋tabs 係偏離規格</b></td></tr>
+      <tr><td class="mono">3</td><td><code>chart_source: screenshot</code>——Owner 自己上載</td><td>Owner 拍板。代價係冇機讀 drawings 座標，接受</td></tr>
+      <tr><td class="mono">4</td><td><b>修訂 2026-07-26（Owner 拍板方案 A）</b>：草圖身份係 <code>origin + sketch_id</code>；repo 路徑 <code>data/sketches/&lt;origin&gt;/&lt;sketch-id&gt;/</code>。本 app 產生嘅 origin 係 <code>workshop</code>；同名 <code>journal-app</code> 包可共存</td><td><code>/data/</code> 已 gitignore；terminal AI 嘅 cwd 就係 project folder。複合身份避免兩個獨立 app 同日流水號撞包</td></tr>
+      <tr><td class="mono">5</td><td><b>修訂 2026-07-25（Owner 拍板）</b>：<b>草圖標題</b>未填 <b>或</b> 四格文字未填齊 → 匯出掣 <b>disabled</b>。提示要<b>逐項講明差咩</b>（「標題未填」／「30m、5m 兩格未填」），唔准只寫一句籠統。<br>🔴 <b>「存草稿」仍然零前置條件</b>——閂住嘅只係匯出，唔係儲存。<br>🔴 標題閂咗之後，<code>meta.yaml</code> <b>唔准再用草圖編號做 fallback 標題</b>，直接寫 Owner 打嘅字</td>
+        <td><code>owner_view</code> 係最核心欄位，缺一格都應該擋住匯出。<br><b>標題點解都要閂</b>：`docs/05` §3.5 一直寫住 <code>title</code> <b>必填——人類識別</b>，係本設計稿漏咗閂，所以出現過「meta.yaml 自動填編號做標題、INSTRUCTIONS.md 寫（未填）」嘅矛盾（[106] D2）。Owner 2026-07-25 拍板：一個冇名嘅草圖三個月後自己都認唔返</td></tr>
+      <tr><td class="mono">6</td><td><code>indicators_shown</code> <b>必填</b>，剔完冇寫 <code>[]</code></td><td><code>[]</code>＝明確冇剔；缺席＝未知。兩個唔同訊號</td></tr>
+      <tr><td class="mono">7</td><td>匯出用 <b>Dialog 唔用 toast</b>，內含可一撳複製嘅 terminal 開場白</td><td>Owner 要複製嘢；而且開場白把「唔准估」帶出 app 外</td></tr>
+      <tr><td class="mono">8</td><td><code>INSTRUCTIONS.md</code> 必須<b>自包含</b>，唔准引用 repo 文件</td><td>收件 agent 冇 repo 訪問權。<b>要有測試斷言全文唔出現 <code>docs/0X</code> 引用</b></td></tr>
+      <tr><td class="mono">9</td><td>分頁 ② 左邊由分頁 ① 帶入，<b>唔係由 AI 檔案讀出</b></td><td>對照嘅意義係「我講嘅」vs「AI 聽到嘅」</td></tr>
+      <tr><td class="mono">10</td><td>參數樹用<b>通用 YAML 渲染</b>，唔硬寫欄位</td><td>硬寫＝偷偷持有一份會過時嘅 schema 快照</td></tr>
+      <tr><td class="mono">11</td><td><code>unquantified_notes</code> <b>永不可摺</b>，0 項要顯示「0 項」</td><td>鐵閘。「AI 聲明冇假設」同「AI 冇聲明」係兩件事</td></tr>
+      <tr><td class="mono">12</td><td>試跑預覽 <b>唔自動跑</b>；<b>唔存 artifact、唔佔 run 編號</b></td><td>慢 10 秒；而且 dry-run 唔應該污染結果庫</td></tr>
+      <tr><td class="mono">13</td><td>預覽必須畫<b>漏斗＋系統解讀</b>，唔止畫成交</td><td>0 成交好常見；冇解讀 Owner 會以為壞咗</td></tr>
+      <tr><td class="mono">14</td><td>漏斗兩組單位<b>分開比例尺、各自標單位</b></td><td>日級 vs 5m 評估級唔可以擺埋同一把尺</td></tr>
+      <tr><td class="mono">15</td><td>撳「確認採用」<b>之前零寫入</b>（要有測試證明，唔係靠 UI 冇掣）</td><td>未同意嘅嘢唔應該存在於系統</td></tr>
+      <tr><td class="mono">16</td><td>版本列表<b>冇</b>「改參數」掣；要「過目」→「✎ 編輯參數」兩步</td><td>Owner：唔好直接就咁改，scroll 時手指擦到就改咗</td></tr>
+      <tr><td class="mono">17</td><td>UI <b>只准改數值</b>；<code>structures</code>／入市序列唯讀</td><td>改到咁深等於重寫策略，應返 terminal</td></tr>
+      <tr><td class="mono">18</td><td>改參數 <b>生成新版本</b>，唔改原版本；來源標「Owner UI 微調」</td><td>D9 修訂：保住「每個 run 追溯得返用咩參數」</td></tr>
+      <tr><td class="mono">19</td><td>刪除：有 <b>standard run</b> 引用就唔准；<b>validation run 唔算</b></td><td>Owner 拍板。validation run 係工程驗證唔係決策記錄</td></tr>
+      <tr><td class="mono">20</td><td>刪除＝歸檔去 <code>data/strategies/_deleted/&lt;id&gt;.yaml</code>（YAML 原文＋刪除時戳＋當時狀態）</td><td>Owner：要 terminal AI 之後搵得返當時數據。目標檔已存在唔准靜靜覆蓋</td></tr>
+      <tr><td class="mono">21</td><td>刪除 UI：單撳即刪 → 該行轉「已刪除 · 復原」約 5 秒 → 真寫入</td><td>Owner 揀最輕阻力。<b>離開頁面／refresh ＝ 當確認</b>；復原期間要真延遲寫入</td></tr>
+      <tr><td class="mono">22</td><td>洞察<b>純記錄</b>：唔連策略、唔連回測、狀態手動改</td><td>Owner：目前純記錄，遲啲再諗點用</td></tr>
+      <tr><td class="mono">23</td><td>策略文件<b>永遠自包含</b>，執行層永不運行時查洞察庫</td><td>否則改一個洞察，十個策略行為靜靜哋變</td></tr>
+      <tr><td class="mono">24</td><td>主題切換器<b>唔准 overlay 喺任何內容之上</b></td><td>Owner 截圖顯示佢壓住「確認時間」個值。三主題三頁寬都要檢查</td></tr>
+      <tr><td class="mono">25</td><td>時間顯示分三類：<b>時刻</b>可轉本地時區＋必須標時區；<b>交易日</b>絕對唔准轉；<b>範圍輸入</b>用本地 picker 但同時顯示 UTC 對照</td><td>把 trading date 當時刻轉時區＝<b>重犯 3b-1 嗰個 -2 日 offset</b>。要有測試：trading date 喺兩個 TZ 下輸出同一日子</td></tr>
+      <tr><td class="mono">26</td>
+        <td><b>新增 2026-07-25（Owner 拍板）</b>：匯出 Dialog 要有<b>「⬇ 下載圖文包」</b>——六個檔（四張圖 ＋ <code>meta.yaml</code> ＋ <code>INSTRUCTIONS.md</code>）真係落 Owner 部電腦。<br>🔴 <b>純前端做，唔准為咗佢寫任何後端。</b><br>🔴 <b>下載出嚟嘅內容 ＝ 畫面顯示嗰個包</b>，唔准兩份唔同。<br>🔴 Dialog 要一句講明<b>落咗去邊、之後要搬去邊</b></td>
+        <td>Owner 目標係「成個流程通先」，但「階段 B 唔碰後端」令<b>匯出→terminal→匯入呢條交接成個階段 B 都試唔到</b>，要等階段 C。而呢條交接正正係整個設計最易出錯嘅位。<b>瀏覽器下載解開咗呢個死結</b>：唔碰後端，但 Owner 而家就行得完成條路</td></tr>
+      <tr><td class="mono">27</td>
+        <td><b>新增 2026-07-25（Owner 拍板）</b>：分頁 ① 要有<b>草稿列表</b>，撳一行就揀返去繼續填。每行顯示<b>編號 · 狀態（草稿／已匯出）· 差咩</b>（例如「30m、5m 兩格未填」）。而家開緊嗰個要標出嚟</td>
+        <td>冇呢個，「存草稿」只得返一半價值——離開再返嚟開得返最後嗰個，但<b>一撳「新草圖」就永遠返唔到轉頭</b>。草稿資料本來就已經存住，只係之前冇畫面讀佢</td></tr>
+      <tr><td class="mono">28</td>
+        <td><b>新增 2026-07-27（Owner 拍板）</b>：MVP 每個草圖包只對應一個 <code>instrument</code>；由 Owner 明確選擇，唔准由標題、圖片、檔名或 Terminal 推斷。<code>asset_class</code>、顯示名稱、幣別、可用 session 由 canonical contract catalog 帶入，Owner 唔自由輸入</td>
+        <td>Instrument 係 Owner 意圖同跨頁身份起點；分類若由前後端各自硬寫，NQ／GC 之類邊界會漂移</td></tr>
+      <tr><td class="mono">29</td>
+        <td>未上載任何圖可以改 instrument；<b>一上載任何圖就鎖 instrument/class</b>；一匯出就鎖整份草圖。要改只可複製成新 sketch id。舊未匯出 draft 缺欄要補揀；舊已匯出 package 缺欄只讀，唔准原地補寫</td>
+        <td>防止 NQ 圖被靜靜改標成 GC；保持 artifact 不可變同 legacy bytes 誠實</td></tr>
+      <tr><td class="mono">30</td>
+        <td>新 <code>sketch.v1</code> 必須同時寫 <code>instrument</code>＋<code>asset_class</code>；browser ZIP 同 repo package 使用同一份 validated metadata source。Screenshot 本身無法證明 instrument，MVP 唔做 OCR、唔假裝驗圖</td>
+        <td>可驗證嘅保證係 Owner 選擇＋鎖定；圖像語義仍屬人類責任</td></tr>
+      <tr><td class="mono">31</td>
+        <td>Terminal 回傳嘅 <code>strategy.v1.universe</code> 必須自包含 <code>primary_instrument</code>、<code>asset_class</code>、<code>contracts</code>、<code>expansion_rationale</code>、<code>session</code>。Primary-only 亦要寫空 mapping；每個新增 member 恰好有一段非空理由</td>
+        <td>策略原文係結構唯一真相；三個月後仍要知道點解 YM 被加入 NQ 策略</td></tr>
+      <tr><td class="mono">32</td>
+        <td>分頁 ② universe <b>全部唯讀</b>；唔准有 per-instrument checkbox 或另存 <code>approved_instruments</code>。Owner 只可「確認整份策略」或「返 Terminal 修改整份策略」；確認前 import/confirm 零寫入</td>
+        <td>App 勾走一個 member 就係靜靜改策略結構，會令 Terminal 原文、版本同 run 範圍出現雙重真相</td></tr>
+      <tr><td class="mono">33</td>
+        <td>Validator 要 fail-closed 檢查：primary 在 contracts、所有 symbol 已知、全 universe 同 asset class、class 同 catalog 一致、所有 member 支援 session、MVP 全部 USD、rationale keys 恰好完整；本機有原草圖時 primary/class 亦要 exact match。任一失敗確認 disabled、零寫入，唔准 App 幫 YAML 修正</td>
+        <td>同 asset class 只係可測假設，唔係成功證據；未知分類、跨類、未有 FX conversion 都唔可以靠估</td></tr>
+      <tr><td class="mono">34</td>
+        <td>完整 composite lineage 但本機搵唔到草圖時，顯示「無法左右對照」警告；仍以 strategy 自包含欄位＋catalog 跑其餘 validation。P4 只可由已確認 universe ∩ configured/available data 選本次回測子集；每個 run 各自 USD 100,000，run manifest 再鎖 expiry-specific contract id</td>
+        <td>本機缺包唔等於引用格式錯；同時保持 root symbol → exact executable contract 嘅交接完整</td></tr>
+      <tr><td class="mono">35</td>
+        <td>市場洞察支線同樣一包一個 instrument；新 <code>insight.v1</code> 必須保留 <code>instrument</code>＋<code>asset_class</code> 並同草圖/catalog 一致。洞察仍然只係筆記，唔自動連策略或回測</td>
+        <td>否則「開市頭 30 分鐘假突破多」會失去係 NQ 定 GC 嘅市場語境；但不可因此違反 #22/#23</td></tr>
+      <tr><td class="mono">36</td>
+        <td><b>新增 2026-07-28（Owner 批准書面規格）</b>：洞察動作用字係「歸檔」，唔係永久刪除；一次歸檔完整 <code>origin + insight_id</code> 及全部版本，約 5 秒內可復原，之後可由「已歸檔」原 byte 恢復。歸檔位置、manifest、no-overwrite、離頁取消 pending action及 API contract 全部以 <code>docs/superpowers/specs/2026-07-28-insight-recoverable-archive-design.md</code> 為準；MVP 冇永久清除</td>
+        <td>洞察係研究證據，容量成本極低；可恢復歸檔避免誤刪及 provenance 斷鏈，同時保持 active 洞察庫清晰</td></tr>
+    </table>
+  </div>
+
+  <div class="ask">
+    <h3>狀態</h3>
+    <ol>
+      <li><strong>P2 策略工作台 —— 定稿</strong>（本檔）</li>
+      <li>P1 總覽 · P3 數據 · P4 回測 · P5 結果 · P6 模擬盤 —— <strong>全部已定稿</strong>，權威稿同樣位於本資料夾</li>
+    </ol>
+    <p style="margin-top:0.5rem;font-size:0.875rem;color:var(--tx2)">實作者：只按最新工作令指定嘅頁面同約束開工，唔准因為其餘頁已定稿就自行提前。<strong>撞到 mockup 同「實作約束」矛盾，以約束為準並喺渠道提出。</strong></p>
+  </div>
+</div>
+
+</body>
+</html>

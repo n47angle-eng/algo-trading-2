@@ -1,0 +1,496 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P4 回測 — 設計定稿</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { display: block; max-width: 100%; }
+  pre { margin: 0; }
+</style>
+<style>
+  :root {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff;
+    --up: #0a6cff;      /* 上載圖片 */
+    --ty: #1e8e43;      /* 你打字 */
+    --out: #a86200;     /* 匯出去本地 */
+    --in: #8944ab;      /* 由本地匯入 */
+    --ro: #8b93a1;      /* 唯讀 */
+    --neg: #dc372a;
+    --ff: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
+      "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0e13; --elev: #101319;
+      --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+      --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+      --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+      --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+      --in: #bf5af2; --ro: #59616f; --neg: #ff453a;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0e13; --elev: #101319;
+    --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+    --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+    --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+    --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+    --in: #bf5af2; --ro: #59616f; --neg: #ff453a;
+  }
+  :root[data-theme="light"] {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff; --up: #0a6cff; --ty: #1e8e43; --out: #a86200;
+    --in: #8944ab; --ro: #8b93a1; --neg: #dc372a;
+  }
+
+  body { margin:0; background:var(--bg); color:var(--tx); font-family:var(--ff);
+    font-size:0.9375rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .page { max-width:64rem; margin:0 auto; padding:2.25rem 1.25rem 5rem; }
+
+  h1 { font-size:1.5rem; letter-spacing:-0.02em; margin:0 0 0.3rem; }
+  .lede { color:var(--tx2); margin:0 0 0.4rem; font-size:0.9375rem; }
+  .stamp { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); margin:0 0 1.75rem; }
+
+  h2 { font-size:1.0625rem; margin:2.5rem 0 0.5rem; padding-top:1.1rem;
+    border-top:1px solid var(--line); display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; }
+  h2 small { font-weight:400; font-size:0.75rem; color:var(--tx3); font-family:var(--mono); }
+  p { margin:0 0 0.75rem; }
+  code { font-family:var(--mono); font-size:0.8125em; background:var(--fill); padding:0.1em 0.3em; border-radius:0.25rem; }
+
+  /* ---------- legend ---------- */
+  .legend { display:grid; grid-template-columns:repeat(auto-fit,minmax(9.5rem,1fr)); gap:0.4rem;
+    padding:0.75rem; border:1px solid var(--line); border-radius:0.6rem; background:var(--card2); margin:0 0 1.5rem; }
+  .lg { display:flex; gap:0.4rem; align-items:flex-start; font-size:0.75rem; color:var(--tx2); }
+  .lg b { flex:none; }
+
+  .k { font-family:var(--mono); font-size:0.625rem; font-weight:700; padding:0.08rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; }
+  .k--up { color:var(--up); border-color:color-mix(in srgb,var(--up) 45%,transparent); background:color-mix(in srgb,var(--up) 12%,transparent); }
+  .k--ty { color:var(--ty); border-color:color-mix(in srgb,var(--ty) 45%,transparent); background:color-mix(in srgb,var(--ty) 12%,transparent); }
+  .k--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 50%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+  .k--in { color:var(--in); border-color:color-mix(in srgb,var(--in) 50%,transparent); background:color-mix(in srgb,var(--in) 14%,transparent); }
+  .k--ro { color:var(--ro); border-color:var(--line); background:var(--fill); }
+
+  /* ---------- flow strip ---------- */
+  .flow { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:0.4rem; margin:0 0 1.5rem; }
+  .fl { border:1px solid var(--line); border-radius:0.5rem; background:var(--card); padding:0.55rem 0.65rem; font-size:0.75rem; }
+  .fl b { display:block; font-size:0.6875rem; font-family:var(--mono); color:var(--acc); margin-bottom:0.15rem; }
+  .fl--off { background:var(--fill); border-style:dashed; }
+  .fl--off b { color:var(--out); }
+  .fl s { text-decoration:none; color:var(--tx2); }
+
+  /* ---------- app frame ---------- */
+  .frame { display:grid; grid-template-columns:8rem minmax(0,1fr); border:1px solid var(--line);
+    border-radius:0.7rem; background:var(--elev); overflow:hidden; margin:0.75rem 0 0; }
+  .side { background:var(--card2); border-right:1px solid var(--line); padding:0.5rem 0;
+    display:flex; flex-direction:column; gap:0.05rem; }
+  .side i { font-style:normal; padding:0.26rem 0.55rem; color:var(--tx3); font-size:0.75rem; }
+  .side i.on { color:var(--tx); font-weight:700; background:color-mix(in srgb,var(--acc) 14%,transparent); }
+  .main { padding:0.8rem; display:flex; flex-direction:column; gap:0.55rem; min-width:0; }
+
+  .tabs { display:flex; gap:0.25rem; flex-wrap:wrap; border-bottom:1px solid var(--line); padding-bottom:0.5rem; }
+  .tabs span { font-size:0.6875rem; padding:0.18rem 0.5rem; border-radius:0.35rem;
+    border:1px solid var(--line); color:var(--tx3); white-space:nowrap; }
+  .tabs span.on { background:color-mix(in srgb,var(--acc) 16%,transparent);
+    border-color:color-mix(in srgb,var(--acc) 35%,transparent); color:var(--tx); font-weight:700; }
+
+  .hd { display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; font-size:0.8125rem; font-weight:700; }
+  .hd em { font-style:normal; font-family:var(--mono); font-size:0.6875rem; color:var(--tx3); font-weight:400; }
+
+  .fld { border:1px solid var(--line); border-radius:0.4rem; background:var(--card);
+    padding:0.4rem 0.5rem; font-size:0.75rem; display:flex; gap:0.4rem; align-items:flex-start; flex-wrap:wrap; }
+  .fld > s { text-decoration:none; color:var(--tx2); flex:1; min-width:8rem; }
+  .fld--ty { border-color:color-mix(in srgb,var(--ty) 40%,transparent); }
+  .fld--up { border-style:dashed; border-color:color-mix(in srgb,var(--up) 50%,transparent); }
+  .fld--in { border-color:color-mix(in srgb,var(--in) 40%,transparent); }
+  .fld--ro { background:var(--fill); color:var(--tx3); }
+  .fld--req { border-left:2px solid var(--neg); }
+
+  .g4 { display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; }
+  .cell { border:1px solid var(--line); border-radius:0.45rem; background:var(--card);
+    padding:0.45rem; display:flex; flex-direction:column; gap:0.3rem; }
+  .cell > .tf { font-family:var(--mono); font-size:0.6875rem; font-weight:700; color:var(--acc);
+    display:flex; gap:0.35rem; align-items:center; flex-wrap:wrap; }
+  .cell > .tf u { text-decoration:none; font-size:0.625rem; color:var(--tx3); border:1px solid var(--line);
+    border-radius:999px; padding:0 0.3rem; font-weight:400; }
+  .drop { border:1px dashed color-mix(in srgb,var(--up) 55%,transparent); border-radius:0.35rem;
+    background:color-mix(in srgb,var(--up) 6%,transparent); padding:0.6rem 0.4rem; text-align:center;
+    font-size:0.6875rem; color:var(--tx2); display:flex; flex-direction:column; gap:0.2rem; align-items:center; }
+  .chips { display:flex; gap:0.2rem; flex-wrap:wrap; }
+  .chips u { text-decoration:none; font-family:var(--mono); font-size:0.5625rem; padding:0.05rem 0.3rem;
+    border:1px solid var(--line); border-radius:999px; color:var(--tx3); }
+  .chips u.on { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 40%,transparent);
+    background:color-mix(in srgb,var(--acc) 10%,transparent); }
+
+  .btn { font-size:0.6875rem; font-weight:700; padding:0.22rem 0.55rem; border-radius:0.35rem;
+    border:1px solid; white-space:nowrap; }
+  .btn--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 55%,transparent);
+    background:color-mix(in srgb,var(--out) 16%,transparent); }
+  .btn--in { color:var(--in); border-color:color-mix(in srgb,var(--in) 55%,transparent);
+    background:color-mix(in srgb,var(--in) 16%,transparent); }
+  .btn--go { color:var(--tx); border-color:color-mix(in srgb,var(--acc) 45%,transparent);
+    background:color-mix(in srgb,var(--acc) 20%,transparent); }
+  .btn--gh { color:var(--tx2); border-color:var(--line); background:var(--fill); }
+  .btn--del { color:var(--neg); border-color:color-mix(in srgb,var(--neg) 40%,transparent);
+    background:color-mix(in srgb,var(--neg) 10%,transparent); }
+  .btn--off { color:var(--tx3); border-color:var(--line); background:var(--fill); opacity:0.6; }
+
+  .row { display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; }
+  .split { display:grid; grid-template-columns:1fr 1fr; border:1px solid var(--line);
+    border-radius:0.45rem; overflow:hidden; }
+  .split > div { padding:0.5rem; display:flex; flex-direction:column; gap:0.3rem; font-size:0.75rem; }
+  .split > div:first-child { border-right:1px solid var(--line); background:var(--fill); }
+  .split h4 { margin:0; font-size:0.625rem; text-transform:uppercase; letter-spacing:0.07em; color:var(--tx3); }
+
+  .tbl { border:1px solid var(--line); border-radius:0.45rem; overflow:hidden; font-size:0.75rem; }
+  .tbl > div { display:grid; grid-template-columns:6.5rem 1fr auto; gap:0.5rem;
+    padding:0.35rem 0.5rem; border-bottom:1px solid var(--line); align-items:center; }
+  .tbl > div:last-child { border-bottom:0; }
+  .tbl > div.h { background:var(--fill); font-size:0.625rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); font-weight:700; }
+  .tbl .mono { font-family:var(--mono); font-size:0.6875rem; }
+
+  .cmt { border-left:2px solid var(--acc); background:color-mix(in srgb,var(--acc) 7%,transparent);
+    padding:0.45rem 0.6rem; border-radius:0 0.35rem 0.35rem 0; font-size:0.75rem; color:var(--tx2); }
+  .cmt b { color:var(--tx); }
+
+  .exit { border:1px dashed color-mix(in srgb,var(--out) 55%,transparent); border-radius:0.5rem;
+    background:color-mix(in srgb,var(--out) 7%,transparent); padding:0.6rem 0.7rem; font-size:0.75rem; }
+  .exit b { color:var(--out); font-family:var(--mono); font-size:0.6875rem; }
+  .exit pre { margin:0.3rem 0 0; font-family:var(--mono); font-size:0.6875rem;
+    color:var(--tx2); white-space:pre-wrap; }
+
+  .ask { margin-top:2.75rem; padding:1rem 1.15rem; border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);
+    border-radius:0.7rem; background:color-mix(in srgb,var(--acc) 7%,transparent); }
+  .ask h3 { margin:0 0 0.45rem; font-size:1rem; }
+  .ask ol { margin:0; padding-left:1.2rem; }
+  .ask li { margin-bottom:0.35rem; font-size:0.875rem; }
+
+  @media (max-width:36rem) {
+    .frame { grid-template-columns:1fr; }
+    .side { flex-flow:row wrap; border-right:0; border-bottom:1px solid var(--line); padding:0.35rem; }
+    .g4, .split { grid-template-columns:1fr; }
+    .split > div:first-child { border-right:0; border-bottom:1px solid var(--line); }
+    .tbl > div { grid-template-columns:1fr; gap:0.15rem; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+
+  /* ---------- 2026-07-25 修訂：只補樣式，內容零改動（Owner 已批） ----------
+     原稿用咗 .tw / .step / var(--pos) 但從來冇定義，
+     令「實作約束」表冇框冇間距、步驟編號冇圓圈、正數冇綠色。            */
+  :root { --pos: #1e8e43; }
+  @media (prefers-color-scheme: dark) { :root { --pos: #30d158; } }
+  :root[data-theme="dark"] { --pos: #30d158; }
+  :root[data-theme="light"] { --pos: #1e8e43; }
+
+  .tw { overflow-x:auto; border:1px solid var(--line); border-radius:0.5rem; background:var(--card2); }
+  .tw table { border-collapse:collapse; width:100%; font-size:0.8125rem; }
+  .tw th, .tw td { text-align:left; vertical-align:top; padding:0.45rem 0.6rem;
+    border-bottom:1px solid var(--line); }
+  .tw tr:last-child td { border-bottom:0; }
+  .tw th { background:var(--fill); font-size:0.6875rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); white-space:nowrap; }
+  .tw td.mono { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); white-space:nowrap; }
+  .tw td b { color:var(--tx); }
+
+  .step { font-family:var(--mono); font-size:0.625rem; font-weight:700; color:var(--acc); flex:none;
+    border:1px solid color-mix(in srgb,var(--acc) 40%,transparent);
+    background:color-mix(in srgb,var(--acc) 12%,transparent);
+    border-radius:999px; padding:0.05rem 0.4rem; }
+
+  /* ---------- 2026-07-26 修訂：第四步 · 資金與成交假設 ---------- */
+  .assumption { border:1px solid color-mix(in srgb,var(--in) 30%,transparent);
+    border-radius:0.5rem; background:color-mix(in srgb,var(--in) 5%,transparent); overflow:hidden; }
+  .assumption > summary { list-style:none; cursor:pointer; display:flex; gap:0.45rem; align-items:center;
+    flex-wrap:wrap; padding:0.48rem 0.55rem; font-size:0.75rem; }
+  .assumption > summary::-webkit-details-marker { display:none; }
+  .assumption .assum-summary { flex:1; min-width:20rem; color:var(--tx2); }
+  .assumption .assum-summary b { color:var(--tx); }
+  .assumption-grid { border-top:1px solid color-mix(in srgb,var(--in) 20%,transparent);
+    display:grid; grid-template-columns:1fr 1fr; gap:0.4rem; padding:0.5rem; }
+  .assumption-card { border:1px solid var(--line); border-radius:0.4rem; background:var(--card);
+    padding:0.45rem 0.5rem; }
+  .assumption-card h4 { margin:0 0 0.25rem; color:var(--tx3); font-size:0.625rem;
+    text-transform:uppercase; letter-spacing:0.06em; }
+  .assumption-line { display:grid; grid-template-columns:1fr auto; gap:0.5rem; align-items:center;
+    padding:0.22rem 0; border-bottom:1px solid var(--line); font-size:0.6875rem; color:var(--tx2); }
+  .assumption-line:last-child { border-bottom:0; }
+  .assumption-value { min-width:5.8rem; text-align:right; padding:0.12rem 0.35rem;
+    border:1px solid color-mix(in srgb,var(--ty) 35%,transparent); border-radius:0.3rem;
+    background:var(--card); color:var(--tx); font-family:var(--mono); }
+  .assumption-value--ro { border-color:var(--line); background:var(--fill); color:var(--tx3); }
+  .assumption-note { grid-column:1 / -1; border-left:2px solid var(--acc);
+    border-radius:0 0.35rem 0.35rem 0; background:color-mix(in srgb,var(--acc) 6%,transparent);
+    padding:0.38rem 0.5rem; font-size:0.6875rem; color:var(--tx2); }
+  @media (max-width:36rem) {
+    .assumption-grid { grid-template-columns:1fr; }
+    .assumption .assum-summary { min-width:0; }
+    .assumption-note { grid-column:auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>P4 回測 — 設計稿</h1>
+  <p class="lede">設定 → 開始 → 睇住佢跑。結果分析全部歸 P5，呢頁只留一個「認得出跑過咩」嘅歷史。</p>
+  <p class="stamp">定稿修訂 2026-07-27 · 17 條實作約束 · 暖機口徑對齊 no-lookahead engine truth</p>
+
+  <div class="cmt"><b>呢頁最大嘅改變唔係加嘢，係拎走嘢。</b>「validation_run（工程驗證，非策略主張）」同「開啟參數 override」兩個控制**整個移除**——第一個係開發者驗證引擎用嘅，第二個已經被「喺策略庫改參數出新版本」取代。Owner 撞到呢兩個字完全唔明，係正確反應：佢哋唔係為佢而設。</div>
+
+  <div class="legend">
+    <div class="lg"><b><span class="k k--up">揀</span></b><span>撳 chips 多選</span></div>
+    <div class="lg"><b><span class="k k--ty">輸入</span></b><span>揀日期／時間</span></div>
+    <div class="lg"><b><span class="k k--out">檢查</span></b><span>系統喺你撳開始之前提醒你</span></div>
+    <div class="lg"><b><span class="k k--ro">唯讀</span></b><span>系統顯示，改唔到</span></div>
+  </div>
+
+  <h2>整頁 <small>三段：設定 · 正在跑 · 最近嘅回測</small></h2>
+
+  <div class="frame">
+    <div class="side"><i>總覽</i><i>策略工作台</i><i>數據</i><i class="on">回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="hd">回測 <em>揀策略同合約，開始，然後睇住佢跑</em></div>
+
+      <!-- ============ 設定 ============ -->
+      <div class="fld fld--ro" style="border-color:var(--line);background:transparent;flex-direction:column;align-items:stretch;gap:0.5rem">
+        <div class="row"><span class="step">01</span><span style="font-weight:700;font-size:0.75rem">揀策略</span><span class="k k--ro">只列已確認嘅版本</span></div>
+        <div class="chips" style="gap:0.3rem">
+          <u class="on" style="font-size:0.6875rem;padding:0.15rem 0.45rem">回踩 18EMA · p50 閘</u>
+          <u class="on" style="font-size:0.6875rem;padding:0.15rem 0.45rem">回踩 90EMA · p65 閘</u>
+          <u style="font-size:0.6875rem;padding:0.15rem 0.45rem">開市突破 v1</u>
+        </div>
+        <div class="fld fld--ro" style="padding:0.2rem 0.4rem"><span class="k k--ro">唯讀</span><s>兩個策略都用<b>夜盤全時段</b>（由策略文件決定，唔可以喺呢頁改）</s></div>
+
+        <div class="row"><span class="step">02</span><span style="font-weight:700;font-size:0.75rem">揀合約</span></div>
+        <div class="chips" style="gap:0.3rem">
+          <u class="on" style="font-size:0.6875rem;padding:0.15rem 0.45rem">NQ</u>
+          <u class="on" style="font-size:0.6875rem;padding:0.15rem 0.45rem">YM</u>
+          <u style="font-size:0.6875rem;padding:0.15rem 0.45rem">GC</u>
+        </div>
+
+        <div class="row"><span class="step">03</span><span style="font-weight:700;font-size:0.75rem">揀回測時間</span></div>
+        <div class="row">
+          <span class="fld fld--ty" style="padding:0.2rem 0.4rem"><span class="k k--ty">輸入</span><s>由 <b>2026-05-01 08:00</b></s></span>
+          <span class="fld fld--ty" style="padding:0.2rem 0.4rem"><span class="k k--ty">輸入</span><s>到 <b>2026-07-23 05:00</b></s></span>
+          <span class="k k--ro">香港時間 · ＝ UTC 2026-05-01 00:00 → 2026-07-22 21:00</span>
+        </div>
+      </div>
+
+      <div class="cmt">時間用<b>你本地時間（香港）</b>輸入，旁邊同時顯示 UTC 對照——因為數據同交易時段都係用 UTC 定義，你要核對得到。</div>
+
+      <!-- ============ 資金與成交假設 ============ -->
+      <details class="assumption" open>
+        <summary>
+          <span class="step">04</span>
+          <b>本次回測用嘅資金同成交假設</b>
+          <span class="assum-summary"><b>USD 100,000／每次回測</b> · 合約實際手續費 · 保守滑點 · 保守成交</span>
+          <span class="btn btn--gh">調整 ▲</span>
+        </summary>
+        <div class="assumption-grid">
+          <div class="assumption-card">
+            <h4>資金與策略風險</h4>
+            <div class="assumption-line"><span>初始資金</span><span class="assumption-value">USD 100,000</span></div>
+            <div class="assumption-line"><span>每次交易風險</span><span class="assumption-value assumption-value--ro">兩個策略均為 1%</span></div>
+            <div class="assumption-line"><span>每日虧損上限</span><span class="assumption-value assumption-value--ro">兩個策略均為 3R</span></div>
+          </div>
+          <div class="assumption-card">
+            <h4>所選合約手續費（每邊每張）</h4>
+            <div class="assumption-line"><span>NQ</span><span class="assumption-value">USD 2.50</span></div>
+            <div class="assumption-line"><span>YM</span><span class="assumption-value">USD 2.50</span></div>
+          </div>
+          <div class="assumption-card">
+            <h4>滑點假設</h4>
+            <div class="assumption-line"><span>突破入市</span><span class="assumption-value">1 tick</span></div>
+            <div class="assumption-line"><span>止蝕離場</span><span class="assumption-value">2 ticks</span></div>
+            <div class="assumption-line"><span>目標限價</span><span class="assumption-value">0 tick</span></div>
+            <div class="assumption-line"><span>日終平倉</span><span class="assumption-value">1 tick</span></div>
+          </div>
+          <div class="assumption-card">
+            <h4>成交原則</h4>
+            <div class="assumption-line"><span>同一分鐘同時到止蝕及目標</span><span class="assumption-value assumption-value--ro">當止蝕先</span></div>
+            <div class="assumption-line"><span>跳空穿過價位</span><span class="assumption-value assumption-value--ro">按開市價成交</span></div>
+            <div class="assumption-line"><span>模擬精度</span><span class="assumption-value assumption-value--ro">一分鐘</span></div>
+          </div>
+          <div class="assumption-note">
+            <b>預設收起，只顯示上面摘要；呢張圖係撳「調整」之後。</b>
+            只有初始資金、所選合約手續費同滑點可以改。4 次回測各自用完整 USD 100,000 起步，唔會共同攤分；撳開始後，每次回測都鎖死自己嗰份假設快照。
+          </div>
+        </div>
+      </details>
+
+      <!-- ============ 檢查 ============ -->
+      <div class="exit" style="border-color:color-mix(in srgb,var(--out) 55%,transparent)">
+        <b>開始之前，系統檢查咗三樣（唔使你撳咗才發現）</b>
+        <pre>✅ 數據覆蓋   NQ 同 YM 呢段時間都有齊數據（58 個交易日）
+
+⚠️ 暖機不足   「回踩 90EMA · p65」嘅 Daily regime 實際需要 95 個已收市交易日。
+              今次開始日前可用 64 日 → 呢個策略實際可評估嘅日子係 0。
+              建議回填更早原生日線，或將開始日推後至 2026-06-16（系統同時顯示 UTC）。
+
+⚠️ 跑過一次   「回踩 18EMA · p50 × NQ × 呢段時間」你 7 月 23 日跑過，
+              結果 0 筆交易。 [去睇嗰次結果]  [照跑，我要再試一次]</pre>
+      </div>
+
+      <div class="cmt"><b>呢三個檢查係為咗省你時間。</b>冇佢哋你會等十幾分鐘，然後見到「0 交易」但唔知係策略問題、數據問題、定係暖機唔夠——三個原因嘅下一步動作完全唔同。</div>
+
+      <!-- ============ 開始 ============ -->
+      <div class="row">
+        <span class="btn btn--go" style="font-size:0.8125rem;padding:0.3rem 0.8rem">▶ 開始回測</span>
+        <span class="fld fld--ro" style="padding:0.2rem 0.4rem"><span class="k k--ro">唯讀</span><s><b>2 個策略 × 2 個合約 ＝ 4 次回測</b>　每次各自由 USD 100,000 起步 · 估計約 4 分鐘</s></span>
+      </div>
+      <div class="cmt">預覽行用人話——<b>唔寫「4 runs」</b>。冇揀策略或合約 → 掣 disabled，並講明差咩。</div>
+
+      <!-- ============ 正在跑 ============ -->
+      <div class="hd" style="margin-top:0.4rem">正在跑 <em>兩層：總進度 ＋ 逐個展開</em></div>
+
+      <div class="fld fld--ro" style="flex-direction:column;align-items:stretch;gap:0.4rem;background:var(--card)">
+        <div class="row" style="justify-content:space-between">
+          <span style="font-weight:700;font-size:0.8125rem">4 次回測 · 完成 1 · 正在跑 1 · 等緊 2</span>
+          <span class="k k--ro">開始 15:42 · 已用 1 分 20 秒 · 估計仲有 3 分鐘</span>
+        </div>
+        <div style="height:0.45rem;border-radius:999px;background:var(--fill);overflow:hidden">
+          <div style="width:32%;height:100%;background:var(--acc)"></div>
+        </div>
+        <div class="row">
+          <span class="btn btn--gh">取消未開始嘅回測</span>
+          <span class="k k--ro">正在跑嗰個會跑完——半途停會留下半份檔案，事後查唔返</span>
+        </div>
+      </div>
+
+      <div class="tbl">
+        <div class="h"><span>回測</span><span>進度</span><span>而家嘅結果</span></div>
+        <div>
+          <span>NQ · 回踩 18EMA<br><span class="k k--ro">7月25日 15:42</span></span>
+          <span><b style="color:var(--pos)">✓ 完成</b><br><span class="k k--ro">58 / 58 交易日</span></span>
+          <span>0 筆交易 · 0R<br><span class="k k--ro">→ 去睇結果</span></span>
+        </div>
+        <div style="background:color-mix(in srgb,var(--acc) 6%,transparent)">
+          <span>YM · 回踩 18EMA<br><span class="k k--ro">15:43 開始</span></span>
+          <span><b style="color:var(--acc)">⏳ 測到 2026-06-12</b><br>
+            <span style="display:inline-block;width:5rem;height:0.3rem;border-radius:999px;background:var(--fill);overflow:hidden;vertical-align:middle">
+              <span style="display:block;width:52%;height:100%;background:var(--acc)"></span>
+            </span>
+            <span class="k k--ro">30 / 58 日</span>
+          </span>
+          <span><b>2 筆交易 · +1.4R</b><br><span class="k k--ro">＋$560</span></span>
+        </div>
+        <div>
+          <span>NQ · 回踩 90EMA<br><span class="k k--ro">等緊</span></span>
+          <span class="k k--ro">未開始</span>
+          <span class="k k--ro">—</span>
+        </div>
+        <div>
+          <span>YM · 回踩 90EMA<br><span class="k k--ro">等緊</span></span>
+          <span class="k k--ro">未開始</span>
+          <span class="k k--ro">—</span>
+        </div>
+      </div>
+
+      <div class="cmt">正在跑嗰行<b>底色標出</b>，而且見到<b>測到邊一日</b>、<b>幾筆交易</b>、<b>而家贏輸幾多</b>。呢個唔係為咗好睇——你睇到「測到 6 月 12 日已經 2 筆」就知策略有喺動，唔會懷疑係卡住。<br><b>逐個列表可以摺埋</b>，如果你一次只跑一兩個就唔需要展開。</div>
+
+      <!-- ============ 歷史 ============ -->
+      <div class="hd" style="margin-top:0.4rem">最近嘅回測 <em>只夠你認得出跑過咩 · 詳細分析喺結果頁</em></div>
+
+      <div class="tbl">
+        <div class="h"><span>策略 · 合約</span><span>回測時間 · 狀態</span><span>結果</span></div>
+        <div>
+          <span>回踩 18EMA · NQ<br><span class="k k--ro">7月23日 11:20</span></span>
+          <span>2026-05-01 → 07-23<br><span class="k k--ro">完成</span></span>
+          <span>0 筆 · 0R　<span class="btn btn--gh">看結果</span> <span class="btn btn--gh">再跑一次</span></span>
+        </div>
+        <div>
+          <span>回踩 90EMA · GC<br><span class="k k--ro">7月24日 09:15</span></span>
+          <span>2026-06-01 → 07-24<br><span class="k k--ro">完成</span></span>
+          <span>0 筆 · 0R　<span class="btn btn--gh">看結果</span> <span class="btn btn--gh">再跑一次</span></span>
+        </div>
+        <div>
+          <span>開市突破 v1 · NQ<br><span class="k k--ro">7月22日 16:40</span></span>
+          <span>2026-04-01 → 07-22<br><span class="k k--ro" style="color:var(--neg)">失敗</span></span>
+          <span class="k k--ro">數據有缺口（6月3日）　<span class="btn btn--gh">看原因</span></span>
+        </div>
+      </div>
+
+      <div class="exit" style="border-color:color-mix(in srgb,var(--neg) 45%,transparent);background:color-mix(in srgb,var(--neg) 6%,transparent)">
+        <b>撳「看原因」之後（Owner 拍板：要完整錯誤，可以複製俾 Agent C 睇）</b>
+        <pre>NQ-202609-CME · 2026-06-03
+data/market/contract_id=NQ-202609-CME: 缺失 session 開盤至 14:31 共 391 根 1m bar
+  — 呢日被質量檢查標記為 large_gap，未列入 owner blacklist
+  — 回測拒絕喺有未裁決缺口嘅日子上執行
+
+修法：喺數據頁裁決呢一日（「信呢日數據」或「列入不回測名單」），
+      或者喺 terminal 補數據：
+      futures-research download --symbol NQ --start 2026-06-03T00:00Z --end 2026-06-04T00:00Z
+
+[⧉ 複製全文]   ← 純文字原文，冇 UI 裝飾，可以直接貼俾 Agent C</pre>
+      </div>
+
+      <div class="cmt"><b>「再跑一次」</b>＝ 同樣策略、合約、時間重新跑（補完數據之後重測就用呢個）。Owner 確認會用，保留。<br><b>失敗嘅錯誤要完整，而且要一鍵複製成純文字</b>——同策略庫嗰個「複製全部錯誤」係同一個模式：Owner 會原句貼俾 Agent C 或者 terminal AI 睇。所以<b>唔准只顯示一句摘要</b>，亦<b>唔准喺複製出嚟嘅文字加 HTML／行號／UI 前綴</b>。</div>
+    </div>
+  </div>
+
+  <h2>實作約束 <small>mockup 表達唔到嘅決定</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>約束</th><th>理由</th></tr>
+      <tr><td class="mono">1</td><td><b>移除</b>「validation_run（工程驗證，非策略主張）」勾選——改為只喺 CLI 用</td><td>Owner 永遠只做「試策略」；呢個開關係開發者驗證引擎用嘅。Owner 撞到完全唔明</td></tr>
+      <tr><td class="mono">2</td><td><b>移除</b>「開啟參數 override」整個功能</td><td>已被「策略庫撳編輯改參數 → 生成新版本」取代（P2 約束 #18）。新做法有名字、事後查得返，比臨時蓋過好</td></tr>
+      <tr><td class="mono">3</td><td>時間用<b>本地時間 picker</b>，旁邊<b>同時顯示 UTC 對照</b></td><td>P2 約束 #25 同一原則。數據同 session 用 UTC 定義，Owner 要核對得到</td></tr>
+      <tr><td class="mono">4</td><td>session（rth／eth）<b>顯示但唯讀</b>，由策略文件決定</td><td>喺呢頁改就會同策略文件唔一致。但同時揀兩個唔同 session 嘅策略時要睇得出</td></tr>
+      <tr><td class="mono">5</td><td><b>開始前三個檢查</b>：數據覆蓋 · 暖機不足 · 已跑過相同組合</td><td>省 Owner 十幾分鐘。「0 交易」有三個可能原因，三個下一步動作完全唔同</td></tr>
+      <tr><td class="mono">6</td><td>暖機檢查要由<b>已確認策略 ＋ 實際 engine dependencies</b>推算；現行 Trend Daily regime exact 要 <b>95 個 run 前、已收市、合資格原生日線交易日</b>。講明實際可評估日數；不足時只可建議回填更早資料，或將開始日推後</td><td>暖機只用 run 前歷史，唔准偷睇 run 內／未來 bars。將開始日推早反而減少 warm-up，方向錯；18EMA 變體仍共用 EMA90 Daily regime，唔可錯報 18 日</td></tr>
+      <tr><td class="mono">7</td><td>「已跑過」檢查比對<b>策略版本 ＋ 合約 ＋ 時間範圍</b>三者全同</td><td>三者任一唔同就唔算重複</td></tr>
+      <tr><td class="mono">8</td><td>預覽行用人話：「2 個策略 × 2 個合約 ＝ 4 次回測」＋ 預估時間</td><td><b>唔准寫「4 runs」</b></td></tr>
+      <tr><td class="mono">9</td><td>進度<b>兩層</b>：總進度條 ＋ 逐個列表（可摺）</td><td>Owner 拍板。一次跑一兩個時摺埋就夠</td></tr>
+      <tr><td class="mono">10</td><td>逐個要顯示：<b>測到邊一日</b>、<b>幾筆交易</b>、<b>而家贏輸幾多</b>，正在跑嗰行底色標出</td><td>Owner 要睇到策略有喺動，唔會懷疑卡住</td></tr>
+      <tr><td class="mono">11</td><td>🔴 <b>實時進度需要後端改動</b>：引擎要每處理完一個交易日上報一次</td><td>目前隊列係「跑完才報完成」，中途冇進度。<b>階段 1 用 fixture，階段 2 才接真數據</b></td></tr>
+      <tr><td class="mono">12</td><td>取消：<b>只取消未開始嘅</b>，正在跑嗰個跑完</td><td>已裁決（[086]）。半途殺會留下半寫 artifact，破壞可審計 replay（D19）</td></tr>
+      <tr><td class="mono">13</td><td>取消掣文案<b>唔准寫「停止」</b>，要寫「取消未開始嘅回測（正在跑嗰個會跑完）」</td><td>UI 唔准聲稱自己做唔到嘅嘢</td></tr>
+      <tr><td class="mono">14</td><td>一個失敗<b>唔會拖累其他</b>。失敗要有「看原因」→ 展開<b>完整錯誤原文</b> ＋ <b>一鍵複製成純文字</b>（冇 HTML／行號／UI 前綴）。<b>唔准只顯示一句摘要</b></td><td>Owner 拍板：會原句貼俾 Agent C 或 terminal AI 睇。同策略庫「複製全部錯誤」同一模式</td></tr>
+      <tr><td class="mono">15</td><td>歷史列表<b>只夠認得出</b>；「看結果」跳 P5，「再跑一次」用同樣設定重跑（<b>Owner 確認會用</b>）</td><td>結果分析歸 P5，避免兩頁重複</td></tr>
+      <tr><td class="mono">16</td><td>🔴 <b>技術詞一律唔准出現喺 UI</b></td><td>見下表</td></tr>
+      <tr><td class="mono">17</td><td><b>資金與成交假設係第四步，預設收起摘要、可展開調整。</b>只准改初始資金、所選合約手續費同滑點；策略風險／每日上限、保守成交原則同一分鐘精度一律由策略或系統決定並唯讀。多個策略數值唔同時要逐個列明，唔准合併成含糊單值。每個「策略 × 合約」係獨立回測帳戶，<b>各自用完整初始資金起步，唔共同攤分</b>。提交時每次回測都要鎖死資金、成本同成交假設快照；初始資金必須大過 0，成本／滑點不得為負數，滑點只收整數 tick，錯誤要落喺欄位旁並阻止開始。</td><td>Owner 2026-07-26 拍板方案 A，同時明確確認：4 次回測就係 4 個獨立 USD 100,000 帳戶。快照確保舊結果可重現，之後改預設值亦唔會改寫舊回測</td></tr>
+    </table>
+  </div>
+
+  <h2>技術詞禁用表 <small>約束 #16 · Owner 撞到兩個之後立嘅規則</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>唔准出現</th><th>改成</th></tr>
+      <tr><td class="mono">validation_run / 工程驗證，非策略主張</td><td>整個移除</td></tr>
+      <tr><td class="mono">override / 開啟參數 override</td><td>整個移除</td></tr>
+      <tr><td class="mono">batch / BATCH 提交 / 近期 UI BATCHES</td><td>「開始回測」／「最近嘅回測」</td></tr>
+      <tr><td class="mono">runs（作為單位）</td><td>「次回測」</td></tr>
+      <tr><td class="mono">nq-20260725-val-364e22</td><td>「NQ · 回踩 18EMA · 7月25日 15:42」（ID 收埋做 tooltip 或細字）</td></tr>
+      <tr><td class="mono">p50 閘 / p65 閘 / sep_mult</td><td>用策略名，唔用參數代號</td></tr>
+      <tr><td class="mono">range_start / range_end</td><td>「由」／「到」</td></tr>
+      <tr><td class="mono">rth / eth</td><td>「美股時段」／「夜盤全時段」</td></tr>
+    </table>
+  </div>
+
+  <div class="ask">
+    <h3>Owner 已確認</h3>
+    <ol>
+      <li><strong>「再跑一次」保留</strong>——Owner 會用（補完數據之後重測同一組合）。</li>
+      <li><strong>失敗要完整錯誤 ＋ 一鍵複製</strong>——Owner 原話：「看原因掣，然後 copy 俾你睇」。所以唔止一句摘要，要完整原文，而且複製出嚟必須係純文字（見約束 #14）。</li>
+      <li><strong>資金與成交假設採用方案 A</strong>——預設收起摘要，需要時展開；每次回測各自用完整 USD 100,000 起步，唔係多次共同攤分（見約束 #17）。</li>
+    </ol>
+    <p style="margin-top:0.5rem;font-size:0.875rem;color:var(--tx2)"><strong>P4 定稿修訂 2026-07-27。</strong>下一頁：P5 結果補充畫面。</p>
+  </div>
+</div>
+
+</body>
+</html>

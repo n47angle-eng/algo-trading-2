@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>P1 總覽 — 設計定稿（框架）</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; }
+  img, svg { display: block; max-width: 100%; }
+  pre { margin: 0; }
+</style>
+<style>
+  :root {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff;
+    --up: #0a6cff; --ty: #1e8e43; --out: #a86200; --in: #8944ab; --ro: #8b93a1;
+    --neg: #dc372a; --pos: #1e8e43;
+    --ff: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Segoe UI", system-ui,
+      "PingFang TC", "Microsoft JhengHei", "Noto Sans TC", sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0c0e13; --elev: #101319;
+      --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+      --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+      --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+      --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+      --in: #bf5af2; --ro: #59616f; --neg: #ff453a; --pos: #30d158;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #0c0e13; --elev: #101319;
+    --card: rgb(255 255 255 / 5.5%); --card2: rgb(255 255 255 / 2.8%);
+    --line: rgb(255 255 255 / 10%); --fill: rgb(255 255 255 / 6%);
+    --tx: #f1f3f8; --tx2: #9aa3b4; --tx3: #59616f;
+    --acc: #0a84ff; --up: #0a84ff; --ty: #30d158; --out: #e0a020;
+    --in: #bf5af2; --ro: #59616f; --neg: #ff453a; --pos: #30d158;
+  }
+  :root[data-theme="light"] {
+    --bg: #f1f3f7; --elev: #e8ebf2;
+    --card: rgb(255 255 255 / 80%); --card2: rgb(255 255 255 / 48%);
+    --line: rgb(22 28 40 / 13%); --fill: rgb(22 28 40 / 5%);
+    --tx: #1b2028; --tx2: #59626f; --tx3: #8b93a1;
+    --acc: #0a6cff; --up: #0a6cff; --ty: #1e8e43; --out: #a86200;
+    --in: #8944ab; --ro: #8b93a1; --neg: #dc372a; --pos: #1e8e43;
+  }
+
+  body { margin:0; background:var(--bg); color:var(--tx); font-family:var(--ff);
+    font-size:0.9375rem; line-height:1.6; -webkit-font-smoothing:antialiased; }
+  .page { max-width:64rem; margin:0 auto; padding:2.25rem 1.25rem 5rem; }
+
+  h1 { font-size:1.5rem; letter-spacing:-0.02em; margin:0 0 0.3rem; }
+  .lede { color:var(--tx2); margin:0 0 0.4rem; font-size:0.9375rem; }
+  .stamp { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); margin:0 0 1.75rem; }
+
+  h2 { font-size:1.0625rem; margin:2.5rem 0 0.5rem; padding-top:1.1rem;
+    border-top:1px solid var(--line); display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; }
+  h2 small { font-weight:400; font-size:0.75rem; color:var(--tx3); font-family:var(--mono); }
+  p { margin:0 0 0.75rem; }
+  code { font-family:var(--mono); font-size:0.8125em; background:var(--fill); padding:0.1em 0.3em; border-radius:0.25rem; }
+
+  .legend { display:grid; grid-template-columns:repeat(auto-fit,minmax(11rem,1fr)); gap:0.4rem;
+    padding:0.75rem; border:1px solid var(--line); border-radius:0.6rem; background:var(--card2); margin:0 0 1.5rem; }
+  .lg { display:flex; gap:0.4rem; align-items:flex-start; font-size:0.75rem; color:var(--tx2); }
+  .lg b { flex:none; }
+
+  .k { font-family:var(--mono); font-size:0.625rem; font-weight:700; padding:0.08rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; }
+  .k--ro { color:var(--ro); border-color:var(--line); background:var(--fill); }
+  .k--neg { color:var(--neg); border-color:color-mix(in srgb,var(--neg) 50%,transparent); background:color-mix(in srgb,var(--neg) 12%,transparent); }
+  .k--acc { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 50%,transparent); background:color-mix(in srgb,var(--acc) 12%,transparent); }
+  .k--out { color:var(--out); border-color:color-mix(in srgb,var(--out) 50%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+
+  .src { font-family:var(--mono); font-size:0.5625rem; font-weight:700; padding:0.02rem 0.3rem;
+    border-radius:0.25rem; border:1px solid; white-space:nowrap; letter-spacing:0.02em; margin-right:0.35rem; }
+  .src--you { color:var(--ty); border-color:color-mix(in srgb,var(--ty) 50%,transparent); background:color-mix(in srgb,var(--ty) 14%,transparent); }
+  .src--now { color:var(--acc); border-color:color-mix(in srgb,var(--acc) 50%,transparent); background:color-mix(in srgb,var(--acc) 12%,transparent); }
+  .src--c   { color:var(--out); border-color:color-mix(in srgb,var(--out) 55%,transparent); background:color-mix(in srgb,var(--out) 14%,transparent); }
+
+  .frame { display:grid; grid-template-columns:8rem minmax(0,1fr); border:1px solid var(--line);
+    border-radius:0.7rem; background:var(--elev); overflow:hidden; margin:0.75rem 0 0; }
+  .side { background:var(--card2); border-right:1px solid var(--line); padding:0.5rem 0;
+    display:flex; flex-direction:column; gap:0.05rem; }
+  .side i { font-style:normal; padding:0.26rem 0.55rem; color:var(--tx3); font-size:0.75rem; }
+  .side i.on { color:var(--tx); font-weight:700; background:color-mix(in srgb,var(--acc) 14%,transparent); }
+  .main { padding:0.8rem; display:flex; flex-direction:column; gap:0.55rem; min-width:0; }
+
+  .hd { display:flex; gap:0.5rem; align-items:baseline; flex-wrap:wrap; font-size:0.8125rem; font-weight:700; }
+  .hd em { font-style:normal; font-family:var(--mono); font-size:0.6875rem; color:var(--tx3); font-weight:400; }
+
+  .btn { font-size:0.6875rem; font-weight:700; padding:0.22rem 0.55rem; border-radius:0.35rem;
+    border:1px solid; white-space:nowrap; }
+  .btn--go { color:var(--tx); border-color:color-mix(in srgb,var(--acc) 45%,transparent);
+    background:color-mix(in srgb,var(--acc) 20%,transparent); }
+  .btn--gh { color:var(--tx2); border-color:var(--line); background:var(--fill); }
+
+  .row { display:flex; gap:0.4rem; align-items:center; flex-wrap:wrap; }
+
+  .cmt { border-left:2px solid var(--acc); background:color-mix(in srgb,var(--acc) 7%,transparent);
+    padding:0.45rem 0.6rem; border-radius:0 0.35rem 0.35rem 0; font-size:0.75rem; color:var(--tx2); }
+  .cmt b { color:var(--tx); }
+
+  .exit { border:1px dashed color-mix(in srgb,var(--out) 55%,transparent); border-radius:0.5rem;
+    background:color-mix(in srgb,var(--out) 7%,transparent); padding:0.6rem 0.7rem; font-size:0.75rem; }
+  .exit b { color:var(--out); font-family:var(--mono); font-size:0.6875rem; }
+  .exit pre { margin:0.3rem 0 0; font-family:var(--mono); font-size:0.6875rem;
+    color:var(--tx2); white-space:pre-wrap; }
+
+  .ask { margin-top:2.75rem; padding:1rem 1.15rem; border:1px solid color-mix(in srgb,var(--acc) 35%,transparent);
+    border-radius:0.7rem; background:color-mix(in srgb,var(--acc) 7%,transparent); }
+  .ask h3 { margin:0 0 0.45rem; font-size:1rem; }
+  .ask ol { margin:0; padding-left:1.2rem; }
+  .ask li { margin-bottom:0.35rem; font-size:0.875rem; }
+
+  .items { display:flex; flex-direction:column; gap:0.35rem; }
+  .it { border:1px solid var(--line); border-left-width:3px; border-radius:0.45rem; background:var(--card);
+    padding:0.45rem 0.6rem; display:grid; grid-template-columns:4.6rem minmax(0,1fr) auto;
+    gap:0.55rem; align-items:center; }
+  .it--blk { border-left-color:var(--neg); }
+  .it--cfm { border-left-color:var(--acc); }
+  .it--run { border-left-color:var(--ro); }
+  .it--rmd { border-left-color:var(--out); }
+  .it b { font-size:0.8125rem; display:block; }
+  .it s { text-decoration:none; display:block; color:var(--tx3); font-size:0.6875rem; font-family:var(--mono); }
+
+  .empty { border:1px dashed var(--line); border-radius:0.5rem; background:var(--card2);
+    padding:1.1rem 0.7rem; text-align:center; display:flex; flex-direction:column;
+    gap:0.45rem; align-items:center; }
+  .empty b { font-size:0.8125rem; }
+  .empty s { text-decoration:none; color:var(--tx3); font-size:0.6875rem; }
+
+  .foot { border-top:1px solid var(--line); margin-top:0.35rem; padding-top:0.4rem;
+    display:flex; gap:0.5rem; align-items:center; flex-wrap:wrap; font-size:0.6875rem; color:var(--tx3); }
+  .dot { width:0.45rem; height:0.45rem; border-radius:999px; background:var(--out); flex:none; }
+
+  .tw { overflow-x:auto; border:1px solid var(--line); border-radius:0.5rem; background:var(--card2); }
+  .tw table { border-collapse:collapse; width:100%; font-size:0.8125rem; }
+  .tw th, .tw td { text-align:left; vertical-align:top; padding:0.45rem 0.6rem; border-bottom:1px solid var(--line); }
+  .tw tr:last-child td { border-bottom:0; }
+  .tw th { background:var(--fill); font-size:0.6875rem; text-transform:uppercase;
+    letter-spacing:0.06em; color:var(--tx3); white-space:nowrap; }
+  .tw td.mono { font-family:var(--mono); font-size:0.75rem; color:var(--tx3); white-space:nowrap; }
+  .tw td b { color:var(--tx); }
+
+  .split2 { display:grid; grid-template-columns:1fr 1fr; gap:0.5rem; }
+  .box { border:1px solid var(--line); border-radius:0.5rem; padding:0.6rem 0.7rem; font-size:0.75rem; }
+  .box h4 { margin:0 0 0.35rem; font-size:0.75rem; }
+  .box ul { margin:0; padding-left:1.05rem; color:var(--tx2); }
+  .box li { margin-bottom:0.15rem; }
+  .box--fix { background:color-mix(in srgb,var(--acc) 7%,transparent);
+    border-color:color-mix(in srgb,var(--acc) 35%,transparent); }
+  .box--var { background:var(--fill); border-style:dashed; }
+
+  @media (max-width:36rem) {
+    .frame { grid-template-columns:1fr; }
+    .side { flex-flow:row wrap; border-right:0; border-bottom:1px solid var(--line); padding:0.35rem; }
+    .it { grid-template-columns:1fr; gap:0.25rem; }
+    .split2 { grid-template-columns:1fr; }
+  }
+  @media (prefers-reduced-motion:reduce) { * { animation:none!important; transition:none!important; } }
+</style>
+</head>
+<body>
+<div class="page">
+  <h1>總覽頁 — 設計定稿（框架）</h1>
+  <p class="lede">呢一頁只答一條問題：<b>我而家應該做咩。</b>唔答「系統狀態係咩」。</p>
+  <p class="stamp">定稿 2026-07-25 · 行動式 · 15 條實作約束 · 本稿定嘅係<b>框架同規則</b>，唔係內容</p>
+
+  <div class="cmt"><b>⚠️ 呢份稿嘅性質同其他設計稿唔同 —— 實作者要先讀呢一段。</b><br>
+  總覽頁<b>冇自己嘅數據</b>。上面每一個數字、每一個名、每一個時間，全部源自其他頁面。所以本稿定死嘅係<b>個形狀同規則</b>（有邊幾種事項、點排、點合併、幾時消失、撳咗去邊），<b>唔係</b>畫面上嗰幾行字嘅實際內容。<br>
+  Owner 原話：<b>「其實都只係需要寫框架，因為嗰啲訊息其實都係源自其他頁面。」</b></div>
+
+  <h2>框架定死咩、其他頁面提供咩 <small>呢個分野係本稿嘅核心</small></h2>
+
+  <div class="split2">
+    <div class="box box--fix">
+      <h4>✅ 本稿定死（實作者照做）</h4>
+      <ul>
+        <li>頁面形狀：一條「等緊你嘅事」清單 ＋ 底部一行連線細字</li>
+        <li><b>七種事項嘅類型</b>同佢哋嘅分類（阻住／等你判斷／行緊／提醒）</li>
+        <li><b>排序規則</b>（按類別固定，唔按時間）</li>
+        <li>每一項嘅結構：分類標籤 ＋ 一句人話 ＋ 一行細字上下文 ＋ 一個掣</li>
+        <li>合併規則、空狀態、只讀、掣要跳去邊</li>
+        <li>每一種嘅<b>出現同消失條件</b></li>
+      </ul>
+    </div>
+    <div class="box box--var">
+      <h4>↩ 由其他頁面提供（總覽唔決定）</h4>
+      <ul>
+        <li>實際數字（幾多個策略、幾多個回測）</li>
+        <li>實際名（邊個策略、邊個合約、邊個草圖）</li>
+        <li>實際時間</li>
+        <li>嗰一刻邊幾種事項存在、邊幾種唔存在</li>
+      </ul>
+      <p style="margin:0.4rem 0 0;color:var(--tx3)">下面畫面入面嘅數字全部係<b>示範</b>，唔係規格。</p>
+    </div>
+  </div>
+
+  <div class="legend">
+    <div class="lg"><b><span class="k k--neg">阻住</span></b><span>唔處理就跑唔到／有嘢壞咗</span></div>
+    <div class="lg"><b><span class="k k--acc">等你判斷</span></b><span>系統做完嘢，等你過目或者拍板</span></div>
+    <div class="lg"><b><span class="k k--ro">行緊</span></b><span>系統做緊嘢，你可以入去睇</span></div>
+    <div class="lg"><b><span class="k k--out">提醒</span></b><span>你自己未做完嘅事。<b>唔係系統偵測到</b></span></div>
+  </div>
+
+  <h2>畫面 A：有嘢等緊你 <small>Owner 已拍板採用呢一版（七項全要）</small></h2>
+
+  <div class="frame">
+    <div class="side"><i class="on">總覽</i><i>策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="hd">等緊你嘅事 <em>7 件 · 由最阻住你嗰件排落去</em></div>
+
+      <div class="items">
+
+        <div class="it it--blk">
+          <span class="k k--neg">阻住</span>
+          <span><b>1 個回測失敗咗 —— 數據有缺口</b>
+            <s>NQ · 開市突破 v1 · 7月22日 16:40（香港時間）· 缺 2026-06-03</s></span>
+          <span class="btn btn--go">看原因 →</span>
+        </div>
+
+        <div class="it it--blk">
+          <span class="k k--neg">阻住</span>
+          <span><b>2 個交易日嘅數據未裁決</b>
+            <s>NQ 2026-06-03 · YM 2026-05-19 —— 未裁決嘅日子，回測會拒絕喺嗰日跑</s></span>
+          <span class="btn btn--go">去裁決 →</span>
+        </div>
+
+        <div class="it it--cfm">
+          <span class="k k--acc">等你判斷</span>
+          <span><b>2 個策略等你過目確認</b>
+            <s>由 sketch-20260725-01 匯入 · 7月25日 14:30（香港時間）</s></span>
+          <span class="btn btn--go">去確認 →</span>
+        </div>
+
+        <div class="it it--cfm">
+          <span class="k k--acc">等你判斷</span>
+          <span><b>4 個回測跑完咗 3 日，仲未睇結果</b>
+            <s>最舊嗰個 3 日前跑完 · 全部 0 筆成交</s></span>
+          <span class="btn btn--go">去睇結果 →</span>
+        </div>
+
+        <div class="it it--run">
+          <span class="k k--ro">行緊</span>
+          <span><b>2 個回測行緊 · 估計仲有 3 分鐘</b>
+            <s>YM · 回踩 18EMA 測到 2026-06-12 · 已有 2 筆交易</s></span>
+          <span class="btn btn--gh">去睇進度 →</span>
+        </div>
+
+        <div class="it it--rmd">
+          <span class="k k--out">提醒</span>
+          <span><b>1 個草圖已匯出，等緊你由 terminal 攞返結果</b>
+            <s>sketch-20260725-02 · 7月25日 16:05 匯出。app 唔會自動知道 AI 寫好咗</s></span>
+          <span class="btn btn--gh">去匯入 →</span>
+        </div>
+
+        <div class="it it--rmd">
+          <span class="k k--out">提醒</span>
+          <span><b>1 個草圖存咗草稿，四格文字未填齊</b>
+            <s>sketch-20260725-03 · 30m 同 5m 兩格未填 → 未匯出得</s></span>
+          <span class="btn btn--gh">繼續填 →</span>
+        </div>
+
+      </div>
+
+      <div class="foot"><span class="dot"></span>
+        <span>Interactive Brokers：port 可達 · 未驗證 session</span>
+        <span class="k k--ro">最後檢查 7月25日 16:22（香港時間）</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmt">七件同時出現係為咗一次過睇齊七種情況，<b>實際上好少會七樣齊</b>，平時多數一至三件。<br>
+  <b>每一行右邊嘅掣要直接去到做嗰件事嗰個位置</b>，唔係「去到嗰一頁然後自己再搵」。例如「去確認」係直接開策略工作台嘅量化確認分頁<b>並且帶住嗰一份策略</b>。<b>呢條係總覽有冇價值嘅分水嶺</b>——如果撳完要自己再搵，總覽等於慳咗零步。</div>
+
+  <h2>🔴 總覽頁只入唔出 <small>Owner 拍板嘅結構原則</small></h2>
+
+  <div class="cmt">Owner 原話：<b>「總覽一頁其實佢唔係有任何數據會直接送俾其他頁面，佢反而係從其他頁面嗰度攞各自重要嘅資料，然後顯示喺呢一頁。」</b>——正確，而且呢個要寫成硬約束。</div>
+
+  <div class="exit" style="border-color:color-mix(in srgb,var(--acc) 45%,transparent);background:color-mix(in srgb,var(--acc) 7%,transparent)">
+    <b style="color:var(--acc)">數據方向</b>
+    <pre>策略工作台 ──┐
+數據頁    ──┤
+回測頁    ──┼──→  總覽頁（只讀 · 零寫入 · 唔擁有任何嘢）
+結果頁    ──┘         │
+                      └──→ 撳掣 ＝ 帶你返去嗰一頁（只係導航，唔帶數據過去）
+
+後果一：總覽頁自己唔會錯。如果佢顯示「4 個回測未睇」但實際係 3 個，
+        問題一定喺結果頁嗰邊，唔喺總覽。將來捉 bug 唔使兩邊查。
+
+後果二：總覽頁一定要排最後做。佢冇嘢自己產生，
+        其他頁未跑得起之前，佢就算做咗出嚟都係空白。</pre>
+  </div>
+
+  <div class="cmt"><b>一個原本會破壞呢條原則嘅嘢，已經搬走。</b>Agent C 上一版喺第 6 項擺咗個「✕ 唔跟進」掣（撳走草圖提醒），但佢要記住「你講咗唔跟進」——即係總覽頁要寫嘢。<br>
+  <b>改成：呢個掣搬去策略工作台嘅草圖列表。</b>草圖本來就係嗰一頁擁有嘅嘢，喺嗰度撳走先合理，而總覽就真正做到零寫入。總覽只係反映結果。</div>
+
+  <h2>七種事項：來源 · 幾時出現 · 撳咗去邊 · 幾時消失 <small>🔴 本稿最重要嘅一張表</small></h2>
+
+  <div class="cmt">做錯呢一頁最容易嘅方式唔係畫得唔靚，係<b>一件事做完之後佢仲喺度</b>，或者<b>一件事發生咗但佢冇出現</b>。所以每一種都要寫死。<br>
+  「來源」一欄保留落嚟做記錄：<span class="src src--you">Owner</span>＝Owner 明確講過 · <span class="src src--now">現有</span>＝而家總覽頁已經有 · <span class="src src--c">C 提議</span>＝Agent C 提出、Owner 2026-07-25 批准。</div>
+
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>來源</th><th>事項</th><th>幾時出現</th><th>撳咗去邊</th><th>幾時消失</th></tr>
+      <tr><td class="mono">1</td><td><span class="src src--c">C 提議</span></td><td><b>回測失敗咗</b></td>
+        <td>有回測狀態＝失敗，而且你未撳過「看原因」</td>
+        <td>回測頁 · 該次回測嗰行 · <b>已經展開咗完整錯誤原文</b></td>
+        <td>你撳過「看原因」之後</td></tr>
+      <tr><td class="mono">2</td><td><span class="src src--c">C 提議</span></td><td><b>數據日未裁決</b></td>
+        <td>質量檢查標記咗有問題、但你未裁決嘅交易日</td>
+        <td>數據頁 · 已篩選到嗰幾日</td>
+        <td>全部裁決完（「信呢日數據」或「列入不回測名單」都算）</td></tr>
+      <tr><td class="mono">3</td><td><span class="src src--you">Owner</span></td><td><b>策略等你確認</b></td>
+        <td>匯入咗、驗證過、但你未撳「確認採用」</td>
+        <td>策略工作台 · 量化確認分頁 · <b>帶住嗰一份</b></td>
+        <td>你確認採用，或者你放棄咗嗰份</td></tr>
+      <tr><td class="mono">4</td><td><span class="src src--you">Owner</span></td><td><b>回測跑完未睇</b></td>
+        <td>回測完成，而且你從來冇打開過嗰個結果嘅詳情</td>
+        <td>結果頁 · 已篩選到未睇嗰幾個</td>
+        <td>你打開過該結果詳情（<b>逐個計</b>，冇「全部標記已睇」）</td></tr>
+      <tr><td class="mono">5</td><td><span class="src src--now">現有</span></td><td><b>回測行緊</b></td>
+        <td>有回測正在跑或者等緊跑</td>
+        <td>回測頁 · 「正在跑」嗰一段</td>
+        <td>全部跑完（然後轉化成第 4 項）</td></tr>
+      <tr><td class="mono">6</td><td><span class="src src--c">C 提議</span></td><td><b>草圖匯出咗未攞返</b></td>
+        <td>你匯出過圖文包，而且未有對應嘅策略匯入返</td>
+        <td>策略工作台 · 量化確認分頁 · 對應草圖已帶入</td>
+        <td>該草圖有策略匯入咗，或者你喺<b>策略工作台</b>撳「✕ 唔跟進」</td></tr>
+      <tr><td class="mono">7</td><td><span class="src src--c">C 提議</span></td><td><b>草稿未填齊</b></td>
+        <td>存咗草稿但四格文字未齊（＝匯出掣仲係 disabled）</td>
+        <td>策略工作台 · 草圖分頁 · <b>捲到第一格未填嘅</b></td>
+        <td>四格填齊（唔需要匯出），或者你刪咗嗰個草稿</td></tr>
+    </table>
+  </div>
+
+  <div class="exit" style="margin-top:0.7rem">
+    <b>🔴 第 6 項措辭特別小心 —— app 唔知道 AI 做完未</b>
+    <pre>app 唔會去掃 data/sketches/ 睇 AI 寫咗檔未，亦唔應該扮知。
+
+✗ 唔准寫：「AI 已完成，可以匯入」        ← 系統唔知呢件事
+✓ 要寫：  「已匯出，等緊你由 terminal 攞返結果」
+
+同一條原則已經立過：連線狀態止於「port 可達 · 未驗證 session」，
+唔准寫「已連接」——UI 唔准聲稱自己做唔到嘅嘢。</pre>
+  </div>
+
+  <h2>畫面 B：冇嘢等緊你 <small>唔准填假嘢令佢睇落完整</small></h2>
+
+  <div class="frame">
+    <div class="side"><i class="on">總覽</i><i>策略工作台</i><i>數據</i><i>回測</i><i>結果</i><i>模擬盤</i></div>
+    <div class="main">
+      <div class="hd">等緊你嘅事 <em>0 件</em></div>
+      <div class="empty">
+        <b>而家冇嘢等緊你。</b>
+        <s>所有策略都確認咗、所有回測都睇過。</s>
+        <span class="btn btn--go">＋ 開始一個新草圖</span>
+      </div>
+      <div class="foot"><span class="dot"></span>
+        <span>Interactive Brokers：port 可達 · 未驗證 session</span>
+        <span class="k k--ro">最後檢查 7月25日 16:22（香港時間）</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="cmt">空狀態<b>唔准</b>為咗「填滿個頁面」而加返數據覆蓋數字、成功率統計、或者最近活動列表。呢啲全部係狀態唔係行動，加返去就等於把呢一頁變返狀態板。<br>
+  <b>舊總覽嗰兩張空殼卡（模擬盤、今日盤前計劃）唔會出現喺新設計</b>——模擬盤有自己嘅正式頁面同側欄入口；MVP 明確冇盤前計劃。總覽只顯示上表七種真正要 Owner 行動嘅事項，唔加純狀態卡。</div>
+
+  <h2>實作約束 <small>mockup 表達唔到嘅拍板決定 —— 全部要遵守</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>#</th><th>約束</th><th>理由／來源</th></tr>
+      <tr><td class="mono">1</td><td>呢頁<b>只答「我而家應該做咩」</b>。唔准加數據覆蓋數字、成功率統計、最近活動列表呢類狀態資訊</td><td>Owner 拍板方向。加返狀態資訊＝把呢頁變返狀態板</td></tr>
+      <tr><td class="mono">2</td><td>🔴 <b>總覽頁只讀、零寫入</b>。唔准喺呢頁儲存任何狀態；掣<b>只做導航</b></td><td>Owner 拍板：「佢唔係有任何數據會直接送俾其他頁面」。因此「✕ 唔跟進」已搬去策略工作台</td></tr>
+      <tr><td class="mono">3</td><td><b>每一行都必須有一個掣</b>；冇動作嘅資訊唔准出現喺呢頁</td><td>「行動式」嘅定義。一行冇掣＝佢係狀態唔係行動</td></tr>
+      <tr><td class="mono">4</td><td>掣要<b>直接去到做嗰件事嗰個位置</b>（正確分頁 ＋ 已帶入對應嘅嘢 ＋ 已篩選），唔係只跳去嗰一頁</td><td>跳去頁面然後自己搵＝總覽只慳咗零步。<b>呢條係總覽有冇價值嘅分水嶺</b></td></tr>
+      <tr><td class="mono">5</td><td>排序<b>按類別固定</b>：阻住 → 等你判斷 → 行緊 → 提醒。同類之間才按時間（舊嘅先）</td><td>每次開都預期得到最頂嗰個最急。按時間排會令同一件事今日喺頂、聽日喺中間</td></tr>
+      <tr><td class="mono">6</td><td>同類多過一件<b>合併成一行講數目</b>。<b>例外：失敗逐個列</b>，最多 3 個，其餘寫「仲有 N 個」</td><td>失敗嘅原因逐個唔同，合併就睇唔出。其餘同類動作一樣，合併冇損失</td></tr>
+      <tr><td class="mono">7</td><td>🔴 第 6 項措辭<b>唔准聲稱 app 知道 AI 寫好咗檔</b></td><td>UI 唔准聲稱自己做唔到嘅嘢。同「port 可達 · 未驗證 session」同一條原則</td></tr>
+      <tr><td class="mono">8</td><td>「未睇過」由<b>前端自己記</b>（打開過該結果詳情就當睇咗），<b>逐個計</b>，冇「全部標記已睇」</td><td>Owner 拍板：加咗就會習慣一撳清走，個提醒即刻失去意義</td></tr>
+      <tr><td class="mono">9</td><td>空狀態：<b>一句 ＋ 一個「開始一個新草圖」掣</b>。唔准填假內容令頁面睇落完整</td><td>已立原則：唔准填假數字令空殼睇落完整</td></tr>
+      <tr><td class="mono">10</td><td>連線狀態放<b>最底一行細字</b>，措辭一律「port 可達 · 未驗證 session」，<b>唔准寫「已連接」</b>，唔准做成大卡</td><td>目前只做 TCP 探測，未做 IB API handshake。做成大卡＝把佢升返做主角</td></tr>
+      <tr><td class="mono">11</td><td>技術詞禁用表（回測頁稿嗰張）<b>同樣適用</b>：唔准出現回測編號、<code>batch</code>、<code>runs</code>、<code>p50 閘</code></td><td>已立規則，適用全部頁面</td></tr>
+      <tr><td class="mono">12</td><td>時間三分類照策略工作台約束 #25：<b>「7月25日 14:30」係時刻</b>，要標時區；<b>「2026-06-03」係交易日，絕對唔准轉時區</b></td><td>本頁同時出現兩類時間，係最容易撈亂嘅一頁。<b>要有測試</b></td></tr>
+      <tr><td class="mono">13</td><td><b>數字要準</b>：寫「4 個回測」就真係 4 個。唔准約數、唔准封頂之後仲寫原數</td><td>Owner 會照住個數去對。數字唔準＝成頁失信</td></tr>
+      <tr><td class="mono">14</td><td>七種事項<b>嘅出現／消失條件照上面嗰張表寫死</b>，唔准自行加減</td><td>做錯呢頁最常見嘅方式係「做完咗佢仲喺度」或者「發生咗佢冇出現」</td></tr>
+      <tr><td class="mono">15</td><td>🔴 <b>本頁排最後做</b>，唔喺 WO-010 窄路徑範圍。<b>未收到工作令唔准開工</b></td><td>總覽冇自己嘅數據；其他頁未跑得起之前佢做咗都係空白（見約束 #2 後果二）</td></tr>
+    </table>
+  </div>
+
+  <h2>後端缺口 <small>誠實標明，唔靜靜哋當有</small></h2>
+
+  <div class="tw">
+    <table>
+      <tr><th>事項</th><th>後端有冇</th><th>實作時點做</th></tr>
+      <tr><td>1 回測失敗</td><td><b>已有</b>（回測隊列有失敗狀態同錯誤原文）</td><td>用真嘅</td></tr>
+      <tr><td>2 數據日未裁決</td><td>⚠️ <b>裁決狀態未有</b>——數據頁兩個裁決掣目前只記錄意圖</td><td>fixture，並記落缺口清單</td></tr>
+      <tr><td>3 策略等你確認</td><td>部分——策略庫已有，「匯入咗但未確認」呢個中間態要確認</td><td>照策略工作台嘅做法</td></tr>
+      <tr><td>4 回測跑完未睇</td><td><b>已有</b>（完成狀態）＋「未睇過」前端自己記</td><td>用真嘅 ＋ 前端記</td></tr>
+      <tr><td>5 回測行緊</td><td><b>部分</b>——有隊列狀態，但<b>冇中途進度</b>（回測頁約束 #11 已標紅）</td><td>只顯示「行緊 N 個」，唔顯示「測到邊一日」</td></tr>
+      <tr><td>6 草圖匯出未攞返</td><td>唔需要後端（app 自己記匯出過咩）</td><td>本地記錄，<b>由策略工作台擁有</b></td></tr>
+      <tr><td>7 草稿未填齊</td><td>唔需要後端</td><td>本地記錄，<b>由策略工作台擁有</b></td></tr>
+    </table>
+  </div>
+
+  <div class="ask">
+    <h3>Owner 已拍板五點 —— 總覽頁定稿</h3>
+    <ol>
+      <li><strong>方向：行動式</strong>——答「我而家應該做咩」，唔答「系統狀態係咩」。連線狀態降級做底部細字。</li>
+      <li><strong>七項全要</strong>（Agent C 提議嗰四項 ＋ 現有嘅「回測行緊」全部保留）。</li>
+      <li><strong>總覽只入唔出</strong>——只讀、零寫入、掣只做導航。「✕ 唔跟進」因此搬去策略工作台。</li>
+      <li><strong>唔加「全部標記為已睇」</strong>——逐個打開過先當睇咗。</li>
+      <li><strong>本稿定嘅係框架同規則，唔係內容</strong>——畫面上嘅數字全部係示範。</li>
+    </ol>
+    <p style="margin-top:0.5rem;font-size:0.875rem;color:var(--tx2)"><strong>總覽頁定稿 2026-07-25。</strong>六頁設計已全部定稿；實作者仍只可按最新工作令指定範圍開工。</p>
+  </div>
+</div>
+
+</body>
+</html>

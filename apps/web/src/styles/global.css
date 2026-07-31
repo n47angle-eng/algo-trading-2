@@ -1,0 +1,117 @@
+/**
+ * Global entry — tokens + base + document shell.
+ * Imported first from main.tsx so every page inherits the design system.
+ */
+
+@import "./tokens.css";
+@import "./base.css";
+
+/* ─────────────────────────── Document shell ─────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  font-family: var(--font-family);
+  font-size: var(--text-md);
+  line-height: 1.55;
+  color: var(--color-text-primary);
+  background: var(--color-bg);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  overscroll-behavior-y: none;
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+input,
+textarea,
+pre,
+code,
+.selectable,
+[data-selectable="true"] {
+  -webkit-user-select: text;
+  user-select: text;
+}
+
+/* Links inherit their context; emphasis is opt-in via .text-link / .table__link
+   so nav rails and table cells never tint on their own. */
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font-family: inherit;
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+  border-radius: var(--radius-xs);
+}
+
+::selection {
+  background: var(--color-fill-strong);
+}
+
+/* Thin, theme-aware scrollbars — default chrome is the loudest thing on a
+   monochrome page. */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--color-hairline-strong) transparent;
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+  border: 3px solid transparent;
+  border-radius: var(--radius-pill);
+  background: var(--color-hairline-strong);
+  background-clip: content-box;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Route-level Suspense placeholder (App.tsx lazy pages) */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 40vh;
+  padding: var(--space-8);
+  color: var(--color-text-muted);
+  font-size: var(--text-base);
+  letter-spacing: var(--tracking-snug);
+}

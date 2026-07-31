@@ -1,0 +1,847 @@
+/**
+ * App shell.
+ *
+ *  Desktop (>= 64rem)  persistent left sidebar + roomy content column.
+ *  PWA / phone         fixed top bar (identity + page + primary action) and a
+ *                      fixed bottom tab bar (the pages you actually switch
+ *                      between), both safe-area aware.
+ *
+ * Token-only (D16).
+ */
+
+/*
+ * Off-screen until focused. A keyboard user should not have to tab through the
+ * whole rail and tab strip on every page just to reach the content.
+ */
+.skip-link {
+  position: fixed;
+  top: var(--space-2);
+  left: var(--space-2);
+  z-index: var(--z-toast);
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-pill);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-size: var(--text-base);
+  font-weight: var(--weight-semibold);
+  transform: translateY(-200%);
+  transition: transform var(--duration-fast) var(--ease-out-quint);
+}
+
+/* Plain :focus, not :focus-visible — a skip link that only appears under the
+   browser's keyboard heuristic is a skip link that sometimes is not there. */
+.skip-link:focus {
+  transform: translateY(0);
+}
+
+#main-content:focus {
+  outline: none;
+}
+
+.app-shell {
+  --rail-width: var(--sidebar-width);
+
+  display: grid;
+  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  min-height: 100dvh;
+  background: var(--color-bg);
+  color: var(--color-text-primary);
+  overscroll-behavior: none;
+}
+
+/* One variable drives the whole layout, so the rail and the content column can
+   never disagree about how wide the rail currently is. */
+.app-shell[data-rail="collapsed"] {
+  --rail-width: var(--sidebar-width-collapsed);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .app-shell {
+    transition: grid-template-columns var(--duration-base)
+      var(--ease-out-quint);
+  }
+}
+
+/* ───────────────────────────── Sidebar (desktop) ────────────────────────── */
+
+.sidebar {
+  position: sticky;
+  top: 0;
+  align-self: start;
+  height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+  padding: var(--space-5) var(--space-3);
+  padding-top: calc(var(--space-5) + var(--safe-top));
+  padding-bottom: calc(var(--space-4) + var(--safe-bottom));
+  padding-left: calc(var(--space-3) + var(--safe-left));
+  border-right: var(--hairline-w) solid var(--color-hairline);
+  background: var(--color-side);
+  overflow-y: auto;
+  scrollbar-width: thin;
+}
+
+.sidebar__logo {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  padding: 0 var(--space-2);
+  font-family: var(--font-family-display);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+.sidebar__logo-mark {
+  width: var(--space-7);
+  height: var(--space-7);
+  flex-shrink: 0;
+  border-radius: var(--radius-s);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  display: grid;
+  place-items: center;
+}
+
+.sidebar__logo-mark svg {
+  width: 1rem;
+  height: 1rem;
+  display: block;
+}
+
+.sidebar__nav {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.sidebar__group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-0-5);
+}
+
+.sidebar__group-label {
+  padding: 0 var(--space-3) var(--space-1);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  color: var(--color-text-muted);
+}
+
+.sidebar__link {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control-height-lg);
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-s);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+  transition:
+    background-color var(--duration-fast) var(--ease-out-quint),
+    color var(--duration-fast) var(--ease-out-quint);
+}
+
+.sidebar__link svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+  flex-shrink: 0;
+  opacity: 0.75;
+}
+
+.sidebar__link-label {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__link:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill);
+}
+
+.sidebar__link--active {
+  color: var(--color-text-primary);
+  background: var(--color-fill-strong);
+  font-weight: var(--weight-semibold);
+}
+
+/* A short bar on the leading edge. The fill alone reads as "hovered" at a
+   glance; the bar is the only mark that means "you are here". */
+.sidebar__link--active::before {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: 3px;
+  height: 1.125rem;
+  content: "";
+  background: var(--color-accent);
+  border-radius: var(--radius-pill);
+  transform: translateY(-50%);
+}
+
+.sidebar__link--active svg {
+  opacity: 1;
+}
+
+.sidebar__badge {
+  margin-left: auto;
+  display: inline-flex;
+  align-items: center;
+  padding: 0 var(--space-2);
+  min-height: 1.25rem;
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-xs);
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+}
+
+.sidebar__foot {
+  margin-top: auto;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding-top: var(--space-4);
+  border-top: var(--hairline-w) solid var(--color-hairline);
+}
+
+.sidebar__collapse {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--control-height);
+  padding: 0 var(--space-3);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-s);
+  cursor: pointer;
+}
+
+.sidebar__collapse:hover {
+  color: var(--color-text-primary);
+  background: var(--color-fill);
+}
+
+.sidebar__collapse-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.0625rem;
+}
+
+.sidebar__collapse-icon svg {
+  width: 1rem;
+  height: 1rem;
+
+  /* The glyph points right; pointing it at the edge it will move toward is
+     the whole affordance. */
+  transform: rotate(180deg);
+  transition: transform var(--duration-base) var(--ease-out-quint);
+}
+
+/* Live status readout — dot + two quiet lines, never a paragraph. */
+.sidebar__status {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: var(--space-1) var(--space-2);
+  padding: 0 var(--space-2);
+  font-size: var(--text-xs);
+  line-height: var(--leading-snug);
+  color: var(--color-text-muted);
+}
+
+.sidebar__status > span:nth-child(2) {
+  color: var(--color-text-secondary);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__status-compute {
+  grid-column: 2;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__live-dot {
+  width: 0.4375rem;
+  height: 0.4375rem;
+  border-radius: var(--radius-pill);
+  background: var(--color-text-muted);
+  flex-shrink: 0;
+}
+
+.sidebar__live-dot--ok {
+  background: var(--color-positive);
+}
+
+.sidebar__live-dot--warn {
+  background: var(--color-warning);
+}
+
+.sidebar__live-dot--muted {
+  background: var(--color-text-muted);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sidebar__live-dot--ok {
+    animation: shell-pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes shell-pulse {
+    50% {
+      opacity: 0.3;
+    }
+  }
+}
+
+/* ──────────────────────────── Content column ───────────────────────────── */
+
+.main {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.main__inner {
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding: var(--space-8) var(--space-8) var(--space-12);
+  padding-right: calc(var(--space-8) + var(--safe-right));
+  min-width: 0;
+}
+
+/*
+ * One bar element, two jobs.
+ *   Desktop  a slim sticky strip over the content column, actions right.
+ *   Phone    the fixed PWA top bar: identity left, actions right.
+ * Rendering it once (rather than one bar per breakpoint) keeps a single theme
+ * control in the accessibility tree.
+ */
+.shell-bar {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--topbar-height);
+  padding: var(--space-2) var(--space-8);
+  padding-right: calc(var(--space-8) + var(--safe-right));
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-bottom: var(--hairline-w) solid var(--color-hairline);
+}
+
+/* The page's section tabs live here, portalled up from the page body. Empty on
+   pages without sections — the bar simply collapses to its brand + actions. */
+.shell-bar__tabs {
+  display: flex;
+  align-items: center;
+  min-width: 0;
+  flex: 1 1 auto;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+
+.shell-bar__tabs::-webkit-scrollbar {
+  display: none;
+}
+
+.shell-bar__tabs:empty {
+  flex: 1 1 auto;
+}
+
+/* The wordmark already lives in the sidebar on desktop. */
+.shell-bar__brand {
+  display: none;
+  align-items: center;
+  gap: var(--space-2);
+  font-family: var(--font-family-display);
+  font-size: var(--text-base);
+  font-weight: var(--weight-bold);
+  letter-spacing: var(--tracking-tight);
+  color: var(--color-text-primary);
+}
+
+.shell-bar__mark {
+  width: var(--space-7);
+  height: var(--space-7);
+  flex-shrink: 0;
+  border-radius: var(--radius-s);
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  display: grid;
+  place-items: center;
+}
+
+.shell-bar__mark svg {
+  width: 0.9375rem;
+  height: 0.9375rem;
+  display: block;
+}
+
+.shell-bar__actions {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  flex-shrink: 0;
+}
+
+/* Icon-only round control used in the top bar. */
+.icon-btn {
+  appearance: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--touch-min);
+  height: var(--touch-min);
+  padding: 0;
+  border: 0;
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-secondary);
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out-quint),
+    color var(--duration-fast) var(--ease-out-quint);
+}
+
+.icon-btn:hover,
+.icon-btn[aria-expanded="true"] {
+  background: var(--color-fill);
+  color: var(--color-text-primary);
+}
+
+.icon-btn svg {
+  width: 1.125rem;
+  height: 1.125rem;
+  display: block;
+}
+
+/* ──────────────────────── Mobile bottom tab bar (PWA) ──────────────────── */
+
+.bottom-nav {
+  display: none;
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--z-nav);
+  height: calc(var(--bottomnav-height) + var(--safe-bottom));
+  padding-bottom: var(--safe-bottom);
+  padding-left: var(--safe-left);
+  padding-right: var(--safe-right);
+  background: var(--glass-bg);
+  backdrop-filter: blur(var(--glass-blur));
+  -webkit-backdrop-filter: blur(var(--glass-blur));
+  border-top: var(--hairline-w) solid var(--color-hairline);
+}
+
+.bottom-nav__link {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  color: var(--color-text-muted);
+  font-size: var(--text-xs);
+  font-weight: var(--weight-medium);
+  letter-spacing: var(--tracking-snug);
+  transition: color var(--duration-fast) var(--ease-out-quint);
+
+  /* Two of the six items are <button>, which otherwise keep the browser's
+     own grey fill and read as permanently selected next to the links. */
+  background: none;
+  border: 0;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.bottom-nav__link span:last-child {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.bottom-nav__link--active {
+  color: var(--color-text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.bottom-nav__icon {
+  display: grid;
+  place-items: center;
+  width: 1.5rem;
+  height: 1.5rem;
+}
+
+.bottom-nav__icon svg {
+  width: 1.25rem;
+  height: 1.25rem;
+  display: block;
+}
+
+/* Active tab gets a solid pill behind the glyph — reads instantly at a glance. */
+.bottom-nav__link--active .bottom-nav__icon {
+  background: var(--color-fill-strong);
+  border-radius: var(--radius-s);
+}
+
+/* ───────────────────────── "更多" overflow panel ────────────────────────── */
+
+.sheet-scrim {
+  position: fixed;
+  inset: 0;
+  z-index: var(--z-overlay);
+  background: var(--color-scrim);
+  border: 0;
+  padding: 0;
+  cursor: pointer;
+}
+
+/*
+ * Frameless by design: no boxed rows, no selected-state fill. The panel is a
+ * quiet list, not a second navigation surface competing with the tab bar.
+ */
+.sheet {
+  position: fixed;
+  inset: auto 0 0;
+  z-index: var(--z-modal);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  padding: var(--space-3) var(--space-4)
+    calc(var(--space-5) + var(--safe-bottom));
+  padding-left: calc(var(--space-4) + var(--safe-left));
+  padding-right: calc(var(--space-4) + var(--safe-right));
+  border-top: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-xl) var(--radius-xl) 0 0;
+  background: var(--color-bg-elevated);
+  box-shadow: var(--shadow-2);
+}
+
+.sheet__grip {
+  width: 2.25rem;
+  height: 0.25rem;
+  margin: 0 auto var(--space-1);
+  border-radius: var(--radius-pill);
+  background: var(--color-hairline-strong);
+}
+
+.sheet__nav {
+  display: flex;
+  flex-direction: column;
+}
+
+.sheet__link {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  min-height: var(--touch-min);
+  color: var(--color-text-secondary);
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+}
+
+.sheet__link svg {
+  width: 1.0625rem;
+  height: 1.0625rem;
+  opacity: 0.7;
+}
+
+/* Current page is marked by weight + ink only — no pill, no fill. */
+.sheet__link--active {
+  color: var(--color-text-primary);
+  font-weight: var(--weight-semibold);
+}
+
+.sheet__link--active svg {
+  opacity: 1;
+}
+
+.sheet__row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+  min-height: var(--touch-min);
+  padding-top: var(--space-2);
+  border-top: var(--hairline-w) solid var(--color-hairline);
+}
+
+.sheet__row-label {
+  font-size: var(--text-base);
+  font-weight: var(--weight-medium);
+  color: var(--color-text-secondary);
+}
+
+/* On desktop the panel is a right-anchored menu, not a bottom sheet. */
+@media (min-width: 64.0625rem) {
+  .sheet {
+    inset: calc(var(--topbar-height) + var(--space-2)) var(--space-6) auto auto;
+    width: 18rem;
+    border: var(--hairline-w) solid var(--color-hairline);
+    border-radius: var(--radius-l);
+  }
+
+  .sheet__grip {
+    display: none;
+  }
+}
+
+/* Rising from the bottom only makes sense for the phone sheet; the desktop
+   menu is anchored to its trigger, so it fades down a few pixels instead. */
+@media (prefers-reduced-motion: no-preference) {
+  .sheet {
+    animation: sheet-rise var(--duration-base) var(--ease-out-quint);
+  }
+
+  @keyframes sheet-rise {
+    from {
+      transform: translateY(100%);
+    }
+  }
+
+  @media (min-width: 64.0625rem) {
+    .sheet {
+      animation: sheet-drop var(--duration-fast) var(--ease-out-quint);
+      transform-origin: top right;
+    }
+
+    @keyframes sheet-drop {
+      from {
+        opacity: 0;
+        transform: translateY(-6px) scale(0.98);
+      }
+    }
+  }
+}
+
+/* ───────────────────────────── Stub page ───────────────────────────────── */
+
+.stub-panel {
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-l);
+  background: var(--color-surface);
+  padding: var(--space-6);
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  max-width: 40rem;
+}
+
+.stub-panel__kicker {
+  margin: 0;
+  font-size: var(--text-xs);
+  font-weight: var(--weight-semibold);
+  letter-spacing: var(--tracking-wide);
+  text-transform: uppercase;
+  color: var(--color-text-muted);
+}
+
+.stub-panel__body {
+  margin: 0;
+  font-size: var(--text-md);
+  color: var(--color-text-secondary);
+}
+
+.stub-panel__meta {
+  margin: 0;
+  font-family: var(--font-family-mono);
+  font-size: var(--text-sm);
+  color: var(--color-text-muted);
+}
+
+/* ──────────────────────────── Responsive switch ────────────────────────── */
+
+@media (max-width: 64rem) {
+  .app-shell {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .sidebar {
+    display: none;
+  }
+
+  /*
+   * Phone top bar: one single row — logo mark, then the page's section tabs
+   * scrolling beside it. The wordmark is dropped so the tabs get the width.
+   * Sticky rather than fixed, so a page with no tabs just gets a shorter bar
+   * instead of a hardcoded padding gap under it.
+   */
+  .shell-bar {
+    gap: var(--space-3);
+    padding: calc(var(--space-2) + var(--safe-top)) var(--space-4)
+      var(--space-2);
+    padding-left: calc(var(--space-4) + var(--safe-left));
+    padding-right: calc(var(--space-4) + var(--safe-right));
+  }
+
+  .shell-bar__brand {
+    display: flex;
+    flex-shrink: 0;
+  }
+
+  .shell-bar__wordmark {
+    display: none;
+  }
+
+  /* 更多 already has a permanent home in the tab bar down below. */
+  .shell-bar__more {
+    display: none;
+  }
+
+  .bottom-nav {
+    display: flex;
+  }
+
+  .main__inner {
+    padding: var(--space-5) var(--space-4)
+      calc(var(--bottomnav-height) + var(--safe-bottom) + var(--space-6));
+    padding-left: calc(var(--space-4) + var(--safe-left));
+    padding-right: calc(var(--space-4) + var(--safe-right));
+  }
+}
+
+@media (max-width: 26rem) {
+  .theme-switch__btn {
+    padding: 0 var(--space-2);
+  }
+}
+
+/* ───────────────────── Collapsed rail (desktop only) ───────────────────── */
+
+.sidebar[data-collapsed="true"] .sidebar__wordmark,
+.sidebar[data-collapsed="true"] .sidebar__group-label,
+.sidebar[data-collapsed="true"] .sidebar__badge,
+.sidebar[data-collapsed="true"] .sidebar__status > span:nth-child(2),
+.sidebar[data-collapsed="true"] .sidebar__status-compute {
+  display: none;
+}
+
+.sidebar[data-collapsed="true"] {
+  padding-right: var(--space-2);
+  padding-left: calc(var(--space-2) + var(--safe-left));
+  overflow: visible;
+}
+
+.sidebar[data-collapsed="true"] .sidebar__logo,
+.sidebar[data-collapsed="true"] .sidebar__link,
+.sidebar[data-collapsed="true"] .sidebar__collapse,
+.sidebar[data-collapsed="true"] .sidebar__status {
+  justify-content: center;
+  padding: 0;
+}
+
+.sidebar[data-collapsed="true"] .sidebar__status {
+  grid-template-columns: auto;
+  justify-items: center;
+}
+
+.sidebar[data-collapsed="true"] .sidebar__collapse-icon svg {
+  transform: rotate(0deg);
+}
+
+/* Each group keeps its separation without the label that named it. */
+.sidebar[data-collapsed="true"] .sidebar__group + .sidebar__group {
+  padding-top: var(--space-3);
+  border-top: var(--hairline-w) solid var(--color-hairline);
+}
+
+/*
+ * The label does not disappear in the rail — it moves. Hover or keyboard focus
+ * floats it out beside the icon, so a collapsed rail never becomes a test of
+ * whether you remember which glyph is 回測.
+ */
+.sidebar[data-collapsed="true"] .sidebar__link-label {
+  position: absolute;
+  top: 50%;
+  left: calc(100% + var(--space-2));
+  z-index: var(--z-pop);
+  display: block;
+  padding: var(--space-1) var(--space-3);
+  font-size: var(--text-sm);
+  color: var(--color-text-primary);
+  pointer-events: none;
+  background: var(--color-tooltip-bg);
+  border-radius: var(--radius-s);
+  box-shadow: var(--shadow-2);
+  opacity: 0;
+  transform: translateY(-50%);
+  transition: opacity var(--duration-fast) var(--ease-out-quint);
+}
+
+.sidebar[data-collapsed="true"] .sidebar__link:hover .sidebar__link-label,
+.sidebar[data-collapsed="true"]
+  .sidebar__link:focus-visible
+  .sidebar__link-label,
+.sidebar[data-collapsed="true"] .sidebar__collapse {
+  position: relative;
+}
+
+.sidebar[data-collapsed="true"] .sidebar__link:hover .sidebar__link-label,
+.sidebar[data-collapsed="true"]
+  .sidebar__link:focus-visible
+  .sidebar__link-label,
+.sidebar[data-collapsed="true"]
+  .sidebar__collapse:hover
+  .sidebar__link-label {
+  opacity: 1;
+}
+
+/* ──────────────────────────── Theme switch ─────────────────────────────── */
+
+.theme-switch {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-0-5);
+  padding: 3px;
+  border: var(--hairline-w) solid var(--color-hairline);
+  border-radius: var(--radius-pill);
+  background: var(--color-fill);
+}
+
+.theme-switch__btn {
+  appearance: none;
+  min-height: var(--control-height);
+  border: 0;
+  padding: 0 var(--space-3);
+  border-radius: var(--radius-pill);
+  background: transparent;
+  color: var(--color-text-secondary);
+  font-family: inherit;
+  font-size: var(--text-sm);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+  cursor: pointer;
+  transition:
+    background-color var(--duration-fast) var(--ease-out-quint),
+    color var(--duration-fast) var(--ease-out-quint);
+}
+
+.theme-switch__btn:hover:not(.theme-switch__btn--active) {
+  color: var(--color-text-primary);
+}
+
+.theme-switch__btn--active {
+  background: var(--color-accent);
+  color: var(--color-on-accent);
+  font-weight: var(--weight-semibold);
+}
