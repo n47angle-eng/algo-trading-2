@@ -2068,6 +2068,30 @@ export function fetchPaperTraderChart(
   );
 }
 
+/** Position + markers + conditions + teaching for the trade lesson panel. */
+export function fetchPaperTradeLesson(
+  traderId: string,
+  barLimit = 500,
+  signal?: AbortSignal,
+): Promise<PaperHttpResult> {
+  if (!isSafePaperTraderId(traderId)) {
+    throw new PaperTransportError(
+      "/api/v1/paper/traders/{trader_id}/trade-lesson",
+      "GET",
+      new Error("invalid_trader_id"),
+    );
+  }
+  const params = new URLSearchParams({
+    bar_limit: String(barLimit),
+  });
+  return paperRequest(
+    `/api/v1/paper/traders/${encodeURIComponent(traderId)}/trade-lesson?${params}`,
+    "GET",
+    undefined,
+    signal,
+  );
+}
+
 export function postPaperRuntimeReplay(
   traderId: string,
   body: { use_demo_bars?: boolean; bars?: unknown[]; mode?: string },

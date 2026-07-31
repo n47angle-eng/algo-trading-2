@@ -227,15 +227,23 @@ export function DaytradeTraderPage() {
         </div>
       </section>
 
-      {/* Always-visible market + equity charts */}
-      <section className="daytrade-page__panel daytrade-page__panel--charts">
-        <DaytradeMarketChart
-          data={market}
-          loading={chartLoading}
-          error={chartError}
-        />
-        <DaytradeEquityChart data={equity} loading={chartLoading} />
-      </section>
+      {/*
+        Desktop splits this page in two: price on the left, whichever tab you
+        picked on the right. Stacked, reading the scorecard meant scrolling the
+        chart off screen — and the chart is the thing every other panel is
+        talking about. Below 80rem it falls back to one column.
+      */}
+      <div className="trader-split">
+        <section className="daytrade-page__panel daytrade-page__panel--charts trader-split__charts">
+          <DaytradeMarketChart
+            data={market}
+            loading={chartLoading}
+            error={chartError}
+          />
+          <DaytradeEquityChart data={equity} loading={chartLoading} />
+        </section>
+
+        <div className="trader-split__detail">
 
       <PageTabsPortal>
         <nav className="daytrade-page__tabs" aria-label="交易員分頁">
@@ -550,6 +558,8 @@ export function DaytradeTraderPage() {
           </div>
         </section>
       ) : null}
+        </div>
+      </div>
     </div>
   );
 }

@@ -106,6 +106,9 @@ export function hardReload(locationLike: Location = window.location): void {
   try {
     locationLike.reload();
   } catch {
-    locationLike.href = locationLike.href;
+    // `href = href` also navigates, but reads as a no-op and linters flag it.
+    // replace() is the documented form and keeps the back-stack clean, which
+    // is what the comment above already promises.
+    locationLike.replace(locationLike.href);
   }
 }

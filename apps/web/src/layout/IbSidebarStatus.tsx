@@ -48,9 +48,12 @@ export function IbSidebarStatus() {
         className={`sidebar__live-dot sidebar__live-dot--${tone}`}
         aria-hidden="true"
       />
-      <span>
+      <span className="sidebar__status-full">
         IB · {endpoint} · {short}
       </span>
+      {/* The rail keeps the one word that matters. A bare dot said nothing
+          about whether the connection was fine, missing or unconfigured. */}
+      <span className="sidebar__status-short">{short}</span>
       <span
         className="sidebar__status-compute"
         data-testid="sidebar-compute-tip"

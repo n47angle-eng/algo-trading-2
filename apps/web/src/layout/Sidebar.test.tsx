@@ -11,12 +11,27 @@ import {
   writeSidebarCollapsed,
 } from "./sidebarState";
 
-function renderSidebar(collapsed: boolean, onToggle = () => undefined) {
-  return render(
+function sidebar(
+  collapsed: boolean,
+  onToggle: () => void = () => undefined,
+  peeking = false,
+) {
+  return (
     <MemoryRouter>
-      <Sidebar collapsed={collapsed} onToggle={onToggle} />
-    </MemoryRouter>,
+      <Sidebar
+        collapsed={collapsed}
+        expandedNow={!collapsed || peeking}
+        peeking={peeking}
+        onToggle={onToggle}
+        onPointerEnter={() => undefined}
+        onPointerLeave={() => undefined}
+      />
+    </MemoryRouter>
   );
+}
+
+function renderSidebar(collapsed: boolean, onToggle?: () => void) {
+  return render(sidebar(collapsed, onToggle));
 }
 
 describe("sidebar collapse preference", () => {
@@ -91,7 +106,8 @@ describe("Sidebar", () => {
     renderSidebar(true);
     const nav = screen.getByRole("navigation", { name: "頁面" });
 
-    // The label is moved to a hover flyout by CSS, not removed from the tree.
+    // CSS hides the label in the rail; it stays in the tree, and hovering
+    // the rail brings the whole menu back.
     for (const item of NAV_ITEMS) {
       expect(
         within(nav).getByRole("link", { name: new RegExp(item.label) }),
@@ -102,18 +118,14 @@ describe("Sidebar", () => {
   it("marks its state on the element the layout reads", () => {
     const { rerender } = renderSidebar(false);
     expect(screen.getByRole("complementary", { name: "主選單" })).toHaveAttribute(
-      "data-collapsed",
-      "false",
+      "data-rail",
+      "expanded",
     );
 
-    rerender(
-      <MemoryRouter>
-        <Sidebar collapsed onToggle={() => undefined} />
-      </MemoryRouter>,
-    );
+    rerender(sidebar(true));
     expect(screen.getByRole("complementary", { name: "主選單" })).toHaveAttribute(
-      "data-collapsed",
-      "true",
+      "data-rail",
+      "collapsed",
     );
   });
 
@@ -125,17 +137,13 @@ describe("Sidebar", () => {
     await user.click(screen.getByRole("button", { name: "收埋側欄" }));
     expect(onToggle).toHaveBeenCalledTimes(1);
 
-    rerender(
-      <MemoryRouter>
-        <Sidebar collapsed onToggle={onToggle} />
-      </MemoryRouter>,
-    );
+    rerender(sidebar(true, onToggle));
     const button = screen.getByRole("button", { name: "展開側欄" });
     expect(
       screen.queryByRole("button", { name: "收埋側欄" }),
     ).not.toBeInTheDocument();
-    // The accessible name and the visible flyout are two different strings in
-    // the DOM; asserting only the first let a hardcoded label slip through.
+    // The accessible name and the visible caption are two different strings
+    // in the DOM; asserting only the first let a hardcoded label slip through.
     expect(within(button).getByText("展開側欄")).toBeInTheDocument();
     expect(within(button).queryByText("收埋側欄")).not.toBeInTheDocument();
   });

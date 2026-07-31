@@ -147,3 +147,51 @@ def test_health_still_ok() -> None:
     response = client.get("/health")
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
+
+
+def test_trade_lesson_route_empty_position(runtime_store: PaperRuntimeStore) -> None:
+    trader_id, _fingerprint, _version = _seed_trader(runtime_store)
+    client = TestClient(app)
+    response = client.get(f"/api/v1/paper/traders/{trader_id}/trade-lesson")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["schema"] == "paper_trade_lesson.v1"
+    assert body["trader_id"] == trader_id
+    assert body["selection"]["contract_id"] == "NQ-202609-CME"
+    assert body["open_position"] is None
+    assert isinstance(body["bars"], list)
+    assert isinstance(body["markers"], list)
+    assert isinstance(body["conditions"], list)
+    assert isinstance(body["fills"], list)
+    assert isinstance(body["trades"], list)
+    assert body["teaching"]["headline"]
+    assert body["teaching"]["tips"]
+    assert body["replay"]["supported"] is True
+    assert body["counts"]["bar_count"] == len(body["bars"])
+
+
+def test_trade_lesson_route_after_demo_replay(
+    runtime_store: PaperRuntimeStore,
+) -> None:
+    trader_id, fingerprint, version = _seed_trader(runtime_store)
+    client = TestClient(app)
+    start = client.post(
+        f"/api/v1/paper/traders/{trader_id}/runtime/start",
+        json={
+            "request_id": str(uuid4()),
+            "expected_lifecycle_version": version,
+            "selection_fingerprint": fingerprint,
+        },
+    )
+    assert start.status_code == 200, start.text
+    replay = client.post(
+        f"/api/v1/paper/traders/{trader_id}/runtime/replay",
+        json={"use_demo_bars": True, "mode": "replay_test"},
+    )
+    assert replay.status_code == 200, replay.text
+    response = client.get(f"/api/v1/paper/traders/{trader_id}/trade-lesson")
+    assert response.status_code == 200, response.text
+    body = response.json()
+    assert body["schema"] == "paper_trade_lesson.v1"
+    assert body["counts"]["bar_count"] >= 1 or body["counts"]["fill_count"] >= 0
+    assert any(tip["id"] for tip in body["teaching"]["tips"])

@@ -12,6 +12,7 @@ import { ShellBar } from "./ShellBar";
 import { Sidebar } from "./Sidebar";
 import { readSidebarCollapsed, writeSidebarCollapsed } from "./sidebarState";
 import { TradersSheet } from "./TradersSheet";
+import { useRailAutoCollapse } from "./useRailAutoCollapse";
 
 /**
  * Shell layout.
@@ -28,15 +29,7 @@ export function AppShell() {
   const [tabSlot, setTabSlot] = useState<HTMLDivElement | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [tradersOpen, setTradersOpen] = useState(false);
-  const [railCollapsed, setRailCollapsed] = useState(readSidebarCollapsed);
-
-  const toggleRail = useCallback(() => {
-    setRailCollapsed((prev) => {
-      const next = !prev;
-      writeSidebarCollapsed(next);
-      return next;
-    });
-  }, []);
+  const rail = useRailAutoCollapse(readSidebarCollapsed(), writeSidebarCollapsed);
 
   const closeMore = useCallback(() => {
     setMoreOpen(false);
@@ -61,15 +54,25 @@ export function AppShell() {
   return (
     <ToastProvider>
       <RouteMeta />
+      {/* The grid column follows the *stored* choice, never the hover — a page
+          that reflows under the cursor every time you brush the rail is worse
+          than no rail at all. Peeking overlays instead. */}
       <div
         className="app-shell"
-        data-rail={railCollapsed ? "collapsed" : "expanded"}
+        data-rail={rail.collapsed ? "collapsed" : "expanded"}
       >
         {/* First tab stop on every page: jump the rail and the bar. */}
         <a className="skip-link" href="#main-content">
           跳去主要內容
         </a>
-        <Sidebar collapsed={railCollapsed} onToggle={toggleRail} />
+        <Sidebar
+          collapsed={rail.collapsed}
+          expandedNow={rail.expandedNow}
+          peeking={rail.peeking}
+          onToggle={rail.toggle}
+          onPointerEnter={rail.onPointerEnter}
+          onPointerLeave={rail.onPointerLeave}
+        />
         <main className="main">
           <ShellBar
             tabSlotRef={setTabSlot}

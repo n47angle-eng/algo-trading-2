@@ -422,6 +422,9 @@ input[type="datetime-local"],
 input[type="password"],
 input[type="email"],
 input[type="url"],
+/* `<input>` with no type attribute is a text field too — without this it fell
+   through to the UA style and sat next to its siblings with square corners. */
+input:not([type]),
 select,
 textarea {
   appearance: none;

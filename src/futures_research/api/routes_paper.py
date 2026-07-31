@@ -1242,6 +1242,44 @@ def get_paper_trader_chart(
     return runtime_chart(trader_id, after_cursor=after_cursor, limit=limit)
 
 
+@router.get("/traders/{trader_id}/trade-lesson")
+def get_paper_trade_lesson(
+    trader_id: Annotated[str, Path(pattern=_CANONICAL_TRADER_ID)],
+    request: Request,
+    bar_limit: Annotated[int, Query(ge=1, le=2000)] = 500,
+) -> dict:
+    """Position + chart markers + fill conditions + teaching for Owner UI."""
+    from futures_research.api.paper_runtime_manager import runtime_chart
+    from futures_research.api.paper_runtime_service import (
+        PaperRuntimeServiceError,
+        runtime_trade_lesson,
+    )
+
+    try:
+        store = _runtime_store(request, create=False)
+    except FileNotFoundError as exc:
+        raise _runtime_http_error(
+            PaperRuntimeServiceError(
+                "trader_not_found", f"paper trader not found: {trader_id}"
+            )
+        ) from exc
+    chart_payload = runtime_chart(trader_id, after_cursor=0, limit=bar_limit)
+    chart_bars = []
+    if isinstance(chart_payload, dict) and isinstance(chart_payload.get("bars"), list):
+        chart_bars = chart_payload["bars"]
+    try:
+        return runtime_trade_lesson(
+            store,
+            trader_id,
+            chart_bars=chart_bars,
+            bar_limit=bar_limit,
+        )
+    except PaperRuntimeServiceError as exc:
+        raise _runtime_http_error(exc) from exc
+    except (OSError, sqlite3.Error) as exc:
+        raise _runtime_http_error(exc) from exc
+
+
 @router.post("/traders/{trader_id}/review-v2")
 def post_paper_review_v2(
     trader_id: Annotated[str, Path(pattern=_CANONICAL_TRADER_ID)],

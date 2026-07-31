@@ -5,6 +5,7 @@ import {
   fetchPaperFleetOverview,
   type PaperHttpResult,
 } from "../../api/client";
+import { PaperTradeLessonPanel } from "./PaperTradeLessonPanel";
 
 export interface FleetTraderRow {
   trader_id: string;
@@ -70,6 +71,11 @@ export function PaperFleetBoard({
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+  const [lessonTraderId, setLessonTraderId] = useState<string | null>(null);
+  const [lessonOrigin, setLessonOrigin] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const dataRef = useRef<FleetOverview | null>(null);
   dataRef.current = data;
 
@@ -287,7 +293,23 @@ export function PaperFleetBoard({
                 </span>
               </div>
               <p className="paper-trader-card__line">
-                入市情況：{positionLabel(row.position_quantity)}
+                入市情況：
+                <button
+                  type="button"
+                  className={
+                    row.position_quantity
+                      ? "paper-position-hit paper-position-hit--open"
+                      : "paper-position-hit"
+                  }
+                  title="查看倉位、走勢標記、成交條件同教學重播"
+                  onClick={(event) => {
+                    setLessonOrigin({ x: event.clientX, y: event.clientY });
+                    setLessonTraderId(row.trader_id);
+                  }}
+                >
+                  {positionLabel(row.position_quantity)}
+                  <span className="paper-position-hit__cue"> · 點擊詳情</span>
+                </button>
                 {row.pending_intent_count
                   ? ` · 待成交意圖 ${row.pending_intent_count}`
                   : ""}
@@ -316,19 +338,43 @@ export function PaperFleetBoard({
               <p className="paper-trader-card__line paper-trader-card__muted">
                 對照基準：{row.baseline_run_id ?? "—"}
               </p>
-              <button
-                type="button"
-                className="paper-button paper-button--primary"
-                onClick={() => {
-                  onOpenTrader(row.trader_id);
-                }}
-              >
-                打開詳情 · 開始／暫停／匯出
-              </button>
+              <div className="paper-trader-card__actions">
+                <button
+                  type="button"
+                  className="paper-button"
+                  onClick={(event) => {
+                    setLessonOrigin({ x: event.clientX, y: event.clientY });
+                    setLessonTraderId(row.trader_id);
+                  }}
+                >
+                  倉位 · 教學 · 重播
+                </button>
+                <button
+                  type="button"
+                  className="paper-button paper-button--primary"
+                  onClick={() => {
+                    onOpenTrader(row.trader_id);
+                  }}
+                >
+                  打開詳情 · 開始／暫停／匯出
+                </button>
+              </div>
             </li>
           ))}
         </ul>
       )}
+
+      {lessonTraderId ? (
+        <PaperTradeLessonPanel
+          traderId={lessonTraderId}
+          open
+          origin={lessonOrigin}
+          onClose={() => {
+            setLessonTraderId(null);
+            setLessonOrigin(null);
+          }}
+        />
+      ) : null}
     </div>
   );
 }

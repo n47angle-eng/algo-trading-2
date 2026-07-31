@@ -39,20 +39,23 @@
 }
 
 .app-shell {
-  --rail-width: var(--sidebar-width);
-
   display: grid;
-  grid-template-columns: var(--rail-width) minmax(0, 1fr);
+  grid-template-columns: var(--sidebar-width) minmax(0, 1fr);
   min-height: 100dvh;
   background: var(--color-bg);
   color: var(--color-text-primary);
   overscroll-behavior: none;
 }
 
-/* One variable drives the whole layout, so the rail and the content column can
-   never disagree about how wide the rail currently is. */
+/*
+ * Both states declare `grid-template-columns` outright rather than swapping a
+ * custom property inside one declaration. Routing it through a variable left
+ * the transition with nothing to interpolate between, and the column simply
+ * stayed at its old width — the rail reported "collapsed" while still
+ * occupying 232px.
+ */
 .app-shell[data-rail="collapsed"] {
-  --rail-width: var(--sidebar-width-collapsed);
+  grid-template-columns: var(--sidebar-width-collapsed) minmax(0, 1fr);
 }
 
 @media (prefers-reduced-motion: no-preference) {
@@ -67,6 +70,7 @@
 .sidebar {
   position: sticky;
   top: 0;
+  width: 100%;
   align-self: start;
   height: 100dvh;
   display: flex;
@@ -92,6 +96,7 @@
   font-weight: var(--weight-bold);
   letter-spacing: var(--tracking-tight);
   color: var(--color-text-primary);
+  white-space: nowrap;
 }
 
 .sidebar__logo-mark {
@@ -153,6 +158,16 @@
   height: 1.0625rem;
   flex-shrink: 0;
   opacity: 0.75;
+}
+
+/* A fixed box round the glyph, so the icon column lines up whether the row is
+   full width or a centred square in the rail. */
+.sidebar__link-icon {
+  display: grid;
+  flex-shrink: 0;
+  place-items: center;
+  width: 1.0625rem;
+  height: 1.0625rem;
 }
 
 .sidebar__link-label {
@@ -237,6 +252,17 @@
   flex-shrink: 0;
   place-items: center;
   width: 1.0625rem;
+}
+
+.sidebar__collapse-label,
+.sidebar__collapse-short {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.sidebar__collapse-short {
+  font-size: var(--text-xs);
 }
 
 .sidebar__collapse-icon svg {
@@ -728,120 +754,102 @@
 
 /* ───────────────────── Collapsed rail (desktop only) ───────────────────── */
 
-.sidebar[data-collapsed="true"] .sidebar__wordmark,
-.sidebar[data-collapsed="true"] .sidebar__group-label,
-.sidebar[data-collapsed="true"] .sidebar__badge,
-.sidebar[data-collapsed="true"] .sidebar__status > span:nth-child(2),
-.sidebar[data-collapsed="true"] .sidebar__status-compute {
+/*
+ * `data-rail` is what the rail looks like right now; `data-peek` means it is
+ * collapsed underneath and only expanded because the pointer is on it. The
+ * grid column follows the stored choice, so peeking floats over the content
+ * rather than reflowing the page under the cursor.
+ */
+.sidebar[data-peek="true"] {
+  width: var(--sidebar-width);
+
+  /* Above the sticky top bar, which is painted later in the DOM and was
+     clipping the wordmark off the peeking panel. */
+  z-index: var(--z-overlay);
+  background: var(--color-bg-elevated);
+  border-right-color: var(--color-hairline-strong);
+  box-shadow: var(--shadow-2), var(--shadow-3);
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  .sidebar {
+    transition: width var(--duration-base) var(--ease-out-quint);
+  }
+}
+
+.sidebar[data-rail="collapsed"] .sidebar__wordmark,
+.sidebar[data-rail="collapsed"] .sidebar__group-label,
+.sidebar[data-rail="collapsed"] .sidebar__badge,
+.sidebar[data-rail="collapsed"] .sidebar__link-label,
+.sidebar[data-rail="collapsed"] .sidebar__collapse-label,
+.sidebar[data-rail="collapsed"] .sidebar__status-full,
+.sidebar[data-rail="collapsed"] .sidebar__status-compute {
   display: none;
 }
 
-.sidebar[data-collapsed="true"] {
-  padding-right: var(--space-2);
-  padding-left: calc(var(--space-2) + var(--safe-left));
-  overflow: visible;
+/* The short forms are the rail's only text, so they must not appear twice. */
+.sidebar[data-rail="expanded"] .sidebar__status-short,
+.sidebar[data-rail="expanded"] .sidebar__collapse-short {
+  display: none;
 }
 
-.sidebar[data-collapsed="true"] .sidebar__logo,
-.sidebar[data-collapsed="true"] .sidebar__link,
-.sidebar[data-collapsed="true"] .sidebar__collapse,
-.sidebar[data-collapsed="true"] .sidebar__status {
+.sidebar[data-rail="collapsed"] {
+  gap: var(--space-4);
+  padding-right: var(--space-2);
+  padding-left: calc(var(--space-2) + var(--safe-left));
+}
+
+.sidebar[data-rail="collapsed"] .sidebar__logo {
   justify-content: center;
   padding: 0;
 }
 
-.sidebar[data-collapsed="true"] .sidebar__status {
-  grid-template-columns: auto;
-  justify-items: center;
+/*
+ * A fixed square, centred in the rail. The expanded row's leading accent bar
+ * is dropped here: at 4.25rem there is no room between the bar and the rail
+ * edge, and it collided with both.
+ */
+.sidebar[data-rail="collapsed"] .sidebar__link {
+  width: 2.5rem;
+  min-height: 2.5rem;
+  margin: 0 auto;
+  padding: 0;
+  justify-content: center;
 }
 
-.sidebar[data-collapsed="true"] .sidebar__collapse-icon svg {
-  transform: rotate(0deg);
+.sidebar[data-rail="collapsed"] .sidebar__link--active::before {
+  display: none;
 }
 
 /* Each group keeps its separation without the label that named it. */
-.sidebar[data-collapsed="true"] .sidebar__group + .sidebar__group {
+.sidebar[data-rail="collapsed"] .sidebar__group + .sidebar__group {
   padding-top: var(--space-3);
   border-top: var(--hairline-w) solid var(--color-hairline);
 }
 
-/*
- * The label does not disappear in the rail — it moves. Hover or keyboard focus
- * floats it out beside the icon, so a collapsed rail never becomes a test of
- * whether you remember which glyph is 回測.
- */
-.sidebar[data-collapsed="true"] .sidebar__link-label {
-  position: absolute;
-  top: 50%;
-  left: calc(100% + var(--space-2));
-  z-index: var(--z-pop);
-  display: block;
-  padding: var(--space-1) var(--space-3);
-  font-size: var(--text-sm);
-  color: var(--color-text-primary);
-  pointer-events: none;
-  background: var(--color-tooltip-bg);
-  border-radius: var(--radius-s);
-  box-shadow: var(--shadow-2);
-  opacity: 0;
-  transform: translateY(-50%);
-  transition: opacity var(--duration-fast) var(--ease-out-quint);
+.sidebar[data-rail="collapsed"] .sidebar__status {
+  grid-template-columns: auto;
+  justify-items: center;
+  gap: var(--space-1);
+  padding: 0;
+  text-align: center;
 }
 
-.sidebar[data-collapsed="true"] .sidebar__link:hover .sidebar__link-label,
-.sidebar[data-collapsed="true"]
-  .sidebar__link:focus-visible
-  .sidebar__link-label,
-.sidebar[data-collapsed="true"] .sidebar__collapse {
-  position: relative;
-}
-
-.sidebar[data-collapsed="true"] .sidebar__link:hover .sidebar__link-label,
-.sidebar[data-collapsed="true"]
-  .sidebar__link:focus-visible
-  .sidebar__link-label,
-.sidebar[data-collapsed="true"]
-  .sidebar__collapse:hover
-  .sidebar__link-label {
-  opacity: 1;
-}
-
-/* ──────────────────────────── Theme switch ─────────────────────────────── */
-
-.theme-switch {
-  display: inline-flex;
-  align-items: center;
-  gap: var(--space-0-5);
-  padding: 3px;
-  border: var(--hairline-w) solid var(--color-hairline);
-  border-radius: var(--radius-pill);
-  background: var(--color-fill);
-}
-
-.theme-switch__btn {
-  appearance: none;
-  min-height: var(--control-height);
-  border: 0;
-  padding: 0 var(--space-3);
-  border-radius: var(--radius-pill);
-  background: transparent;
-  color: var(--color-text-secondary);
-  font-family: inherit;
-  font-size: var(--text-sm);
-  font-weight: var(--weight-medium);
+.sidebar[data-rail="collapsed"] .sidebar__status-short {
+  grid-column: 1;
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
   white-space: nowrap;
-  cursor: pointer;
-  transition:
-    background-color var(--duration-fast) var(--ease-out-quint),
-    color var(--duration-fast) var(--ease-out-quint);
 }
 
-.theme-switch__btn:hover:not(.theme-switch__btn--active) {
-  color: var(--color-text-primary);
+.sidebar[data-rail="collapsed"] .sidebar__collapse {
+  flex-direction: column;
+  gap: var(--space-0-5);
+  min-height: 3rem;
+  padding: var(--space-1) 0;
 }
 
-.theme-switch__btn--active {
-  background: var(--color-accent);
-  color: var(--color-on-accent);
-  font-weight: var(--weight-semibold);
+.sidebar[data-collapsed="true"] .sidebar__collapse-icon svg {
+  transform: rotate(0deg);
 }

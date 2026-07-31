@@ -21,6 +21,7 @@ import {
 } from "../../lib/paper/runtimeContract";
 import type { PaperRuntimeSnapshot } from "../../lib/paper/runtimeTypes";
 import { invalidateGetCache } from "../../lib/httpCache";
+import { PaperTradeLessonPanel } from "./PaperTradeLessonPanel";
 
 interface TimelineItem {
   cursor: number;
@@ -62,6 +63,11 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
   const [busy, setBusy] = useState(false);
   const [reviewMsg, setReviewMsg] = useState<string | null>(null);
   const [refreshing, setRefreshing] = useState(false);
+  const [lessonOpen, setLessonOpen] = useState(false);
+  const [lessonOrigin, setLessonOrigin] = useState<{
+    x: number;
+    y: number;
+  } | null>(null);
   const snapRef = useRef<PaperRuntimeSnapshot | null>(null);
   const activityCursorRef = useRef<number>(0);
   const seededActivityRef = useRef(false);
@@ -406,7 +412,28 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
             </div>
             <div>
               <dt>持倉</dt>
-              <dd>{snap.position_quantity}</dd>
+              <dd>
+                <button
+                  type="button"
+                  className={
+                    snap.position_quantity
+                      ? "paper-position-hit paper-position-hit--open"
+                      : "paper-position-hit"
+                  }
+                  title="查看買入品種、止蝕止賺、成交條件同重播"
+                  onClick={(event) => {
+                    setLessonOrigin({ x: event.clientX, y: event.clientY });
+                    setLessonOpen(true);
+                  }}
+                >
+                  {snap.position_quantity === 0
+                    ? "空手"
+                    : snap.position_quantity > 0
+                      ? `好倉 ${snap.position_quantity}`
+                      : `淡倉 ${Math.abs(snap.position_quantity)}`}
+                  <span className="paper-position-hit__cue"> · 點擊詳情</span>
+                </button>
+              </dd>
             </div>
             <div>
               <dt>安全網</dt>
@@ -441,6 +468,9 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
           )}
 
           <h4 className="paper-step">圖表（1 分鐘）</h4>
+          <p className="paper-hint">
+            想睇買入／止蝕／止賺標記同重播，撳持倉或下面「倉位 · 教學 · 重播」。
+          </p>
           {bars.length === 0 ? (
             <p className="paper-hint">
               暫時未有行情 bar（開始後餵示範行情或接 Gateway）。
@@ -458,7 +488,7 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
                   </tr>
                 </thead>
                 <tbody>
-                  {bars.map((bar) => (
+                  {bars.slice(-12).map((bar) => (
                     <tr key={bar.cursor}>
                       <td className="table__mono">{bar.event_at}</td>
                       <td className="table__mono">{bar.open}</td>
@@ -473,6 +503,16 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
           )}
 
           <div className="paper-modal__actions">
+            <button
+              type="button"
+              className="paper-button"
+              onClick={(event) => {
+                setLessonOrigin({ x: event.clientX, y: event.clientY });
+                setLessonOpen(true);
+              }}
+            >
+              倉位 · 教學 · 重播
+            </button>
             <button
               type="button"
               className="paper-button paper-button--primary"
@@ -537,6 +577,16 @@ export function PaperRuntimePanel({ traderId }: { traderId: string }) {
         </>
       ) : null}
       {reviewMsg ? <p className="paper-hint">{reviewMsg}</p> : null}
+
+      <PaperTradeLessonPanel
+        traderId={traderId}
+        open={lessonOpen}
+        origin={lessonOrigin}
+        onClose={() => {
+          setLessonOpen(false);
+          setLessonOrigin(null);
+        }}
+      />
     </section>
   );
 }
